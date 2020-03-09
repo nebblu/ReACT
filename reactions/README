@@ -21,7 +21,7 @@ Numerical perturbation theory kernel solvers (1606.02168):
 src/SpericalFunctions.cpp
 
 Real space bispectra in modified gravity (1808.01120): 
-BSPT.cpp
+src/BSPT.cpp
 
 Numerical perturbation theory kernel solver up to 4th order for 1-loop bispectrum (1808.01120):
 src/BSPTN.cpp

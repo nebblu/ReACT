@@ -1,0 +1,8 @@
+The documentation for Copter is still a work in progress.  For now the
+following documents exist:
+ - cosmologies.txt
+        an explanation of what a Cosmology is to Copter, and how to specify
+        your own
+ - integration.txt
+        a short primer on some of the general-purpose (and easy to use)
+        integration routines implemented in Copter

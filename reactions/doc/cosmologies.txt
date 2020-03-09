@@ -1,0 +1,20 @@
+In general, Copter is concerned with the growth of structure in the universe at
+late times.  For this purpose, the details of the early universe physics are
+largely irrelevant.  Thus to completely specify a cosmology, only six parameters
+and one function are required:
+    h           - Hubble parameter today (with the convention H_0 = 100h km/s/Mpc)
+    Tcmb        - CMB temperature today (generally taken as 2.726 K)
+    n           - scalar spectral index of density fluctuations
+    Omega_m     - fractional matter density today (including both dark matter and baryons)
+    Omega_b     - fractional baryon density today
+    sigma8      - variance of the linear power spectrum today, smoothed on 8 Mpc/h scales
+    T(k)        - transfer function
+
+The transfer function is typically calculated using an external program such as
+CMBFAST or CAMB (although analytic fitting functions also exist).  This
+function needs to be given in a data file, with the wavenumber k (in h/Mpc) in
+the first column, and the transfer function (with arbitrary normalization) in
+the second column.
+
+Copter reads in cosmology information from .ini files, which are just plaintext
+files with 'name = value' pairs.  See the examples/ directory for an example.

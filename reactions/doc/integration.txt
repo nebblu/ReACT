@@ -1,0 +1,81 @@
+Copter includes several powerful and flexible numerical integration routines,
+which it uses internally for computing mode-coupling integrals for various
+non-linear theories.  These integration routines are also available in the
+public interface, however, and can be used for doing quick integrals.
+
+
+Integrate - basic one-dimensional integration
+---------
+
+As an example, consider the following simple integral.
+  I = \int_0^1 x^3 dx
+This can be computed numerically by first defining a function for the integrand,
+  double f(double x) {
+      return x*exp(-x);
+  }
+then calling
+  double I = Integrate(f, 0, 1);
+This gives I = 0.264241117657115, which equals the exact answer 1 - 2/e to
+machine precision.
+
+One unique feature of the Copter integration routines is that they are
+implemented using templates, which means that the argument f to the function
+Integrate can be _any_ callable object.  Combine with the bind() function from
+the Boost C++ Library, this makes it very easy (and efficient) to compute
+integrals of functions with parameters.  For example, suppose you wanted to compute
+the lower incomplete gamma function,
+  \gamma(s,x) = \int_0^x t^{s-1} e^{-t} dt
+The following snippet shows how to do this:
+  #include <boost/bind.hpp>
+  using boost::bind;
+
+  double g(double s, double t) {
+      return pow(t, s-1) * exp(-t);
+  }
+  double gamma(double s, double x) {
+      return Integrate(bind(g, s, _1), 0, x);
+  }
+The call 'bind(g, s, _1)' binds s to the first argument of g, returning
+a callable object that is a function of t alone.  In other words,
+  bind(g, s, _1)(t) = g(s, t)
+This is both convenient and efficient.  Underneath the hood the C++ compiler
+generates an instance of the Integrate template function that is customized for
+the function g(s, t), so there is no overhead from callbacks, etc.
+
+
+Integrate<Sub> - one-dimensional integration with variable substitution
+--------------
+Building on this facility, Copter also contains some machinery for performing
+variable substitutions on the fly.  For example, suppose you wanted to compute
+the _upper_ incomplete gamma function, defined by 
+  \Gamma(s,x) = \int_x^\infty t^{s-1} e^{-t} dt
+Trying to integrate numerically over an infinite interval is doomed to failure,
+so we must somehow make a change of variable that results in a finite
+integration region.  Rather than defining a new function, however, we can just
+define a substitution mixin that will take care of everything automatically.
+For this example we'll make use of the pre-defined mixin InverseSub, which is
+based on the substitution
+  u = 1/x,  x = 1/u,  dx/du = -1/u^2
+Then to compute Gamma(s,x), we can just do
+  double Gamma(double s, double x) {
+      if(x > 0)
+          return Integrate<InverseSub>(bind(g, s, _1), x, infty);
+      else
+          return 0;
+  }
+(where infty is a suitably large constant).  The substitution is performed on
+the fly by the C++ compiler, with no intervention on your part.
+
+
+Integrate<n> - multi-dimensional integration
+------------
+Copter's API for performing multi-dimensional integrals over rectangular
+regions is very similar to the one-dimensional case.  To integrate a function
+h(x,y) over the unit square, you would enter the following:
+  double a[2] = { 0., 0. };
+  double b[2] = { 1., 1. };
+  double I = Integrate<2>(h, a, b);
+The array a gives the lower limits of integration (in both the x and y
+directions), while the array b gives the upper limits.  Generalization to
+higher dimensional integrals (n >= 3) is straightforward (although for n > 4)
+you probably want to consider using a Monte-Carlo algorithm).

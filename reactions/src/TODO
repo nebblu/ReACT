@@ -1,0 +1,5 @@
+- 2-dimensional vector class
+- trace down bug in Spline or InterpolatedPS or LinearPS: multiple deletion
+  of impl, leading to segfault
+- add an extra parameter to Spline constructor, specifying which kind of search
+  to use for index lookup (i.e. how are the input points spaced?)

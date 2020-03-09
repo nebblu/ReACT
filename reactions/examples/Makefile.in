@@ -1,0 +1,10 @@
+CXX = @CXX@
+CPPFLAGS = -I@prefix@/include
+CXXFLAGS = -g -O2 @OPENMP_CFLAGS@
+LDFLAGS = -L@prefix@/lib -lcopter
+
+
+all: distance fwt kaiser integration linear rpt2 spt2 tmp_sig
+
+clean:
+	@rm -f distance fwt kaiser integration linear rpt2 spt2 tmp_sig

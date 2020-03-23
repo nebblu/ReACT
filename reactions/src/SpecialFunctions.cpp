@@ -263,12 +263,11 @@ double mymgF(double a, double yh, double yenv, double Rth, double omega0, double
 
 /*DGP normal branch*/
 		//       double betadgp,xm3,xterm,delta;
-		//       betadgp = beta(a,omega0,mg);
-		//       double ai = exp(T00);
+		//       betadgp = beta(a,omega0,p1);
 		//
 		//       delta = (1.+delta_initial)/pow3(yh) - 1.;
 		//
-		//       xterm = 9.*pow2(betadgp)*mg/(2.*omega0/pow3(a)*delta);
+		//       xterm = 9.*pow2(betadgp)*p1/(2.*omega0/pow3(a)*delta);
 		//
 		//       xm3 = 1./xterm;
 		//

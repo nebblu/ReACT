@@ -9,8 +9,8 @@ def array_arg(a):
     arr = a
     return (*(ct.c_int(s) for s in arr.shape), arr)
 
-class ReactionModule:
-    libname = "../lib/libreact.so"
+class ReACT:
+    libname = "libreact_wrapper.so"
     module_name = "reaction_module"
 
     def __init__(self):
@@ -36,9 +36,13 @@ class ReactionModule:
         r = f(*array_arg(a))
         return r
 
-    def compute_reaction(self, h, n_s, omega_m, omega_b, sigma_8, mg1, mass_loop,
-                               z, k, Pk, is_transfer=False,
+    def compute_reaction(self, h, n_s, omega_m, omega_b, sigma_8, mg1,
+                               z, k, Pk, is_transfer=False, mass_loop=30,
                                verbose=True):
+
+        if max(z) > 2.5:
+            raise ValueError("ReACT is unstable above z=2.5, try limiting the range of z values.")
+        
         f = self.get_function("compute_reaction")
         f.restype = np.int
         f.argtypes = [*array_ctype(ndim=1, dtype=np.float64), # P(k, z=0)
@@ -54,6 +58,7 @@ class ReactionModule:
                       ct.POINTER(ct.c_int),        # mass_loop
                       *array_ctype(ndim=2, dtype=np.float64), # reaction (output)
                       *array_ctype(ndim=2, dtype=np.float64), # linear MG power spectrum (output)
+                      ct.POINTER(ct.c_int),        # verbose
                      ]
         reaction = np.zeros((len(k), len(z)), dtype=Pk.dtype, order="C")
         p_lin = np.zeros((len(k), len(z)), dtype=Pk.dtype, order="C")
@@ -67,7 +72,8 @@ class ReactionModule:
                 ct.c_int(mass_loop),
                 *array_arg(reaction),
                 *array_arg(p_lin),
+                ct.c_int(verbose),
                 )
         if r != 0:
-            raise RuntimeError("Reaction code terminated with an error.")
+            raise RuntimeError("ReACT code terminated with an error.")
         return reaction[:,::-1].T, p_lin[:,::-1].T

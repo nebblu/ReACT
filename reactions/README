@@ -43,9 +43,9 @@ To do this download gsl from http://www.gnu.org/software/gsl/ and install it on 
 
 ----> Sundials:
 
-For Spherical Collapse module (SCOL.cpp) you will also need the sundials package version 4.0 or later : https://computation.llnl.gov/projects/sundials. We recommend installing via brew.  
+For Spherical Collapse module (SCOL.cpp) you will also need the sundials package version 4.0 or later : https://computation.llnl.gov/projects/sundials. We recommend installing via brew:
 
-
+brew install sundials
 
 Installation of ReACT then proceeds as follows.
 
@@ -71,6 +71,9 @@ If you want to make edits to any of the source files, you will not need to recon
 Note: for macOS (Mojave): add -Wl,-rpath,$SUNDIR/lib to LDFLAGS in the './configure' command and at dynamic library building, as well as for when compiling the test examples in examples folder. 
  
 Note: for normal sundials library path, change lib64 to lib in the build.sh file. 
+
+Note: If sundials is not installed with homebrew, then one must append the sundials library path to DY_LIBRARY_PATH in macOS.  
+
 
 2.Choosing a model of gravity or dark energy
 ______________________________

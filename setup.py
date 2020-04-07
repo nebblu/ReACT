@@ -1,7 +1,8 @@
 from setuptools import setup, find_packages
-from distutils.command.install import install
-from distutils.command.build import build
-from distutils.command.clean import clean
+from distutils.command.install import install as _install
+from distutils.command.clean import clean as _clean
+from setuptools.command.build_py import build_py as _build_py    
+from setuptools.command.develop import develop as _develop
 
 import subprocess
 
@@ -20,16 +21,21 @@ def clean_library(env={}):
     subprocess.check_call(["make", "clean"], env=env, cwd="pyreact")
     # os.remove(os.path.join(here, "tpst/libwigner.so"))
 
-class my_build(build):
+class build(_build_py):
     def run(self):
         env = os.environ
         compile_library(env)
         super().run()
 
+class develop(_develop):
+    def run(self):
+        env = os.environ
+        compile_library(env)
+        super().run()
 
-class my_install(install):
+class install(_install):
     def __init__(self, dist):
-        install.__init__(self, dist)
+        super().__init__(dist)
         self.build_args = {}
         if self.record is None:
             self.record = "install-record.txt"
@@ -37,7 +43,7 @@ class my_install(install):
     def run(self):
         super().run()
 
-class my_clean(clean):
+class clean(_clean):
     def run(self):
         clean_library()
         super().run()
@@ -49,9 +55,9 @@ setup(name = "pyreact",
       packages = ["pyreact"],
       package_data = {"" : LIBS,},
       install_requires = ['numpy'],
-      cmdclass={"install"   : my_install,
-                "build"     : my_build,
-                "build_ext" : my_build,
-                "clean"     : my_clean},
+      cmdclass={"install"   : install,
+                "develop"   : develop,
+                "build_py"  : build,
+                "clean"     : clean},
         )
 

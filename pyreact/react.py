@@ -42,6 +42,9 @@ class ReACT:
 
         if max(z) > 2.5:
             raise ValueError("ReACT is unstable above z=2.5, try limiting the range of z values.")
+
+        if len(z) > 1 and z[0] < z[-1]:
+            raise ValueError("The z array needs to be ordered from high to low redshift.")
         
         f = self.get_function("compute_reaction")
         f.restype = np.int

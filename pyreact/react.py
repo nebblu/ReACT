@@ -43,8 +43,8 @@ class ReACT:
         if max(z) > 2.5:
             raise ValueError("ReACT is unstable above z=2.5, try limiting the range of z values.")
 
-        if len(z) > 1 and z[0] < z[-1]:
-            raise ValueError("The z array needs to be ordered from high to low redshift.")
+        if len(z) > 1 and z[0] > z[-1]:
+            raise ValueError("The z array needs to be ordered from low to high redshift.")
         
         f = self.get_function("compute_reaction")
         f.restype = np.int
@@ -68,7 +68,7 @@ class ReACT:
 
         r =   f(*array_arg(np.ascontiguousarray(Pk, dtype=np.float64)),
                 *array_arg(np.ascontiguousarray(k, dtype=np.float64)),
-                *array_arg(np.ascontiguousarray(z[::-1], dtype=np.float64)),
+                *array_arg(np.ascontiguousarray(z[::-1], dtype=np.float64)), # ReACT expect z order from high to low
                 ct.c_bool(is_transfer),
                 ct.c_double(h), ct.c_double(n_s), ct.c_double(omega_m), ct.c_double(omega_b), ct.c_double(sigma_8),
                 ct.c_double(mg1),
@@ -79,4 +79,5 @@ class ReACT:
                 )
         if r != 0:
             raise RuntimeError("ReACT code terminated with an error.")
+        # Get into CAMB ordering (z, k), with increasing z
         return reaction[:,::-1].T, p_lin[:,::-1].T

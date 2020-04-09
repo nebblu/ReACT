@@ -109,7 +109,7 @@ extern "C" {
         double vars[6];
         vars[0] = 1.;
         vars[1] = *Omega_m;
-        vars[2] = pow(10.0,*mg1); // edit this for new mg param
+        vars[2] = *mg1;//pow(10.0,*mg1); // edit this for new mg param
         vars[3] = 1.;
         vars[4] = 1.;
         vars[5] = *mass_loop;
@@ -164,11 +164,9 @@ extern "C" {
              }
               myreact = CubicSpline(loop_nk, k2val, react_tab);
 
-            // linear power spectrum
             for(int i =0; i < *N_k;  i ++) {
-	        output_react[i*(*N_z)+j] =  myreact(kvals[i]);
+	              output_react[i*(*N_z)+j] =  myreact(kvals[i]);
                 output_pl[i*(*N_z)+j] = halo.plinear_cosmosis(kvals[i]);
-	        printf(" %e %e %e \n",zvals[j], kvals[i],halo.plinear_cosmosis(kvals[i]));
 	 }
 }
 

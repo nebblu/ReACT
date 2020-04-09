@@ -12,7 +12,7 @@ def setup(options):
     config = {}
 
     config["module"] = pyreact.ReACT()
-    config["verbose"] = options.get_bool(option_section, "verbose", False)
+    config["verbose"] = options.get_int(option_section, "verbose", 1)
     config["massloop"] = options.get_int(option_section, "massloop", 30)
     config["reaction_output_section"] = options.get_string(option_section, "reaction_output_section", "reaction")
     config["linear_matter_power_output_section"] = options.get_string(option_section, "linear_matter_power_output_section", names.matter_power_lin)
@@ -37,7 +37,7 @@ def execute(block, config):
 
     reaction, pofk_lin = config["module"].compute_reaction(
                                 h, n_s, omega_m, omega_b, sigma_8, mg1, 
-                                z, k_h, Pk, is_transfer=False, massloop=config["massloop"],
+                                z, k_h, Pk, is_transfer=False, mass_loop=config["massloop"],
                                 verbose=config["verbose"])
 
     block.put_grid(config["reaction_output_section"], "z", z, "k_h", k_h, "reaction", reaction)

@@ -43,9 +43,9 @@ To do this download gsl from http://www.gnu.org/software/gsl/ and install it on 
 
 ----> Sundials:
 
-For Spherical Collapse module (SCOL.cpp) you will also need the sundials package version 4.0 or later : https://computation.llnl.gov/projects/sundials. We recommend installing via brew.  
+For Spherical Collapse module (SCOL.cpp) you will also need the sundials package version 4.0 or later : https://computation.llnl.gov/projects/sundials. We recommend installing via brew:
 
-
+brew install sundials
 
 Installation of ReACT then proceeds as follows.
 
@@ -71,6 +71,9 @@ If you want to make edits to any of the source files, you will not need to recon
 Note: for macOS (Mojave): add -Wl,-rpath,$SUNDIR/lib to LDFLAGS in the './configure' command and at dynamic library building, as well as for when compiling the test examples in examples folder. 
  
 Note: for normal sundials library path, change lib64 to lib in the build.sh file. 
+
+Note: If sundials is not installed with homebrew, then one must append the sundials library path to DY_LIBRARY_PATH in macOS.  
+
 
 2.Choosing a model of gravity or dark energy
 ______________________________
@@ -155,9 +158,9 @@ cosmosis ../ReAct/reactions/tests/test_pyreact/pipeline_lsst.ini
 A SLURM job script running this pipeline has also been provided. One can also use this pipeline and job script to run an MCMC analysis on this data by commenting in the emcee sampler in pipeline_lsst.ini for example (and commenting out 'test'). The job script can also be adapted for an MCMC analysis by commenting in the correct execute command as well as appropriately adapting the time required and ntasks commands.
 
 
-Note that the mock data provided lsst_simulation_fiducial_3000.fits is the LCDM mock data described in the original ReACT paper <insert arxiv>. 
+Note: the mock data provided lsst_simulation_fiducial_3000.fits is the LCDM mock data described in the original ReACT paper <insert arxiv>. 
 
-
+Note: if using the halofit module in COSMOSIS, one could run into errors if Camb's kmin is set outside 0.0001>kmin>0.00001 (strictly not equal).
 
 
 4. Additional libraries (for the brave) --- also please contact me at benjamin.bose@unige.ch for any questions regarding these. 

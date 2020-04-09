@@ -22,6 +22,19 @@
 #include <Copter/SPT.h>
 
 extern "C" {
+    extern const int ERROR_MESSAGE_LEN = 512;
+    char error_message[ERROR_MESSAGE_LEN];
+
+    void react_error(const char* msg) {
+        const int truncate = ERROR_MESSAGE_LEN-10; 
+
+        #pragma omp critical
+        {
+            snprintf(error_message, truncate, "Reaction error: %s", msg);
+            printf("%s\n", error_message);
+        }
+    }
+
     int test_func(int* N, int* M, double* array)
     {
         std::cout << "N: " << *N << " M: " << *M << "\n";
@@ -47,13 +60,28 @@ extern "C" {
                          int* verbose)
     {
         if(*N_k != *N_k_pk || *N_k != *N_k_react || *N_k != *N_k_pl){
-            warning("Reaction: Inconsistency in k array sizes\n");
+            react_error("Inconsistency in k array sizes");
             return 1;
         }
         if(*N_z != *N_z_react || *N_z != *N_z_pl){
-            warning("Reaction: Inconsistency in z array sizes\n");
+            react_error("Inconsistency in z array sizes");
             return 1;
         }
+
+        if(kvals[0] > 1e-4) {
+            react_error("k must at least go down to 1e-4");
+            return 1;
+        }
+        if(zvals[0] < zvals[*N_z-1]) {
+            react_error("z must be in decreasing order.");
+            return 1;
+        }
+        if(zvals[0] > 2.5) {
+            react_error("z must be smaller than 2.5");
+            return 1;
+        }
+
+
         if(*verbose > 0) {
             std::cout<<"z: " << zvals[0] << " -> " << zvals[*N_z-1] << "\n";
             std::cout<<"k: " << kvals[0] << " -> " << kvals[*N_k-1] << "\n";
@@ -66,14 +94,7 @@ extern "C" {
             std::cout<<"mass loop: " << *mass_loop << "\n";
         }
 
-        if(kvals[0] > 1e-4) {
-            warning("Reaction: k must at least go down to 1e-4\n");
-            return 1;
-        }
-        if(zvals[*N_z-1] > 2.5) {
-            warning("Reaction: z must be smaller than 2.5\n");
-            return 1;
-        }
+        
         array Ti(*N_k);
         array ki(*N_k, kvals);
 

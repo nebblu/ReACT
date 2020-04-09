@@ -78,6 +78,8 @@ class ReACT:
                 ct.c_int(verbose),
                 )
         if r != 0:
-            raise RuntimeError("ReACT code terminated with an error.")
+            string_type = ct.c_char * ct.c_int.in_dll(self.lib, "ERROR_MESSAGE_LEN").value
+            error_message = string_type.in_dll(self.lib, "error_message").value.decode()
+            raise RuntimeError(f"ReACT code terminated with an error: {error_message}")
         # Get into CAMB ordering (z, k), with increasing z
         return reaction[:,::-1].T, p_lin[:,::-1].T

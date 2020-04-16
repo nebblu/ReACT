@@ -8,9 +8,9 @@ It also uses automake.
 ### GSL
 The ReACT extension makes use of a number of [gsl](http://www.gnu.org/software/gsl/) packages such as odeiv2 package which is part of the gsl library.  You will need to have a version of gsl installed (gsl 2. or later). This is needed for the numerical calculation of the perturbation theory kernels.
 
-### SUNDAILS
+### SUNDIALS
 
-For Spherical Collapse module (`SCOL.cpp`) you will also need the [SUNDAILS](https://computing.llnl.gov/projects/sundials) package version 4.0.
+For Spherical Collapse module (`reactions/src/SCOL.cpp`) you will also need the [SUNDIALS](https://computing.llnl.gov/projects/sundials) package version 4.0.
 
 Get these packages using your package manager of choice (e.g., `homebrew` on mac OS).
 
@@ -34,7 +34,7 @@ $ pip install -e .
 
 ## Introduction
 
-ReACT is an extension of the software package Copter and MG-Copter which allows for 
+ReACT is an extension of the software package Copter and MG-Copter [1606.02520] which allows for 
 the calculation of redshift and real space large scale structure 
 observables for a wide class of gravity and dark energy models. 
 
@@ -42,7 +42,7 @@ Additions to original Copter code http://mwhite.berkeley.edu/Copter/:
 
 * Spherical collapse in modified gravity (1812.05594): `reactions/src/SCOL.cpp`
 
-* Halo model power and bispectrum for general theories (1812.05594):  `reactions/src/HALO.cpp`
+* Halo model power spectrum for general theories (1812.05594):  `reactions/src/HALO.cpp`
 
 * Real and redshift space LSS 2 point statistics for modified gravity and dark energy (1606.02520): `reactions/src/SPT.cpp`
 
@@ -58,8 +58,7 @@ Additions to original Copter code http://mwhite.berkeley.edu/Copter/:
 To choose a model of gravity or dark energy within the framework described in `arXiv:1606.02520` for example, open 
 the `SpecialFunction.cpp` file in the `reactions/src` directory. Towards the top of the file you will 
 find the background Hubble and mu, gamma2, gamma3 functions as well as the modified spherical collapse function `F`.
-As examples, the Hu Sawicki, nDGP and GR versions of these functions have been included. Simply edit in 
-your version of these functions and edit out the unwanted ones. Then just re-install the package as described above.
+As examples, the Hu Sawicki, nDGP and GR versions of these functions have been included. wCDM background Hubble rates have also been included as presets. Simply edit in your version of these functions and edit out the unwanted ones. Then just re-install the package as described above.
 
 
 ### Adding in models
@@ -67,11 +66,10 @@ your version of these functions and edit out the unwanted ones. Then just re-ins
 One can add in new models. As a default, a maximum of 3 theory parameters have been allowed for. 
 There are instructions within the SpecialFunction.cpp file to include more than 
 3 theory parameters. The entire file is heavily commented so that 
-making any additional edits shouldn't be (too) difficult. Note there may be some issues with dependencies when adding in new parameters, I haven't tested this. 
-
+making any additional edits shouldn't be (too) difficult. Note there may be some issues with dependencies when adding more than 3 theory parameters - this needs to be tested.  
 
 
 ## Running ReACT
 
 ### Python
-An example jupyter notebook that demonstrates the usage of ReACT can be found in `notebooks/pyreact_demo.ipynb`. 
+An example jupyter notebook that demonstrates the usage of ReACT can be found in `notebooks/pyreact_demo.ipynb`.

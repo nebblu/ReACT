@@ -88,8 +88,8 @@ void HALO::scol_init(double vars[]) const{
 double lgmass[loop_N],sigar[loop_N],scolar0[loop_N],scolar1[loop_N],scolar2[loop_N];
 
 // calculate sigma_8^2 and it's smoothing scale derivative @ R=8.
-double siga = Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), 8., std::placeholders::_1), 5e-5, 50., 1e-5, 1e-12);
-double sigb = Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), 8.0001, std::placeholders::_1), 5e-5, 50., 1e-5, 1e-12);
+double siga = Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), 8., std::placeholders::_1), 1e-4, 50., 1e-5, 1e-5);
+double sigb = Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), 8.0001, std::placeholders::_1), 1e-4, 50., 1e-5, 1e-5);
 double sig1 = siga;
 double sig2 = (sigb-siga)/0.0001;
 
@@ -115,7 +115,7 @@ for(int i = 0; i< loop_N; i++){
    scol.myscol(myscolparams, vars[0], vars[1], Rth, sig1, sig2, pars, 2);
 
 // calculate sigma^2
-   sigar[i] = Dl_spt/dnorm_spt*sqrt(Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), Rth, std::placeholders::_1), 5e-5, 50., 1e-5, 1e-12));
+   sigar[i] = Dl_spt/dnorm_spt*sqrt(Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), Rth, std::placeholders::_1), 1e-4, 50., 1e-5, 1e-5));
 
 // store values in arrays
    scolar0[i] = myscolparams[0];
@@ -179,8 +179,8 @@ void HALO::scol_initp(double vars[]) const{
 
 
 // calculate sigma_8^2 and it's smoothing scale derivative @ R=8.
-   double siga = Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), 8., std::placeholders::_1), 5e-5, 50., 1e-5, 1e-12);
-   double sigb = Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), 8.0001, std::placeholders::_1), 5e-5, 50., 1e-5, 1e-12);
+   double siga = Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), 8., std::placeholders::_1), 1e-4, 50., 1e-5, 1e-5);
+   double sigb = Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), 8.0001, std::placeholders::_1), 1e-4, 50., 1e-5, 1e-5);
    double sig1 = siga;
    double sig2 = (sigb-siga)/0.0001;
 
@@ -201,7 +201,7 @@ for(int i = 0; i< loop_N; i++){
    double Rth = 0.1*pow((Gnewton*pow(10, lgmass[i]))/(5.*vars[1]),ONE/THREE);
 
 // calculate sigma^2
-    sigar[i] = sqrt(Integrate<ExpSub>(bind(sigma_integrandp, cref(P_l), Rth, std::placeholders::_1), 5e-5, 100., 1e-5, 1e-12));
+    sigar[i] = sqrt(Integrate<ExpSub>(bind(sigma_integrandp, cref(P_l), Rth, std::placeholders::_1), 1e-4, 100., 1e-5, 1e-5));
 
 // store values in arrays
     scolar0[i] = myscolparams[0];

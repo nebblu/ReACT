@@ -1,11 +1,12 @@
-import sys
-sys.path.append("../../pyreact")
+import os
 
 import numpy as np
-import react
+import pyreact
+
+HERE = os.path.abspath(os.path.dirname(__file__))
 
 def test_reaction_module():
-    mod = react.ReactionModule()
+    mod = pyreact.ReACT()
 
     h = 0.68
     n_s = 0.9645
@@ -15,21 +16,22 @@ def test_reaction_module():
     fR0 = 1e-5
     mass_loop = 30
 
-    # k = np.loadtxt("k.txt")
-    # z = np.loadtxt("z.txt")
-    # pofk = np.loadtxt("pofk.txt")
-    #
-    # reaction, p_lin = mod.compute_reaction(h, n_s, Omega_m, Omega_b, sigma_8, fR0, mass_loop,
-    #                                 z, k, pofk, is_transfer=False)
+    k = np.loadtxt(os.path.join(HERE, "k.txt"))
+    z = np.loadtxt(os.path.join(HERE, "z.txt"))
+    pofk = np.loadtxt(os.path.join(HERE, "pofk.txt"))
 
-    k, t = np.loadtxt("../benchmarks/transfer.dat", unpack=True)
-    z = np.loadtxt("../benchmarks/reaction_z.dat")
+    # Check that the code runs with power spectra
+    reaction, p_lin = mod.compute_reaction(h, n_s, Omega_m, Omega_b, sigma_8, fR0,
+                                    z, k, pofk, is_transfer=False, mass_loop=mass_loop, verbose=1)
 
-    reaction, p_lin = mod.compute_reaction(h, n_s, Omega_m, Omega_b, sigma_8, fR0, mass_loop,
-                                    z, k, t, is_transfer=True)
+    k, t = np.loadtxt(os.path.join(HERE, "../benchmarks/transfer.dat"), unpack=True)
+    z = np.loadtxt(os.path.join(HERE, "../benchmarks/reaction_z.dat"))
 
-    reaction_target = np.loadtxt("../benchmarks/reaction.dat")
-
+    # Check with transfer function and compare with benchmark.
+    reaction, p_lin = mod.compute_reaction(h, n_s, Omega_m, Omega_b, sigma_8, fR0,
+                                    z, k, t, is_transfer=True, mass_loop=mass_loop, verbose=1)
+    
+    reaction_target = np.loadtxt(os.path.join(HERE, "../benchmarks/reaction.dat"))
     assert np.allclose(reaction, reaction_target)
 
 if __name__ == "__main__":

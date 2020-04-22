@@ -1,0 +1,9 @@
+.ipynb_checkpoints
+.DS_Store
+
+__pycache__
+build/
+*.egg-info
+
+*.so
+*.dSYM

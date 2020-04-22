@@ -94,7 +94,7 @@ Then just run
 
 ## Additional Libraries from old versions of MG-Copter 
 
-There are additional libraries which you can (try to!) add in in the src/extra_libraries folder:
+There are additional libraries which you can (try to!) add in in the reactions/src/extra_libraries folder:
 
 Clustering dark energy (example: 1611.00542):
 CDE.cpp

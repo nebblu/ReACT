@@ -58,7 +58,7 @@ Additions to original Copter code http://mwhite.berkeley.edu/Copter/:
 To choose a model of gravity or dark energy within the framework described in `arXiv:1606.02520` for example, open 
 the `SpecialFunction.cpp` file in the `reactions/src` directory. Towards the top of the file you will 
 find the background Hubble and mu, gamma2, gamma3 functions as well as the modified spherical collapse function `F`.
-As examples, the Hu Sawicki, nDGP and GR versions of these functions have been included. wCDM background Hubble rates have also been included as presets. Simply edit in your version of these functions and edit out the unwanted ones. Then just re-install the package as described above.
+As examples, the Hu Sawicki, nDGP and G versions of these functions have been included. wCDM background Hubble rates have also been included as presets. Simply edit in your version of these functions and edit out the unwanted ones. Then just re-install the package as described above.
 
 
 ### Adding in models
@@ -73,3 +73,7 @@ making any additional edits shouldn't be (too) difficult. Note there may be some
 
 ### Python
 An example jupyter notebook that demonstrates the usage of ReACT can be found in `notebooks/pyreact_demo.ipynb`.
+
+## Notes (22/04/20)
+* To optimise root finding within the spherical collapse portion of the code, the maximum redshift that one can solve the reaction for currently is z=2.5. 
+* There are some current issues in the wCDM part of the code. Namely for very particular values of w0 and wa in the CPL evolving dark energy case, the spherical collapse library cannot solve the virial theorem. This should be fixed before any MCMC can be run for wCDM. 

@@ -71,7 +71,7 @@ static double funcscol(double xi, void *user_data)
 // derivatives are taken with respect to t (or ln[a])
 static int f_modscol(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-    realtype y1, y2, c0, ET, ET0, yenv, eta1, eta2, DoD, Fvir, hubble2, dhlnaoh, prefac, term1, term2, term4, IC, Rth, OM, T1;
+    realtype y1, y2, c0, ET, ET0, yenv, eta1, eta2, DoD, Fvir, hubble2, dhlnaoh, prefac, term1, term2, term4, IC, Rth, OM, T1, maxt;
     UserData data;
 
     data    = (UserData) user_data;

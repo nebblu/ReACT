@@ -79,7 +79,7 @@ static int f_modscol(realtype t, N_Vector y, N_Vector ydot, void *user_data)
     OM      = data->OM;
     T1      = data->T1;
     Rth     = data->Rth;
-
+    maxt    = data->maxt;
 
     realtype OL = 1 - OM;
 
@@ -90,7 +90,15 @@ static int f_modscol(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
     ET      = SUNRexp(t - T1);
     ET0     = SUNRexp(T1);
-    yenv    = gsl_spline_eval (data->spline, t, data->acc);
+
+    // make sure we don't exceed y_env spline range - above maximum t we don't care about the solution.
+    // Should implement a better fix for this ...
+    if (t>maxt){
+      yenv = gsl_spline_eval (data->spline, maxt, data->acc);
+                }
+     else{
+            yenv = gsl_spline_eval (data->spline, t, data->acc);
+          }
 
     double myh = (y1 + ET)/ET;
     double myenv = (yenv + ET)/ET;
@@ -483,6 +491,7 @@ int SCOL::SphericalCollapse(double *dC, arrays_T3 xxyyzz, UserData data_vec, dou
       data->par2    = (*data_vec).par2;
       data->par3    = (*data_vec).par3;
       data->mymg    = (*data_vec).mymg;
+      data->maxt    = (*data_vec).maxt;
       data->OM      = (*data_vec).OM;
       T1            = (*data_vec).T1;
       // printf("checking du,dl: %g, %g \n", delta_uu, delta_ll);
@@ -619,7 +628,9 @@ double SCOL::myscol(double myscolparams[], double acol, double omega0, double Rt
        arrays_T xxyy = (arrays_T)malloc( sizeof(struct arrays) );
 
        yenv (omega0, XF , m/d, xxyy);
-
+	
+// set max scalefactor
+       double maximumt = (*xxyy).xx[(*xxyy).count-1];
 
        gsl_interp_accel *acc = gsl_interp_accel_alloc ();
        gsl_spline *myspline_yenv    = gsl_spline_alloc (gsl_interp_cspline, (*xxyy).count);
@@ -642,6 +653,7 @@ double SCOL::myscol(double myscolparams[], double acol, double omega0, double Rt
          data->par3    = p3;
          data->Rth     = Rthp;
          data->mymg    = mymg;
+	 data->maxt    = maximumt;
 
           // initialse the delta_i (solver spherical collapse differential equation)
         SphericalCollapse (&myscolparams[0], xxyyzz, data, TMULT);
@@ -731,12 +743,16 @@ double SCOL::myscol(double myscolparams[], double acol, double omega0, double Rt
 
 
 
-/// Find scale factor such that y' = -a/ai
-
+/// Find scale factor such that y' = -a/ai (i.e., R_tophat' = 0)
 double amax;
+// set maximum  and minimum scale factor for which y is actually solved.
+double alimit1 = ((*myamax).xx[(*xxyyzz).count-1]);
+double alimit2 = ((*myamax).xx[0]);	
+	
+	
 std::mt19937 gen0(2);
 
-std::uniform_real_distribution<> dis0(ainit, acol);
+std::uniform_real_distribution<> dis0(alimit2, alimit1);
 
 double pos_pt0 = dis0(gen0);
 double neg_pt0 = dis0(gen0);
@@ -770,7 +786,7 @@ for (;;)
 
     std::mt19937 gen(2);
 
-		std::uniform_real_distribution<> dis(amax, acol);
+		std::uniform_real_distribution<> dis(amax, alimit1);
 
 		double pos_pt = dis(gen);
 		double neg_pt = dis(gen);

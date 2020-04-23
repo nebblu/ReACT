@@ -149,7 +149,7 @@ double  WEFF(double a, double omega0, double p1, double p2, double p3){
 		/*CPL*/
 		// double h2 = pow2(HAg(a,omega0,p1,p2,p3));
 		// return -(1.+3.*(p1+(1.-a)*p2))*(h2-omega0/pow3(a));
-		//-(1.-omega0)*(1.+3.*(p1+(1.-a)*p2));
+		
 }
 
 

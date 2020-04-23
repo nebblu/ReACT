@@ -91,7 +91,7 @@ Then just run
 ## Notes (22/04/20)
 * To optimise root finding within the spherical collapse portion of the code, the maximum redshift that one can solve the reaction for currently is z=2.5. 
 * There are some current issues in the wCDM part of the code. Namely for very particular values of w0 and wa in the CPL evolving dark energy case, the spherical collapse library cannot solve the virial theorem. We advise sticking to the ranges 
--0.7<w0<-1.3 and -1.5<wa<0.6 to avoid these issues. 
+-1.3<w0<-0.7 and -1.5<wa<0.6 to avoid these issues. 
 
 ## Additional Libraries from old versions of MG-Copter 
 

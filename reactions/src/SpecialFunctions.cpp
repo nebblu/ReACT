@@ -241,7 +241,7 @@ double gamma3(double a, double omega0, double k0, double k1, double k2, double k
 /// Modified gravity function for spherical collapse (see for example A.1 of appendix of 1812.05594) ////
 
 double mymgF(double a, double yh, double yenv, double Rth, double omega0, double p1, double p2, double p3,  double delta_initial){
-	/* LCDM or DE*/
+	/* GR */
 	//	return 0.;
 
 /* f(R)  - Hu-Sawicki model, n =1 */

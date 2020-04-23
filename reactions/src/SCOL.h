@@ -69,6 +69,7 @@ typedef struct usdat {
   double par2;
   double par3;
   int mymg;
+  double maxt;
   gsl_spline *spline;
   gsl_interp_accel *acc;
 } *UserData;

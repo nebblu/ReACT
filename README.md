@@ -14,6 +14,10 @@ For Spherical Collapse module (`reactions/src/SCOL.cpp`) you will also need the 
 
 Get these packages using your package manager of choice (e.g., `homebrew` on mac OS).
 
+One should also make sure that sundials is on your library path, for example 
+
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/bose/sundials/install_dir/lib64:${LD_LIBRARY_PATH} 
+
 ## Installation
 The Python interface can then be installed with
 ```
@@ -92,6 +96,10 @@ Then just run
 * To optimise root finding within the spherical collapse portion of the code, the maximum redshift that one can solve the reaction for currently is z=2.5. 
 * There are some current issues in the wCDM part of the code. Namely for very particular values of w0 and wa in the CPL evolving dark energy case, the spherical collapse library cannot solve the virial theorem. We advise sticking to the ranges 
 -1.3<w0<-0.7 and -1.5<wa<0.6 to avoid these issues. 
+* One may need to add the sundials library directory to LDFLAGS in pyreact/Makefile for installation to complete correctly:
+> LDFLAGS += -lgsl -lgslcblas -lsundials_cvode -lsundials_nvecserial -L/home/bose/sundials/install_dir/lib64
+* One may also need to add the sundials include directory as a CPPFLAG in pyreact/Makefile for installation to complete correctly:
+> CPPFLAGS += -I/home/bose/sundials/install_dir/include
 
 ## Additional Libraries from old versions of MG-Copter 
 

@@ -60,9 +60,8 @@ double vars[6];
     real p1,p2,p3,p4,p5,p6;
 
 
-// initialise GR lin growth for PS normalisation (and also for lin growth once we remove Qianli's)
-iow.inite(vars[0],vars[1],1e-15, 1.,1.);
-
+// initialise wCDM/LCDM lin growth for PS normalisation
+iow.initnorm(vars);
 /// initialise delta_c(M), a_vir(M), delta_avir(M) and v(M)
 halo.scol_init(vars);
 halo.scol_initp(vars);

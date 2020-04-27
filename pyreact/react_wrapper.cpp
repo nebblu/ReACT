@@ -26,7 +26,7 @@ extern "C" {
     char error_message[ERROR_MESSAGE_LEN];
 
     void react_error(const char* msg) {
-        const int truncate = ERROR_MESSAGE_LEN-10; 
+        const int truncate = ERROR_MESSAGE_LEN-10;
 
         #pragma omp critical
         {
@@ -94,7 +94,7 @@ extern "C" {
             std::cout<<"mass loop: " << *mass_loop << "\n";
         }
 
-        
+
         array Ti(*N_k);
         array ki(*N_k, kvals);
 
@@ -143,17 +143,17 @@ extern "C" {
         vars[3] = 1.;
         vars[4] = 1.;
         vars[5] = *mass_loop;
-
-        iow.inite(vars[0],vars[1],1e-15, 1.,1.);
+        // initialise power spectrum normalisation before running 1-loop computations
+        iow.initnorm(vars);
 
         // initialise splines over redshift for real and pseudo 1-loop spectra @ k0 = 0.06h/Mpc
-
         double k0 = 0.06;
         for(int i=0; i<*N_z; i++) {
             ploopr[i] = 0.;
             ploopp[i] = 0.;
         }
 
+        // 1-loop computations at all redshifts @ k0
         spt.ploop_init(ploopr,ploopp, zvals , *N_z, vars, k0);
 
         double myscalef[*N_z];
@@ -169,9 +169,8 @@ extern "C" {
         for(int j = 0; j<*N_z; j++) {
             vars[0] = 1./(1.+zvals[j]);
 
-            // initialise GR lin growth for power spectrum normalisation (and also for lin growth once we remove Qianli's)
-            iow.inite(vars[0],vars[1],1e-15, 1.,1.);
-
+            // initialise wCDM/LCDM lin growth for PS normalisation
+            iow.initnorm(vars);
             // Spherical collapse stuff
             /// initialise delta_c(M), a_vir(M), delta_avir(M) and v(M)
             halo.scol_init(vars);
@@ -192,7 +191,7 @@ extern "C" {
                     react_tab[i] = halo.reaction(k2val[i], vars);
                 }
             }
-            
+
             myreact = CubicSpline(loop_nk, k2val, react_tab);
 
             for(int i =0; i < *N_k;  i ++) {

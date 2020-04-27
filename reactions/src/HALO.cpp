@@ -66,7 +66,7 @@ static real W(real x) {
 // --- LCDM @ z=0 value --
 // include scale factor later
 static real sigma_integrand(const PowerSpectrum& P, real R, real k) {
-    return k*k/(2.*M_PI*M_PI) * P(k) * pow2(W(k*R));
+    return k*k/(2.*M_PI*M_PI) * P(k) * pow2(W(k*R)*Dl_spt/dnorm_spt);
 }
 
 ///// Modified Spherical Collapse  ////////
@@ -115,7 +115,7 @@ for(int i = 0; i< loop_N; i++){
    scol.myscol(myscolparams, vars[0], vars[1], Rth, sig1, sig2, pars, 2);
 
 // calculate sigma^2
-   sigar[i] = Dl_spt/dnorm_spt*sqrt(Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), Rth, std::placeholders::_1), 1e-4, 50., 1e-5, 1e-5));
+   sigar[i] = sqrt(Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), Rth, std::placeholders::_1), 1e-4, 50., 1e-5, 1e-5));
 
 // store values in arrays
    scolar0[i] = myscolparams[0];
@@ -640,10 +640,153 @@ double HALO::plinear_cosmosis(double k) const {
 }
 
 
+// Pseudo halofit prescription
+////////////////////////////////////////////////
+///////HALO-FIT FOR NON-SCALE DEP MODELS : takashi et al 2012 fits  1208.2701///////////
+///////////////////////////////////////////////
+
+double wintcambs_pseudo[3];
+static double wintcamb_pseudo(const PowerSpectrum& P_L, double r){
+ int n1 = 3000;
+ double sum1 = 0.;
+ double sum2 = 0.;
+ double sum3 = 0.;
+ double anorm = 1./(2.*pow2(M_PI));
+ double t,k, pkterm,x,x2,w1,w2,w3,fac;
+ for(int i = 1; i<=n1 ; i++){
+   t = (i-0.5)/n1;
+   k = -1. + 1./t;
+   pkterm = pow2(linear_growth(k))*P_L(k)*pow3(k)*anorm;
+   x = k*r;
+   x2 = pow2(x);
+   w1 = exp(-x2);
+   w2 = 2.*x2*w1;
+   w3 = 4.*x2*(1.-x2)*w1;
+   fac = pkterm/k/t/t;
+   sum1 += w1*fac;
+   sum2 += w2*fac;
+   sum3 += w3*fac;
+ }
+sum1 /= n1;
+sum2 /= n1;
+sum3 /= n1;
+wintcambs_pseudo[0] = sqrt(sum1);
+wintcambs_pseudo[1] = -sum2/sum1;
+wintcambs_pseudo[2] = -sum2*sum2/sum1/sum1 - sum3/sum1;
+}
+
+double phpars_pseudo[13];
+void parscamb_pseudo(const PowerSpectrum& P_L)
+{
+  double xlogr1 = -2.;
+  double xlogr2 = 3.5;
+  double rmid = 0.;
+  double diff = 1.;
+  for (;;){
+    rmid = (xlogr2 + xlogr1)/2.;
+    rmid = pow(10,rmid);
+    wintcamb_pseudo(cref(P_L),rmid);
+    diff = wintcambs_pseudo[0]-1.;
+    if (fabs(diff)<=0.0001) {
+      phpars_pseudo[0] = 1./rmid;
+      phpars_pseudo[11] = -3.-wintcambs_pseudo[1];
+      phpars_pseudo[12] = -wintcambs_pseudo[2];
+      break;
+    }
+   else if(diff>0.0001){
+     xlogr1 = log10(rmid);
+   }
+   else if (diff < -0.0001){
+     xlogr2 = log10(rmid);
+   }
+    if (xlogr2<-1.9999){
+      phpars_pseudo[0] = 1000.;
+      break;
+    }
+    else if(xlogr2>3.4999){
+      phpars_pseudo[0] = 1000.;
+      break;
+    }
+  }
+}
+
+// Initialises components
+void HALO::phinit_pseudo(double vars[])const{
+    double scalef = vars[0];
+    double omega0 = vars[1];
+    parscamb_pseudo(cref(P_l));
+
+    double neff = phpars_pseudo[11];
+    double curv = phpars_pseudo[12];
+
+   double neff2 = pow2(neff);
+   double neff3 = neff2*neff;
+   double neff4 = pow2(neff2);
+
+
+   double ane = 1.5222 + 2.8553*neff + 2.3706*neff2+ 0.9903*neff3 + 0.2250*neff4- 0.6038*curv;
+   double bne = -0.5642 + 0.5864*neff + 0.5716*neff2- 1.5474*curv;
+   double cne = 0.3698 + 2.0404*neff + 0.8161*neff2 + 0.5869*curv;
+
+   double nue = 5.2105 + 3.6902*neff;
+   double acub = pow3(scalef);
+   double omgm = (omega0/acub)/(omega0/acub + (1.-omega0));
+   double omgl = (1.-omega0)/(omega0/acub + (1.-omega0));
+
+     phpars_pseudo[1] = pow(10.,ane); // an
+     phpars_pseudo[2] = pow(10.,bne); // bn
+     phpars_pseudo[3] = pow(10.,cne); //cn
+
+     phpars_pseudo[4] = 0.1971 - 0.0843*neff + 0.8460*curv; //gan
+     phpars_pseudo[5] = fabs(6.0835 + 1.3373*neff - 0.1959*neff2- 5.5274*curv); // alpha
+     phpars_pseudo[6] = 2.0379 - 0.7354*neff + 0.3157*neff2 + 1.2490*neff3 + 0.3980*neff4- 0.1682*curv; //beta
+
+     phpars_pseudo[7] = pow(10.,nue); // nun
+
+     if (fabs(1-omgm) > 0.01) {
+       double f1a = pow(omgm,-0.0732);
+       double f2a = pow(omgm,-0.1423);
+       double f3a = pow(omgm,0.0725);
+
+       double f1b = pow(omgm,-0.0307);
+       double f2b = pow(omgm,-0.0585);
+       double f3b = pow(omgm,0.0743);
+
+        double frac = omgl/(1. - omgm);
+       phpars_pseudo[8] = frac*f1b + (1.-frac)*f1a;
+       phpars_pseudo[9] = frac*f2b + (1.-frac)*f2a;
+       phpars_pseudo[10] = frac*f3b + (1.-frac)*f3a;
+
+        }
+      else{
+        phpars_pseudo[8]=1.;
+        phpars_pseudo[9]=1.;
+        phpars_pseudo[10]=1.;
+      }
+
+  }
+
+
+double HALO::PHALO_pseudo(double k) const{
+  IOW iow;
+  if (phpars_pseudo[0] == 1000. || k<=0.005) {
+    return pow2(linear_growth(k))*P_l(k);
+  }
+  else{
+  double kcub = pow3(k)/2./pow2(M_PI);
+  double deltahp = phpars_pseudo[1]*pow(k/phpars_pseudo[0],phpars_pseudo[8]*3.)/(1.+phpars_pseudo[2]*pow(k/phpars_pseudo[0],phpars_pseudo[9])+pow(phpars_pseudo[3]*phpars_pseudo[10]*k/phpars_pseudo[0],3.-phpars_pseudo[4]));
+  double deltah = deltahp/(1.+ phpars_pseudo[7]/pow2(k/phpars_pseudo[0]));
+  double deltaplin = kcub*pow2(linear_growth(k))*P_l(k);
+  double deltaq = deltaplin*pow(1.+ deltaplin,phpars_pseudo[6])/(1.+phpars_pseudo[5]*deltaplin)*exp(-(k/phpars_pseudo[0])/4.-pow2(k/phpars_pseudo[0])/8.);
+  double deltanl = deltaq + deltah;
+
+  return  deltanl/kcub;
+}
+}
+
+
 
 /* Extra stuff */
-
-
 
 /// Halo density profile in real space - NFW for now  but  can edit this easily
 double HALO::halo_profileR(double Mvir, double Rvir,  double mycvir, double r) const {

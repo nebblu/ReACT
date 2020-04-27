@@ -628,7 +628,7 @@ double SCOL::myscol(double myscolparams[], double acol, double omega0, double Rt
        arrays_T xxyy = (arrays_T)malloc( sizeof(struct arrays) );
 
        yenv (omega0, XF , m/d, xxyy);
-	
+
 // set max scalefactor
        double maximumt = (*xxyy).xx[(*xxyy).count-1];
 
@@ -747,9 +747,9 @@ double SCOL::myscol(double myscolparams[], double acol, double omega0, double Rt
 double amax;
 // set maximum  and minimum scale factor for which y is actually solved.
 double alimit1 = ((*myamax).xx[(*xxyyzz).count-1]);
-double alimit2 = ((*myamax).xx[0]);	
-	
-	
+double alimit2 = ((*myamax).xx[0]);
+
+
 std::mt19937 gen0(2);
 
 std::uniform_real_distribution<> dis0(alimit2, alimit1);

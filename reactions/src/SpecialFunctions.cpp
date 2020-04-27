@@ -149,7 +149,7 @@ double  WEFF(double a, double omega0, double p1, double p2, double p3){
 		/*CPL*/
 		// double h2 = pow2(HAg(a,omega0,p1,p2,p3));
 		// return -(1.+3.*(p1+(1.-a)*p2))*(h2-omega0/pow3(a));
-		
+
 }
 
 
@@ -1093,12 +1093,13 @@ int funcn2(double a, const double G[], double F[], void *params)
 
 // correction to virial concentration in real case - see HALO.cpp
 double g_de = 1.;
-// Normalisation for power spectra with DE
-// par1 : w0
-// par2 : wa
-// par3 : -
-// par4 : 1 for DE norm, 2 for LCDM norm (w=-1 , wa = 0)
-void IOW::initnorm_ide(double A, double omega0, double par1, double par2, double par3, int par4)
+// Normalisation for power spectra with and without evolving DE
+// vars[0] = scale factor
+// vars[1] = omega_m0
+// vars[2] = w0 (not used for modified gravity as Hubble function should be set to GR value - see funcn2)
+// vars[3] = wa (not used for modified gravity as Hubble function should be set to GR value - see funcn2)
+// vars[4] unused so far
+void IOW::initnorm(double vars[]) //double A, double omega0, double par1, double par2, double par3, int par4)
 {
 			double a = 0.0001;
 	  	double G1[2] = {a,-a}; // initial conditions
@@ -1108,7 +1109,7 @@ void IOW::initnorm_ide(double A, double omega0, double par1, double par2, double
 			int status1,status2;
 			//  Solution for wCDM linear growth @ a=1  for our normalisation of the linear power spectrum
 			//DE
-					params_my = {omega0,par1,par2,par3,par4};
+					params_my = {vars[1],vars[2],vars[3],vars[4],1};
 
 			  // Solutions of evolution factors @ a=A
 			  	sys1 = {funcn2, jac, 2, &params_my};
@@ -1126,25 +1127,27 @@ void IOW::initnorm_ide(double A, double omega0, double par1, double par2, double
 			  	G1[0] =  a;
 					G1[1] = -a;
 
+					double mya = vars[0];
+
 			// LCDM growth @ a=A
-					params_my = {omega0,-1.,0.,0.,par4};
+					params_my = {vars[1],-1.,0.,0.,1};
 			  // Solutions of evolution factors @ a=A
 			  	sys1 = {funcn2, jac, 2, &params_my};
 			  	d1 = gsl_odeiv2_driver_alloc_y_new (&sys1, gsl_odeiv2_step_rk8pd,
 			  								  1e-6, 1e-6, 1e-6);
 
-					status1 = gsl_odeiv2_driver_apply (d1, &a, A , G1);
+					status1 = gsl_odeiv2_driver_apply (d1, &a, mya , G1);
 
 				 	Dl_spt = G1[0];
 
 			// Solutions of evolution factors @ a=1
-					status2 = gsl_odeiv2_driver_apply (d1, &A, 1. , G1);
+					status2 = gsl_odeiv2_driver_apply (d1, &mya, 1. , G1);
 
 					double dnorm_spt1 = G1[0];
 
 					gsl_odeiv2_driver_free(d1);
 
-			// correction to virial concentration
+			// correction to virial concentration and P(k)
 					g_de = dnorm_spt1/dnorm_spt;
 }
 

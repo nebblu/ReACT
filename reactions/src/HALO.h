@@ -5,7 +5,7 @@
 
 // limits on mass exponents
 const double Mmax = 18.;
-const double Mmin = 8.;
+const double Mmin = 5.;
 
 class HALO {
 public:

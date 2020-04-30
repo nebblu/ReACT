@@ -100,6 +100,7 @@ Then just run
 > LDFLAGS += -lgsl -lgslcblas -lsundials_cvode -lsundials_nvecserial -L/home/bose/sundials/install_dir/lib64
 * One may also need to add the sundials include directory as a CPPFLAG in pyreact/Makefile for installation to complete correctly:
 > CPPFLAGS += -I/home/bose/sundials/install_dir/include
+* If errors in spherical collapse are experienced for non-f(R) theories, try setting yenvf=0 in scol_init in HALO.cpp. 
 
 ## Additional Libraries from old versions of MG-Copter 
 

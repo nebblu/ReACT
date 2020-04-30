@@ -645,7 +645,7 @@ static double ploopn2_mgdd( const PowerSpectrum& P_L, double vars[], double k, d
         kargs[2] = sqrt(kv[1]*kv[1]+2.*kv[1]*kv[2]*xv[0]+kv[2]*kv[2]);
         kargs[1] = sqrt(kv[2]*kv[2]+2.*kv[2]*kv[0]*xv[2]+kv[0]*kv[0]);
         kargs[3] = sqrt(kv[0]*kv[0]+2.*kv[0]*kv[1]*xv[1]+kv[1]*kv[1]);
-        iow.initn2(vars[4],kv,xv,kargs,vars[0],vars[1],vars[2],vars[3]);
+        iow.initn2(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4]);
         p22 = pow2(F2_nk);
         p13 = F1_nk*F3_nk;
 
@@ -665,7 +665,7 @@ static double ploopn2_mgdt( const PowerSpectrum& P_L, double vars[], double k, d
         kargs[2] = sqrt(kv[1]*kv[1]+2.*kv[1]*kv[2]*xv[0]+kv[2]*kv[2]);
         kargs[1] = sqrt(kv[2]*kv[2]+2.*kv[2]*kv[0]*xv[2]+kv[0]*kv[0]);
         kargs[3] = sqrt(kv[0]*kv[0]+2.*kv[0]*kv[1]*xv[1]+kv[1]*kv[1]);
-        iow.initn2(vars[4],kv,xv,kargs,vars[0],vars[1],vars[2],vars[3]);
+        iow.initn2(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4]);
         p22 = G2_nk*F2_nk;
         p13 = 0.5*(G1_nk*F3_nk + F1_nk*G3_nk);
     return pow2(r)*2.*P_L(k*r)*(P_L(kargs[0])*p22 + 3.*P_L(k)*p13);
@@ -684,7 +684,7 @@ static double ploopn2_mgtt(const PowerSpectrum& P_L, double vars[], double k, do
         kargs[2] = sqrt(kv[1]*kv[1]+2.*kv[1]*kv[2]*xv[0]+kv[2]*kv[2]);
         kargs[1] = sqrt(kv[2]*kv[2]+2.*kv[2]*kv[0]*xv[2]+kv[0]*kv[0]);
         kargs[3] = sqrt(kv[0]*kv[0]+2.*kv[0]*kv[1]*xv[1]+kv[1]*kv[1]);
-        iow.initn2(vars[4],kv,xv,kargs,vars[0],vars[1],vars[2],vars[3]);
+        iow.initn2(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4]);
         p22 = pow2(G2_nk);
         p13 = G1_nk * G3_nk;
     return pow2(r)*2.*P_L(k*r)*(P_L(kargs[0])*p22 + 3.*P_L(k)*p13);
@@ -705,7 +705,7 @@ static double ploopn2_mgdd_pseudo( const PowerSpectrum& P_L, double vars[], doub
         kargs[2] = sqrt(kv[1]*kv[1]+2.*kv[1]*kv[2]*xv[0]+kv[2]*kv[2]);
         kargs[1] = sqrt(kv[2]*kv[2]+2.*kv[2]*kv[0]*xv[2]+kv[0]*kv[0]);
         kargs[3] = sqrt(kv[0]*kv[0]+2.*kv[0]*kv[1]*xv[1]+kv[1]*kv[1]);
-        iow.initn2_pseudo(vars[4],kv,xv,kargs,vars[0],vars[1],vars[2],vars[3]);
+        iow.initn2_pseudo(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4]);
         p22 = pow2(F2_nk);
         p13 = F1_nk*F3_nk;
 
@@ -714,7 +714,7 @@ static double ploopn2_mgdd_pseudo( const PowerSpectrum& P_L, double vars[], doub
 
 
 // Choose a {0,...,8}: P_linear, P_dd,P_dt, P_tt (MG), P_linear, P_dd,P_dt, P_tt (IDE), P_dd pseudo (see HALO.cpp)
-// vars: 0= omega_m(z=0), 1 = mg param , 2 = mg param, 3 = mg param, 4 =  scale factor
+// vars: 0 =  scale factor, 1= omega_m(z=0), 2 = mg param , 3 = mg param, 4 = mg param,
 double SPT::PLOOPn2(int a, double vars[], double k, double err) const{
   IOW iow;
 double loop, tree;
@@ -725,7 +725,7 @@ double c[2] = {KMIN,-1.};
 double d[2] = {KMAX, 1.};
 switch (a) {
   case 0:
-    iow.initn_lin(vars[4], k, vars[0],vars[1], vars[2],vars[3]);
+    iow.initn_lin(vars[0], k, vars[1],vars[2], vars[3],vars[4]);
     tree = pow2(F1_nk/dnorm_spt)*P_L(k);
     return tree;
   case 1:

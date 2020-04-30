@@ -87,9 +87,9 @@ public:
    // solves for y_enviornment
    int yenv(double OM_REAL, double XF, double delta_envi, arrays_T xxyy); // gives the environmental dependence of spherical collapse
    // solves for y_halo
-   int SphericalCollapse(double *dC, arrays_T3 xxyyzz, UserData data_vec, double TMULT_REAL); // spherical collapse solver
+   int SphericalCollapse(double *dC, arrays_T3 xxyyzz, UserData data_vec, double TMULT_REAL, double delta_g); // spherical collapse solver
    // solves for a_virial
-   double myscol(double myscolparams[], double acol, double omega0, double Rthp, double sig1, double sig2, double pars[], int mymg); // solves for virial quantities and stores them in array myscolparams
+   double myscol(double myscolparams[], double acol, double omega0, double Rthp, double sig1, double sig2, double pars[], int mymg, int yenvf); // solves for virial quantities and stores them in array myscolparams
 
 
    void PrintOutput(realtype t, realtype y1, realtype y2);

@@ -77,12 +77,14 @@ Spline a_vir;
 Spline delta_avir;
 Spline mysig;
 Spline mysigp;
-
 void HALO::scol_init(double vars[]) const{
   SCOL scol;
-
   // number of points in mass loop (default is 30)
   int loop_N = (int)vars[5];
+
+  // selects whether we need a guess for the SC initial delta based on y_env
+  // 0 means no guess is made and default value 3e-5 is used, 1 sets the guess to 10% larger than y_env initial.
+  int yenvf = 1;
 
 // arrays to store values
 double lgmass[loop_N],sigar[loop_N],scolar0[loop_N],scolar1[loop_N],scolar2[loop_N];
@@ -112,7 +114,7 @@ for(int i = 0; i< loop_N; i++){
    double Rth = 0.1*pow((Gnewton*pow(10, lgmass[i]))/(5.*vars[1]),ONE/THREE);
 
 // initialise delta_c, a_vir, delta_vir
-   scol.myscol(myscolparams, vars[0], vars[1], Rth, sig1, sig2, pars, 2);
+   scol.myscol(myscolparams, vars[0], vars[1], Rth, sig1, sig2, pars, 2, yenvf);
 
 // calculate sigma^2
    sigar[i] = sqrt(Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), Rth, std::placeholders::_1), 1e-4, 50., 1e-5, 1e-5));
@@ -185,14 +187,15 @@ void HALO::scol_initp(double vars[]) const{
    double sig2 = (sigb-siga)/0.0001;
 
    // theory params
-   double pars[3];
+   double pars[4];
    pars[0] = 1e-15;
    pars[1] = 1.;
-   pars[2] = 1.;;
-
+   pars[2] = 1.;
+   // y env flag
+   int yenvf = 0;
 
 // initialise spherical collapse quantities in GR (independent of R (or M))
-  scol.myscol(myscolparams, vars[0], vars[1], 1., sig1, sig2, pars, 1);
+  scol.myscol(myscolparams, vars[0], vars[1], 1., sig1, sig2, pars, 1, 0);
 
 //#pragma omp parallel for
 for(int i = 0; i< loop_N; i++){
@@ -385,7 +388,7 @@ double HALO::cvirial(double lgmass, double acol) const {
        void *params;
        double q = 0.75;
        double p = 0.3;
-       double aconst = 1./3.10382;
+       double aconst = 1./3.056;
 
 
        double v2 = pow2(mynu(lgmass,params));
@@ -403,7 +406,7 @@ double HALO::cvirial(double lgmass, double acol) const {
        void *params;
        double q = 0.75;
        double p = 0.3;
-       double aconst = 1./3.10382;
+       double aconst = 1./3.056;
 
 
        double v2 = pow2(mynup(lgmass,params));
@@ -554,19 +557,11 @@ void HALO::react_init(double vars[]) const{
   p1hp = one_halop(0.06,vars); // pseudo
 
 // spt terms
-// change vars for SPT function
-  double myvars[5];
-  myvars[0] = vars[1]; // omega0
-  myvars[1] = vars[2]; // mg param
-  myvars[2] = vars[3]; // unused mg param
-  myvars[3] = vars[4]; // unused mg param
-  myvars[4] = vars[0]; // scale factor
-
 // Real PT spectrum
-  pspt = spt.PLOOPn2(1, myvars, 0.06, 1e-3);
+  pspt = spt.PLOOPn2(1, vars, 0.06, 1e-3);
 
   // GR-1-loop spectrum with linear growth replaced by modified gravity growth (unscreened)
-  psptp = spt.PLOOPn2(8, myvars, 0.06, 1e-3);
+  psptp = spt.PLOOPn2(8, vars, 0.06, 1e-3);
 
   // real linear spectrum
   plreal = pow2(linear_growth(0.06))*P_l(0.06);

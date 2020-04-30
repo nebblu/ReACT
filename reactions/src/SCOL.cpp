@@ -56,17 +56,6 @@ static double Pzeta(double x, void * p)
 
 
 
-
-static double funcscol(double xi, void *user_data)
-{
-  double yi;
-  UserData data;
-  data    = (UserData) user_data;
-  yi      = gsl_spline_eval (data->spline, xi, data->acc);
-  return yi;
-}
-
-
 // EQ. A4 of  1812.05594 with a = e^t
 // derivatives are taken with respect to t (or ln[a])
 static int f_modscol(realtype t, N_Vector y, N_Vector ydot, void *user_data)
@@ -94,7 +83,7 @@ static int f_modscol(realtype t, N_Vector y, N_Vector ydot, void *user_data)
     // make sure we don't exceed y_env spline range - above maximum t we don't care about the solution.
     // Should implement a better fix for this ...
     if (t>maxt){
-      yenv = gsl_spline_eval (data->spline, maxt, data->acc);
+            yenv = gsl_spline_eval (data->spline, maxt, data->acc);
                 }
      else{
             yenv = gsl_spline_eval (data->spline, t, data->acc);
@@ -118,9 +107,6 @@ static int f_modscol(realtype t, N_Vector y, N_Vector ydot, void *user_data)
     // d H/ d ln[a] / (H/H0)^2
     dhlnaoh = HA1g(ET*ET0,OM, (data->par1), (data->par2), (data->par3))/hubble2;
      }
-
-
-//TODO:  need to modify these equations to include the above hubble quantities ...
 
     prefac  =  SUNRexp(-THREE*t)*OM; // a^3 Omega_m
 
@@ -207,7 +193,7 @@ double SCOL::maxP_zeta(double sig2, double dsig2dR, double OM, double Z)
   double d_envcr = GSL_FN_EVAL(&A1,0);
   double a = 0.0;
   double b = d_envcr*0.999;
-  double m = 0.001;
+  double m = 0.0001;
   double varomega = gamma * d_envcr;
 
   struct my_f_params Pzeta_params = {pow(5.0/8.0, 3.0/d_envcr) / pow((sig2_params.c), 2.0/varomega),
@@ -260,7 +246,6 @@ double SCOL::Delta_Lambda(double OM, double Z)
     = gsl_integration_workspace_alloc (1000);
 
   double result, error;
-  double expected = -4.0;
   double alpha = 1.0;
 
   struct my_f_params OM_Z_params = {OM, Z, 1.0/(1.0+Z)}; // OM, Z, a0=1/(1+Z)
@@ -284,13 +269,11 @@ double SCOL::Delta_Lambda(double OM, double Z)
 
 // Solves for y_env (i.e. F=0 in Eq. A4 of 1812.05594 )
 // stores results in xxyy
-
 // parameters: omega_matter, -log(1.0 + myz1) , m1/d1, array to store y/y_i
 int SCOL::yenv(double OM_REAL, double XF, double delta_envi, arrays_T xxyy)
 {
   double xi, yi, xx[1002], yy[1002];
-  // arrays_T xxyy = malloc( sizeof(struct arrays) );
-  realtype reltol, t, tout, delta_uu, delta_ll, T1;
+  realtype reltol, t, tout, T1;
   N_Vector y, abstol;
   SUNMatrix A;
   SUNLinearSolver LS;
@@ -298,11 +281,6 @@ int SCOL::yenv(double OM_REAL, double XF, double delta_envi, arrays_T xxyy)
   void *cvode_mem;
   int i, flag, flagr, iout;
   int rootsfound[2];
-
-
-  delta_uu = DELTA1;
-  delta_ll = DELTA2;
-
 
       y             = abstol = NULL;
       data          = NULL;
@@ -317,7 +295,6 @@ int SCOL::yenv(double OM_REAL, double XF, double delta_envi, arrays_T xxyy)
       Ith(abstol,2) = ATOL2;
 
       data          = (UserData) malloc(sizeof *data);  /* Allocate data memory */
-      // if(check_flagscol((void *)data, "malloc", 2)) return(xxyy);
       data->IC      = delta_envi;  /* this parameter changes the function everytime, and has to be in the loop*/
       data->OM      = OM_REAL;
 
@@ -330,7 +307,6 @@ int SCOL::yenv(double OM_REAL, double XF, double delta_envi, arrays_T xxyy)
 
 
       cvode_mem     = CVodeCreate(CV_ADAMS);
-      // cvode_mem     = CVodeCreate(CV_BDF, CV_NEWTON);
       flag          = CVodeInit(cvode_mem, fscol, T1, y);
       flag          = CVodeSVtolerances(cvode_mem, reltol, abstol);
       flag          = CVodeSetUserData(cvode_mem, data);
@@ -342,7 +318,7 @@ int SCOL::yenv(double OM_REAL, double XF, double delta_envi, arrays_T xxyy)
       iout = 0;  tout = 20;
 
       (*xxyy).xx[iout] = T1;
-      (*xxyy).yy[iout] = Y1;
+      (*xxyy).yy[iout] = 0.0;
 
 
       while(1)
@@ -448,7 +424,7 @@ int check_flagscol(void *flagvalue, const char *funcname, int opt)
 
 
 // Solves for delta_i
-int SCOL::SphericalCollapse(double *dC, arrays_T3 xxyyzz, UserData data_vec, double TMULT_REAL)
+int SCOL::SphericalCollapse(double *dC, arrays_T3 xxyyzz, UserData data_vec, double TMULT_REAL, double delta_g)
 {
 
     realtype reltol, t, tout, delta_uu, delta_ll, T1;
@@ -462,10 +438,13 @@ int SCOL::SphericalCollapse(double *dC, arrays_T3 xxyyzz, UserData data_vec, dou
     int rootsfound[2];
     double xx[1002], yy[1002], zz[1002];
 
-    delta_uu = DELTA1;
+    delta_uu = delta_g;
     delta_ll = DELTA2;
 
-  for (count_of_bisec=0; count_of_bisec < 17; ++count_of_bisec)
+// 32 bisections should be enough for most cases, but increase if needed
+    int noofbi = 32;
+    int noofbi2 = noofbi-1;
+  for (count_of_bisec=0; count_of_bisec < noofbi; ++count_of_bisec)
   {
       y             = abstol = NULL;
       data          = NULL;
@@ -494,14 +473,12 @@ int SCOL::SphericalCollapse(double *dC, arrays_T3 xxyyzz, UserData data_vec, dou
       data->maxt    = (*data_vec).maxt;
       data->OM      = (*data_vec).OM;
       T1            = (*data_vec).T1;
-      // printf("checking du,dl: %g, %g \n", delta_uu, delta_ll);
 
       Ith(y,1)      = Y1;
       Ith(y,2)      = -data->IC/THREE; /* this is the initial condition for y' */
 
 
       cvode_mem     = CVodeCreate(CV_ADAMS);
-      // cvode_mem     = CVodeCreate(CV_BDF, CV_NEWTON);
       flag          = CVodeInit(cvode_mem, f_modscol, T1, y);
       flag          = CVodeSVtolerances(cvode_mem, reltol, abstol);
       flag          = CVodeSetUserData(cvode_mem, data);
@@ -518,16 +495,14 @@ int SCOL::SphericalCollapse(double *dC, arrays_T3 xxyyzz, UserData data_vec, dou
 
       while(1)
       {
-        if (count_of_bisec == 16)
+        if (count_of_bisec == noofbi2)
         {
           flag = CVode(cvode_mem, tout, y, &t, CV_ONE_STEP);
-          // printf ("%.7f %.7f \n", t, Ith(y,1));
           ioutout += 1;
           (*xxyyzz).count = ioutout+1;
           (*xxyyzz).xx[ioutout] = t;
           (*xxyyzz).yy[ioutout] = Ith(y,1);
           (*xxyyzz).zz[ioutout] = Ith(y,2);
-//           printf (" %d %.7f %.7f  %.7f %.7f \n",ioutout,(*xxyyzz).xx[0],   (*xxyyzz).xx[ioutout], Ith(y,1), Ith(y,2));
         }
         else
         {
@@ -556,7 +531,7 @@ int SCOL::SphericalCollapse(double *dC, arrays_T3 xxyyzz, UserData data_vec, dou
                 tout *= TMULT_REAL;
               }
 
-          if (count_of_bisec == 16)
+          if (count_of_bisec == noofbi2)
           {
             if (t > 0.) { goto nout;}
           }
@@ -586,14 +561,11 @@ int SCOL::SphericalCollapse(double *dC, arrays_T3 xxyyzz, UserData data_vec, dou
 	N_VDestroy(y);
  }
 
+// if this pops up, we should increase number of bisections.
     if (SUNRabs(delta_uu - delta_ll) >= EPSILON)
     {
       printf("Wrong Accuracy d_uu - d_ll = %g, epsilon = %g \n", delta_uu - delta_ll, EPSILON);
     }
-
-//     *dC = data->IC;
- //      N_VDestroy(y);
-//      free(data);
 
       return  0;
 }
@@ -606,13 +578,14 @@ int SCOL::SphericalCollapse(double *dC, arrays_T3 xxyyzz, UserData data_vec, dou
 
 // needs omega0, initial top-hat radius , initial density of enviornment, modification parameters and selection of theory, mymg:
 // mymg = 1 gives GR collapse, 2 gives modified collapse
-double SCOL::myscol(double myscolparams[], double acol, double omega0, double Rthp, double sig1, double sig2, double pars[], int mymg)
+double SCOL::myscol(double myscolparams[], double acol, double omega0, double Rthp, double sig1, double sig2, double pars[], int mymg, int yenvf)
 {
 
       // theory params
         double p1 = pars[0];
         double p2 = pars[1];
         double p3 = pars[2];
+
 
         for(int i=0; i<3; i++){
         myscolparams[i] =0.;
@@ -641,9 +614,18 @@ double SCOL::myscol(double myscolparams[], double acol, double omega0, double Rt
        // holders for delta_c and for a, y(a), y'(a)
        arrays_T3 xxyyzz = (arrays_T3)malloc( sizeof(struct arrays3D) );
 
+// set initial condition for SC to 10% higher than y_env,initial if we need to use y_env in SC.
+       double mydelta;
+         if (yenvf == 1) {
+           mydelta = m/d*1.1;
+         }
+         else{
+           mydelta = DELTA1;
+         }
+
          UserData data;
          data          = (UserData) malloc(sizeof(struct usdat));  /* Allocate data memory */
-         data->IC      = (DELTA1+DELTA2)*HALF;  /* this parameter changes the function everytime, and has to be in the loop*/
+         data->IC      = (mydelta+DELTA2)*HALF;  /* this parameter changes the function everytime, and has to be in the loop*/
          data->spline  = myspline_yenv;
          data->acc     = acc;
          data->T1      = T00 + XF;
@@ -656,7 +638,7 @@ double SCOL::myscol(double myscolparams[], double acol, double omega0, double Rt
 	 data->maxt    = maximumt;
 
           // initialse the delta_i (solver spherical collapse differential equation)
-        SphericalCollapse (&myscolparams[0], xxyyzz, data, TMULT);
+        SphericalCollapse (&myscolparams[0], xxyyzz, data, TMULT, mydelta);
        	free(data);
 
      double ainit = exp(T00)*acol;

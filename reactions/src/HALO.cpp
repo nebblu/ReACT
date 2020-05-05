@@ -40,6 +40,18 @@
 using std::cref;
 using std::bind;
 
+extern const int ERROR_MESSAGE_LEN = 512;
+char error_message[ERROR_MESSAGE_LEN];
+
+void react_error(const char* msg) {
+    const int truncate = ERROR_MESSAGE_LEN-10;
+
+    #pragma omp critical
+    {
+        snprintf(error_message, truncate, "HALO.cpp error: %s", msg);
+        printf("%s\n", error_message);
+    }
+}
 
 /* Code to calculate halo terms */
 
@@ -95,6 +107,13 @@ double sigb = Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), 8.0001, std::pl
 double sig1 = siga;
 double sig2 = (sigb-siga)/0.0001;
 
+ if (!gsl_finite(sig1)) {
+  react_error("sigma_8 evaluated to non-numerical value");
+}
+
+if (!gsl_finite(sig2)) {
+  react_error("sigma_8 derivative evaluated to non-numerical value");
+}
 
 // theory parameters
 double pars[3];

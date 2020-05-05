@@ -1092,7 +1092,8 @@ int funcn2(double a, const double G[], double F[], void *params)
 
 
 // correction to virial concentration in real case - see HALO.cpp
-double g_de = 1.;
+//double g_de = 1.;
+double g_de;
 // Normalisation for power spectra with and without evolving DE
 // vars[0] = scale factor
 // vars[1] = omega_m0
@@ -1105,8 +1106,10 @@ void IOW::initnorm(double vars[]) //double A, double omega0, double par1, double
 	  	double G1[2] = {a,-a}; // initial conditions
 			struct param_type2 params_my;
 			gsl_odeiv2_system sys1;
+			gsl_odeiv2_system sys2;
 			gsl_odeiv2_driver * d1;
-			int status1,status2;
+			gsl_odeiv2_driver * d2;
+			int status1,status2,status3;
 			//  Solution for wCDM linear growth @ a=1  for our normalisation of the linear power spectrum
 			//DE
 					params_my = {vars[1],vars[2],vars[3],vars[4],1};
@@ -1132,23 +1135,23 @@ void IOW::initnorm(double vars[]) //double A, double omega0, double par1, double
 			// LCDM growth @ a=A
 					params_my = {vars[1],-1.,0.,0.,1};
 			  // Solutions of evolution factors @ a=A
-			  	sys1 = {funcn2, jac, 2, &params_my};
-			  	d1 = gsl_odeiv2_driver_alloc_y_new (&sys1, gsl_odeiv2_step_rk8pd,
+			  	sys2 = {funcn2, jac, 2, &params_my};
+			  	d2 = gsl_odeiv2_driver_alloc_y_new (&sys2, gsl_odeiv2_step_rk8pd,
 			  								  1e-6, 1e-6, 1e-6);
 
-					status1 = gsl_odeiv2_driver_apply (d1, &a, mya , G1);
+					status2 = gsl_odeiv2_driver_apply (d2, &a, mya , G1);
 
 				 	Dl_spt = G1[0];
 
 			// Solutions of evolution factors @ a=1
-					status2 = gsl_odeiv2_driver_apply (d1, &mya, 1. , G1);
+					status3 = gsl_odeiv2_driver_apply (d2, &mya, 1. , G1);
 
 					double dnorm_spt1 = G1[0];
 
-					gsl_odeiv2_driver_free(d1);
+					gsl_odeiv2_driver_free(d2);
 
 			// correction to virial concentration and P(k)
-					g_de = dnorm_spt1/dnorm_spt;
+					g_de = 1.0;//dnorm_spt1/dnorm_spt;
 }
 
 

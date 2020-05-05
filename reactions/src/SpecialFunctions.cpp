@@ -1092,7 +1092,6 @@ int funcn2(double a, const double G[], double F[], void *params)
 
 
 // correction to virial concentration in real case - see HALO.cpp
-//double g_de = 1.;
 double g_de;
 // Normalisation for power spectra with and without evolving DE
 // vars[0] = scale factor
@@ -1151,7 +1150,7 @@ void IOW::initnorm(double vars[]) //double A, double omega0, double par1, double
 					gsl_odeiv2_driver_free(d2);
 
 			// correction to virial concentration and P(k)
-					g_de = 1.0;//dnorm_spt1/dnorm_spt;
+					g_de = dnorm_spt1/dnorm_spt;
 }
 
 

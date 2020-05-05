@@ -37,7 +37,7 @@ static double delta_envc(double x, void * p)
   double Z = (params->b);
   return 3.0 / 20.0 *
          pow(12*M_PI, 2.0/3.0) *
-         (1 - 0.0123 * log10(1 + (1/OM - 1) / pow(1+Z,3)));
+         (1. - 0.0123 * log10(1. + (1./OM - 1.) / pow(1.+Z,3.)));
 }
 
 
@@ -192,7 +192,7 @@ double SCOL::maxP_zeta(double sig2, double dsig2dR, double OM, double Z)
   double gamma = - 8.0 / 3.0 / (sig2_params.a) * (sig2_params.b);
   double d_envcr = GSL_FN_EVAL(&A1,0);
   double a = 0.0;
-  double b = d_envcr*0.999;
+  double b = d_envcr*0.99;
   double m = 0.0001;
   double varomega = gamma * d_envcr;
 

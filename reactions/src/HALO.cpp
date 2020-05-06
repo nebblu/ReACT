@@ -40,16 +40,16 @@
 using std::cref;
 using std::bind;
 
-extern const int ERROR_MESSAGE_LEN = 512;
-char error_message[ERROR_MESSAGE_LEN];
+extern const int ERROR_MESSAGE_LEN_HALO = 512;
+char error_message_halo[ERROR_MESSAGE_LEN_HALO];
 
-void react_error(const char* msg) {
-    const int truncate = ERROR_MESSAGE_LEN-10;
+void react_error_halo(const char* msg) {
+    const int truncate = ERROR_MESSAGE_LEN_HALO-10;
 
     #pragma omp critical
     {
-        snprintf(error_message, truncate, "HALO.cpp error: %s", msg);
-        printf("%s\n", error_message);
+        snprintf(error_message_halo, truncate, "HALO.cpp error: %s", msg);
+        printf("%s\n", error_message_halo);
     }
 }
 
@@ -108,11 +108,11 @@ double sig1 = siga;
 double sig2 = (sigb-siga)/0.0001;
 
  if (!gsl_finite(sig1)) {
-  react_error("sigma_8 evaluated to non-numerical value");
+  react_error_halo("sigma_8 evaluated to non-numerical value");
 }
 
 if (!gsl_finite(sig2)) {
-  react_error("sigma_8 derivative evaluated to non-numerical value");
+  react_error_halo("sigma_8 derivative evaluated to non-numerical value");
 }
 
 // theory parameters

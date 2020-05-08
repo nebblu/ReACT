@@ -196,6 +196,8 @@ double SCOL::maxP_zeta(double sig2, double dsig2dR, double OM, double Z)
   double m = 0.0001;
   double varomega = gamma * d_envcr;
 
+	
+  double betatest =pow(5.0/8.0, 3.0/d_envcr) / pow((sig2_params.c), 2.0/varomega);
   struct my_f_params Pzeta_params = {pow(5.0/8.0, 3.0/d_envcr) / pow((sig2_params.c), 2.0/varomega),
                                      varomega,
                                      d_envcr};
@@ -210,7 +212,7 @@ double SCOL::maxP_zeta(double sig2, double dsig2dR, double OM, double Z)
   status2 = gsl_min_fminimizer_set (s, &F, m, a, b);
   if (status2 ){
     printf ("error: %s\n", gsl_strerror (status2));
-    printf ("The values of sigma8,sigma8',z,omega_m, varomega, d_envcr, beta, Dl_spt, g_de : %e %e %e %e %e %e %e %e %e  \n", sig2, dsig2dR, Z, OM,varomega, d_envcr, beta, Dl_spt, g_de );
+    printf ("The values of sigma8,sigma8',z,omega_m, varomega, d_envcr, betatest, Dl_spt, g_de : %e %e %e %e %e %e %e %e %e  \n", sig2, dsig2dR, Z, OM,varomega, d_envcr, beta, Dl_spt, g_de );
   }
   gsl_set_error_handler (NULL);
 	

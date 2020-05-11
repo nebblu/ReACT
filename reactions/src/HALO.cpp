@@ -74,6 +74,15 @@ static real W(real x) {
         return 3./pow3(x) * (sin(x) - x*cos(x));
 }
 
+// Window function derivative wrt R (top hat)
+static real Wd(double k, double R) {
+  double kR = k*R;
+  double skr = sin(kR);
+  double ckr = cos(kR);
+        return (3.*skr - 9.*(skr-kR*ckr)/pow2(kR))/kR/R ;
+}
+
+
 // sigma^2 (EQ 42 of 1812.05594) in terms of log_10(mass)
 // --- LCDM @ z=0 value --
 // include scale factor later
@@ -81,8 +90,8 @@ static real sigma_integrand(const PowerSpectrum& P, real R, real k) {
     return k*k/(2.*M_PI*M_PI) * P(k) * pow2(W(k*R)*Dl_spt/dnorm_spt);
 }
 
-static real sigma8d_integrand(const PowerSpectrum& P, real h, real k) {
-    return k*k/(2.*M_PI*M_PI) * P(k) * pow2(Dl_spt/dnorm_spt) * (pow2(W(k*(8.+h)))- pow2(W(k*(8.))))/h ;
+static real sigma8d_integrand(const PowerSpectrum& P, real R, real k) {
+    return k*k/(2.*M_PI*M_PI) * P(k) * pow2(Dl_spt/dnorm_spt) * 2.*W(k*R)*Wd(k,R) ;
 }
 
 ///// Modified Spherical Collapse  ////////
@@ -111,7 +120,7 @@ double lgmass[loop_N],sigar[loop_N],scolar0[loop_N],scolar1[loop_N],scolar2[loop
 //double sig1 = siga;
 //double sig2 = (sigb-siga)/0.0001;
 double sig1 = Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), 8., std::placeholders::_1), 1e-4, 50., 1e-3);
-double sig2 = Integrate<ExpSub>(bind(sigma8d_integrand, cref(P_l), 0.001, std::placeholders::_1), 1e-4, 50., 1e-3);
+double sig2 = Integrate<ExpSub>(bind(sigma8d_integrand, cref(P_l), 8., std::placeholders::_1), 1e-4, 50., 1e-3);
 
     
  if (!gsl_finite(sig1)) {
@@ -179,8 +188,8 @@ static real sigma_integrandp(const PowerSpectrum& P, real R, real k) {
     return k*k/(2.*M_PI*M_PI) * P(k) * pow2(linear_growth(k)*W(k*R));
 }
 
-static real sigma8d_integrandp(const PowerSpectrum& P, real h, real k) {
-    return k*k/(2.*M_PI*M_PI) * P(k) * pow2(linear_growth(k)) * (pow2(W(k*(8.+h)))- pow2(W(k*(8.))))/h ;
+static real sigma8d_integrandp(const PowerSpectrum& P, real R, real k) {
+    return k*k/(2.*M_PI*M_PI) * P(k) * pow2(linear_growth(k)) * 2.*W(k*R)*Wd(k,R) ;
 }
 
 
@@ -217,7 +226,7 @@ void HALO::scol_initp(double vars[]) const{
    //double sig2 = (sigb-siga)/0.0001;
 
 double sig1 = Integrate<ExpSub>(bind(sigma_integrandp, cref(P_l), 8., std::placeholders::_1), 1e-4, 50., 1e-3);
-double sig2 = Integrate<ExpSub>(bind(sigma8d_integrandp, cref(P_l), 0.001, std::placeholders::_1), 1e-4, 50., 1e-3);
+double sig2 = Integrate<ExpSub>(bind(sigma8d_integrandp, cref(P_l), 8., std::placeholders::_1), 1e-4, 50., 1e-3);
 
     
    // theory params

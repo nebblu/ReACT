@@ -81,6 +81,10 @@ static real sigma_integrand(const PowerSpectrum& P, real R, real k) {
     return k*k/(2.*M_PI*M_PI) * P(k) * pow2(W(k*R)*Dl_spt/dnorm_spt);
 }
 
+static real sigma8d_integrand(const PowerSpectrum& P, real h, real k) {
+    return k*k/(2.*M_PI*M_PI) * P(k) * pow2(Dl_spt/dnorm_spt) * (pow2(W(k*(8.+h)))- pow2(W(k*(8.))))/h ;
+}
+
 ///// Modified Spherical Collapse  ////////
 
 /* Initialise splines for delta_col , a_vir, delta_avir  and nu = delta_col/sigma as functions of mass index (10^mass index) */
@@ -102,11 +106,14 @@ void HALO::scol_init(double vars[]) const{
 double lgmass[loop_N],sigar[loop_N],scolar0[loop_N],scolar1[loop_N],scolar2[loop_N];
 
 // calculate sigma_8^2 and it's smoothing scale derivative @ R=8.
-double siga = Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), 8., std::placeholders::_1), 1e-4, 50., 1e-5, 1e-5);
-double sigb = Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), 8.0001, std::placeholders::_1), 1e-4, 50., 1e-5, 1e-5);
-double sig1 = siga;
-double sig2 = (sigb-siga)/0.0001;
+//double siga = Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), 8., std::placeholders::_1), 1e-4, 50., 1e-5, 1e-5);
+//double sigb = Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), 8.0001, std::placeholders::_1), 1e-4, 50., 1e-5, 1e-5);
+//double sig1 = siga;
+//double sig2 = (sigb-siga)/0.0001;
+double sig1 = Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), 8., std::placeholders::_1), 1e-4, 50., 1e-3);
+double sig2 = Integrate<ExpSub>(bind(sigma8d_integrand, cref(P_l), 0.001, std::placeholders::_1), 1e-4, 50., 1e-3);
 
+    
  if (!gsl_finite(sig1)) {
   react_error_halo("sigma_8 evaluated to non-numerical value");
 }
@@ -172,6 +179,10 @@ static real sigma_integrandp(const PowerSpectrum& P, real R, real k) {
     return k*k/(2.*M_PI*M_PI) * P(k) * pow2(linear_growth(k)*W(k*R));
 }
 
+static real sigma8d_integrandp(const PowerSpectrum& P, real h, real k) {
+    return k*k/(2.*M_PI*M_PI) * P(k) * pow2(linear_growth(k)) * (pow2(W(k*(8.+h)))- pow2(W(k*(8.))))/h ;
+}
+
 
 void HALO::scol_initp(double vars[]) const{
   SCOL scol;
@@ -200,11 +211,15 @@ void HALO::scol_initp(double vars[]) const{
 
 
 // calculate sigma_8^2 and it's smoothing scale derivative @ R=8.
-   double siga = Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), 8., std::placeholders::_1), 1e-4, 50., 1e-5, 1e-5);
-   double sigb = Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), 8.0001, std::placeholders::_1), 1e-4, 50., 1e-5, 1e-5);
-   double sig1 = siga;
-   double sig2 = (sigb-siga)/0.0001;
+//   double siga = Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), 8., std::placeholders::_1), 1e-4, 50., 1e-5, 1e-5);
+ //  double sigb = Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), 8.0001, std::placeholders::_1), 1e-4, 50., 1e-5, 1e-5);
+  // double sig1 = siga;
+   //double sig2 = (sigb-siga)/0.0001;
 
+double sig1 = Integrate<ExpSub>(bind(sigma_integrandp, cref(P_l), 8., std::placeholders::_1), 1e-4, 50., 1e-3);
+double sig2 = Integrate<ExpSub>(bind(sigma8d_integrandp, cref(P_l), 0.001, std::placeholders::_1), 1e-4, 50., 1e-3);
+
+    
    // theory params
    double pars[4];
    pars[0] = 1e-15;

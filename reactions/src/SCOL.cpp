@@ -208,13 +208,13 @@ double SCOL::maxP_zeta(double sig2, double dsig2dR, double OM, double Z)
   T = gsl_min_fminimizer_brent;
   s = gsl_min_fminimizer_alloc (T);
 
-  gsl_set_error_handler_off();
+ // gsl_set_error_handler_off();
   status2 = gsl_min_fminimizer_set (s, &F, m, a, b);
-  if (status2 ){
-    printf ("error: %s\n", gsl_strerror (status2));
-    printf ("The values of sigma8,sigma8',z,omega_m, varomega, d_envcr, beta, Dl_spt, g_de : %e %e %e %e %e %e %e %e %e  \n", sig2, dsig2dR, Z, OM,varomega, d_envcr, betatest, Dl_spt, g_de );
-  }
-  gsl_set_error_handler (NULL);
+//   if (status2 ){
+//     printf ("error: %s\n", gsl_strerror (status2));
+//     printf ("The values of sigma8,sigma8',z,omega_m, varomega, d_envcr, beta, Dl_spt, g_de : %e %e %e %e %e %e %e %e %e  \n", sig2, dsig2dR, Z, OM,varomega, d_envcr, betatest, Dl_spt, g_de );
+//   }
+ // gsl_set_error_handler (NULL);
 	
 	
 //  gsl_min_fminimizer_set (s, &F, m, a, b);

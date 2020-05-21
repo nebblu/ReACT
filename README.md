@@ -102,20 +102,21 @@ arXiv: : "On the road to per-cent accuracy IV:  ReACT -- computing the non-linea
 
 Respective bibtex entries:
 
-$ @article{Cataneo:2018cic,
-$   author = "Cataneo, Matteo and Lombriser, Lucas and Heymans, Catherine and Mead, Alexander and Barreira, Alexandre and Bose, Sownak and Li, Baojiu",
-$    title = "{On the road to percent accuracy: non-linear reaction of the matter power spectrum to dark energy and modified gravity}",
-$    eprint = "1812.05594",
-$    archivePrefix = "arXiv",
-$    primaryClass = "astro-ph.CO",
-$    doi = "10.1093/mnras/stz1836",
-$    journal = "Mon. Not. Roy. Astron. Soc.",
-$    volume = "488",
-$    number = "2",
-$    pages = "2121--2142",
-$    year = "2019"
-$}
-
+```
+ @article{Cataneo:2018cic,
+   author = "Cataneo, Matteo and Lombriser, Lucas and Heymans, Catherine and Mead, Alexander and Barreira, Alexandre and Bose, Sownak and Li, Baojiu",
+    title = "{On the road to percent accuracy: non-linear reaction of the matter power spectrum to dark energy and modified gravity}",
+     eprint = "1812.05594",
+    archivePrefix = "arXiv",
+    primaryClass = "astro-ph.CO",
+    doi = "10.1093/mnras/stz1836",
+    journal = "Mon. Not. Roy. Astron. Soc.",
+    volume = "488",
+    number = "2",
+    pages = "2121--2142",
+    year = "2019"
+}
+```
 
 ## Notes (22/04/20)
 * To optimise root finding within the spherical collapse portion of the code, the maximum redshift that one can solve the reaction for currently is z=2.5. 

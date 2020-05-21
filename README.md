@@ -98,11 +98,11 @@ When using ReACT in a publication, please acknowledge the code by citing the fol
 
 arXiv:1812.05594 : "On the road to percent accuracy: non-linear reaction of the matter power spectrum to dark energy and modified gravity"
 
-arXiv: : "On the road to per-cent accuracy IV:]{On the road to per-cent accuracy IV: {\tt ReACT} -- computing the non-linear power spectrum beyond $\Lambda$CDM"
+arXiv: : "On the road to per-cent accuracy IV:  ReACT -- computing the non-linear power spectrum beyond LCDM"
 
 Respective bibtex entries:
 
-@article{Cataneo:2018cic,
+> @article{Cataneo:2018cic,
     author = "Cataneo, Matteo and Lombriser, Lucas and Heymans, Catherine and Mead, Alexander and Barreira, Alexandre and Bose, Sownak and Li, Baojiu",
     title = "{On the road to percent accuracy: non-linear reaction of the matter power spectrum to dark energy and modified gravity}",
     eprint = "1812.05594",

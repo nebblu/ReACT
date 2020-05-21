@@ -92,6 +92,31 @@ Then just run
 ./test 
 
 
+## Citation
+
+When using ReACT in a publication, please acknowledge the code by citing the following papers:
+
+arXiv:1812.05594 : "On the road to percent accuracy: non-linear reaction of the matter power spectrum to dark energy and modified gravity"
+
+arXiv: : "On the road to per-cent accuracy IV:]{On the road to per-cent accuracy IV: {\tt ReACT} -- computing the non-linear power spectrum beyond $\Lambda$CDM"
+
+Respective bibtex entries:
+
+@article{Cataneo:2018cic,
+    author = "Cataneo, Matteo and Lombriser, Lucas and Heymans, Catherine and Mead, Alexander and Barreira, Alexandre and Bose, Sownak and Li, Baojiu",
+    title = "{On the road to percent accuracy: non-linear reaction of the matter power spectrum to dark energy and modified gravity}",
+    eprint = "1812.05594",
+    archivePrefix = "arXiv",
+    primaryClass = "astro-ph.CO",
+    doi = "10.1093/mnras/stz1836",
+    journal = "Mon. Not. Roy. Astron. Soc.",
+    volume = "488",
+    number = "2",
+    pages = "2121--2142",
+    year = "2019"
+}
+
+
 ## Notes (22/04/20)
 * To optimise root finding within the spherical collapse portion of the code, the maximum redshift that one can solve the reaction for currently is z=2.5. 
 * There are some current issues in the wCDM part of the code. Namely for very particular values of w0 and wa in the CPL evolving dark energy case, the spherical collapse library cannot solve the virial theorem. We advise sticking to the ranges 

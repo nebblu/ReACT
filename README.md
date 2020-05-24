@@ -85,11 +85,11 @@ In particular, the bs.cpp, spt.cpp, halo_ps.cpp examples compute various quantit
 
 We can compile these examples with a command similar to : 
 
-gcc -I/Users/bbose/Desktop/ReACT-master/reactions/include -L/Users/bbose/Desktop/ReACT-master/reactions/lib -lcopter -lgsl -lstdc++ bs.cpp -o test
+> gcc -I/Users/bbose/Desktop/ReACT-master/reactions/include -L/Users/bbose/Desktop/ReACT-master/reactions/lib -lcopter -lgsl -lstdc++ bs.cpp -o test
 
 Then just run 
 
-./test 
+> ./test 
 
 
 ## Citation

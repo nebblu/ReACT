@@ -38,7 +38,7 @@ $ pip install -e .
 
 ## Introduction
 
-ReACT is an extension of the software package Copter and MG-Copter [1606.02520] which allows for 
+ReACT is an extension of the software package Copter [0905:0479] and MG-Copter [1606.02520] which allows for 
 the calculation of redshift and real space large scale structure 
 observables for a wide class of gravity and dark energy models. 
 

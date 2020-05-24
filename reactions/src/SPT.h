@@ -35,7 +35,7 @@ public:
   // values of a :
   // 1: P_dd, 2: P_dt , 3: P_tt for mg,
   // 4: P_dd, 5: P_dt , 6: P_tt for interacting DE of
-  // vars: 0: omega_0, 1: mg1, 2:mg2 , 3:mg3, 4:scale factor
+  // vars: 0:scale factor , 1: omega_0, 2: mg1, 3 : mg2 , 4 : mg3 
   real PLOOPn2(int a, double vars[], double k, double err) const;
 
   // initialise p_loop values over redshifts[] at k=k0 for k_star in reaction code (HALO.cpp)

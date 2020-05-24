@@ -1354,7 +1354,7 @@ static double ptns_qb( const PowerSpectrum& P_L, double u0[], double vars[], dou
         kargs[2] = sqrt(kv[1]*kv[1]+2.*kv[1]*kv[2]*xv[0]+kv[2]*kv[2]);
         kargs[1] = sqrt(kv[2]*kv[2]+2.*kv[2]*kv[0]*xv[2]+kv[0]*kv[0]);
         kargs[3] = sqrt(kv[0]*kv[0]+2.*kv[0]*kv[1]*xv[1]+kv[1]*kv[1]);
-        iow.initn_rsd(vars[4],kv,xv,kargs,vars[0],vars[1],vars[2],vars[3]);
+        iow.initn_rsd(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4]);
 
         pdd22 = pow2(F2_nk);
         pdd13 = F1_nk*F3_nk;
@@ -1458,7 +1458,7 @@ static double ptns_lagb( const PowerSpectrum& P_L, double u0[], double vars[], d
           kargs[2] = sqrt(kv[1]*kv[1]+2.*kv[1]*kv[2]*xv[0]+kv[2]*kv[2]);
           kargs[1] = sqrt(kv[2]*kv[2]+2.*kv[2]*kv[0]*xv[2]+kv[0]*kv[0]);
           kargs[3] = sqrt(kv[0]*kv[0]+2.*kv[0]*kv[1]*xv[1]+kv[1]*kv[1]);
-          iow.initn_rsd(vars[4],kv,xv,kargs,vars[0],vars[1],vars[2],vars[3]);
+          iow.initn_rsd(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4]);
 
           pdd22 = pow2(F2_nk);
           pdd13 = F1_nk*F3_nk;
@@ -1574,7 +1574,7 @@ static double ptns_lagb( const PowerSpectrum& P_L, double u0[], double vars[], d
 // a {0,..,3}  : 0=Kaiser, 1 = TNS q-bias, 2 = TNS lag bias (MG)
 // b {1,2,3} :  1 = monopole, 2 = quadrupole, 3 = hexdecapole
 // bias[] :  0 = linear bias, 1,2 = qbias param or lagrangian bias params (b_2, N)
-// vars: 0= omega_m(z=0), 1 = mg param , 2 = mg param, 3 = mg param, 4 =  scale factor
+// vars: 0 =  scale factor, 1= omega_m(z=0), 2 = mg param , 3 = mg param, 4 = mg param,
 // sigmav -  sigma_v free parameter
 // err -  absolute error in differential equation solver
 
@@ -1589,7 +1589,7 @@ double d[2] = {KMAX, 0.99999999};
 switch (a) {
   case 0:
       bl = bias[0];
-      iow.initn_lin(vars[4], k, vars[0],vars[1], 1.,1.);
+      iow.initn_lin(vars[0], k, vars[1],vars[2], vars[3], vars[4]);
       linear = pow2(F1_nk*bl/dnorm_spt)*(factL(k, sigmav, 1., 1., 0, b, 7)*P_L(k) - 2.*(G1_nk/F1_nk/bl)*factL(k, sigmav, 1., 1., 1, b, 7)*P_L(k) + pow2(G1_nk/F1_nk/bl)*factL(k, sigmav, 1., 1., 2, b, 7)* P_L(k));
 
     return linear;

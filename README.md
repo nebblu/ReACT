@@ -127,6 +127,7 @@ Respective bibtex entries:
 * One may also need to add the sundials include directory as a CPPFLAG in pyreact/Makefile for installation to complete correctly:
 > CPPFLAGS += -I/home/bose/sundials/install_dir/include
 * If errors in spherical collapse are experienced for non-f(R) theories, try setting yenvf=0 in the scol_init function in reactions/src/HALO.cpp.
+* Note if using the stand-alone version of ReACT, the reaction may have deviations away from unity of the order of ~0.1-0.3% for k<1e-3. Pyreact automatically sets it to unity at such large scales. 
 
 ## Additional Libraries from old versions of MG-Copter 
 

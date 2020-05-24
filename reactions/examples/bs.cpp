@@ -54,16 +54,15 @@ int main() {
     SPT spt(C, P_l, epsrel);
 
     IOW iow;
-    real b1,b2,b3,b4,p1,p2,p3,p4;
+    real b1,b2,b3,b4;
 
-    double vars[4];
+    double vars[3];
 
 
-// 0: scale factor, 1: omega_total, 2: mg param (1e-10 ~ GR for default mg functions ), 3: 1 = DGP 2 = IDE  3 = f(R)
+// 0: scale factor, 1: omega_total, 2: mg param (1e-10 ~ GR for default mg functions ), 
     vars[0] = 1./(1.+0.541);
     vars[1] = 0.279;
-    vars[2] = 1e-15;
-    vars[3] = 1e-15;
+    vars[2] = 1e-5;
 
 // initialise GR lin growth for PS normalisation
 iow.inite2(vars[0],vars[1],vars[2], 1.,1.);
@@ -71,6 +70,7 @@ spt.remp(fl_spt);
 // initialise fitting function params (n_effective, k_nl, sigma_8)
 bspt.mypspline(vars[0],vars[1],1);
 double vars2[9];
+	
 // redefine inputs (should fix this!)
 // 0 = omega0, 1 = mg1, 2=mg2, 3=mg3, 4=a, 5= 1 for DGP, 2 for Hu-Sawicki,
 // 6 = integration accuracy, 7,8 = ODE solver absolute and relative accuracy
@@ -103,11 +103,6 @@ vars2[8] = 1e-3;
  b3 = bspt.Bloopn(vars2,k,k1,mu); //numerically computed
  b4 = bspt.Bfit(k,k1,mu); // Gil-Marin/Namikawa et al fitting formula
 
-// power spectra
- // p1 = pow2(D_spt/dnorm_spt)*P_l(k);
- // p2 = spt.PLOOP(k,1);
- // p3 = spt.PHALO(k);
- // p4 = halo.one_halo(k,vars);
 
  printf("%e %e %e %e %e %e \n",k,b1,b2,b3,b4,b2/b3); // print to terminal
  fprintf(fp,"%e %e %e %e %e \n",k,b1,b2,b3,b4); // print to terminal

@@ -56,13 +56,14 @@ int main() {
     IOW iow;
     real b1,b2,b3,b4;
 
-    double vars[3];
+    double vars[4];
 
 
-// 0: scale factor, 1: omega_total, 2: mg param (1e-10 ~ GR for default mg functions ), 
+// 0: scale factor, 1: omega_total, 2: mg param (1e-10 ~ GR for default mg functions ), 3: =1 for DGP, =2 for f(R)
     vars[0] = 1./(1.+0.541);
     vars[1] = 0.279;
     vars[2] = 1e-5;
+    vars[3] = 2.;
 
 // initialise GR lin growth for PS normalisation
 iow.inite2(vars[0],vars[1],vars[2], 1.,1.);
@@ -82,7 +83,7 @@ vars2[3] = 1.;
 
 vars2[4] = vars[0];
 
-vars2[5] = 1.;
+vars2[5] = vars[3];
 
 vars2[6] = 1e-2;
 vars2[7] = 1e-3;
@@ -98,13 +99,13 @@ vars2[8] = 1e-3;
  double mu = -0.5; // cosine of angle between k and k1
  double k1 = k;
 
- b1 = bspt.Btreen(vars2,k,k1,mu);
- b2 = bspt.Bloop(1,k,k1,mu); //EdS approximated
- b3 = bspt.Bloopn(vars2,k,k1,mu); //numerically computed
- b4 = bspt.Bfit(k,k1,mu); // Gil-Marin/Namikawa et al fitting formula
+ b1 = bspt.Btreen(vars2,k,k1,mu); // numerically computed tree level 
+ b2 = bspt.Bloopn(vars2,k,k1,mu); //numerically computed
+ b3 = bspt.Bloop(1,k,k1,mu); //EdS approximated GR spectrum
+ b4 = bspt.Bfit(k,k1,mu); // Gil-Marin/Namikawa et al fitting formula (GR and DGP only)
 
 
- printf("%e %e %e %e %e %e \n",k,b1,b2,b3,b4,b2/b3); // print to terminal
+ printf("%e %e %e %e %e %e \n",k,b1,b2,b3,b4,b1/b2); // print to terminal
  fprintf(fp,"%e %e %e %e %e \n",k,b1,b2,b3,b4); // print to terminal
 
 

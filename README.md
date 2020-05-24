@@ -38,7 +38,7 @@ $ pip install -e .
 
 ## Introduction
 
-ReACT is an extension of the software package Copter [0905:0479] and MG-Copter [1606.02520] which allows for 
+ReACT is an extension of the software package Copter (0905:0479) and MG-Copter (1606.02520) which allows for 
 the calculation of redshift and real space large scale structure 
 observables for a wide class of gravity and dark energy models. 
 
@@ -62,7 +62,7 @@ Additions to original Copter code http://mwhite.berkeley.edu/Copter/:
 To choose a model of gravity or dark energy within the framework described in `arXiv:1606.02520` for example, open 
 the `SpecialFunction.cpp` file in the `reactions/src` directory. Towards the top of the file you will 
 find the background Hubble and mu, gamma2, gamma3 functions as well as the modified spherical collapse function `F`.
-As examples, the Hu Sawicki, nDGP and G versions of these functions have been included. wCDM background Hubble rates have also been included as presets. Simply edit in your version of these functions and edit out the unwanted ones. Then just re-install the package as described above.
+As examples, the Hu Sawicki, nDGP and GR versions of these functions have been included. wCDM background Hubble rates have also been included as presets. Simply edit in your version of these functions and edit-out the unwanted ones. Then just re-install the package as described above.
 
 
 ### Adding in models
@@ -79,7 +79,7 @@ making any additional edits shouldn't be (too) difficult. Note there may be some
 An example jupyter notebook that demonstrates the usage of ReACT can be found in `notebooks/pyreact_demo.ipynb`.
 
 ### Stand-alone (ReACT and MG-Copter) 
-One can also run ReACT and MG-Copter for specific cosmologies and transfer functions. A number of example output c++ scripts have been included in `reactions/examples`. 
+One can also run ReACT and MG-Copter for specific cosmologies with specified transfer functions. A number of example output c++ scripts have been included in `reactions/examples` as well as a number of cosmologies in `reactions/examples/transfers`.
 
 In particular, the bs.cpp, spt.cpp, halo_ps.cpp examples compute various quantities like the 1-loop bispectrum, halo-model quantities and redshift space power spectrum (TNS or EFTofLSS). Some example cosmologies are found in examples/transfers. One can produce their own cosmology by getting the transfer function from CAMB say, normalising it to 1 at small k, and also constructing a cosmology .ini file as in the examples. 
 
@@ -126,7 +126,7 @@ Respective bibtex entries:
 > LDFLAGS += -lgsl -lgslcblas -lsundials_cvode -lsundials_nvecserial -L/home/bose/sundials/install_dir/lib64
 * One may also need to add the sundials include directory as a CPPFLAG in pyreact/Makefile for installation to complete correctly:
 > CPPFLAGS += -I/home/bose/sundials/install_dir/include
-* If errors in spherical collapse are experienced for non-f(R) theories, try setting yenvf=0 in scol_init in reactions/src/HALO.cpp.
+* If errors in spherical collapse are experienced for non-f(R) theories, try setting yenvf=0 in the scol_init function in reactions/src/HALO.cpp.
 
 ## Additional Libraries from old versions of MG-Copter 
 
@@ -155,4 +155,4 @@ Interpolator in modified gravity theory param space:
 PMG_Interpolation.cpp 
 
 Note that the SpecialFunctions.cpp and SPT.cpp libraries in the extra_libraries folder
-contain some additional functions which are necessary for some of the extra libraries. Please contact benjamin.bose@unige.ch if you are interested in implementing these and encounter trouble in doing so. 
+contain some additional functions which are necessary for some of these extra libraries. Please contact benjamin.bose@unige.ch if you are interested in implementing these and encounter trouble in doing so. 

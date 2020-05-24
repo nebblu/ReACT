@@ -61,15 +61,14 @@ real p1,p2,p3,p4,p5;
 // parameter values
 double vars[5];
 
-vars[0] = 0.24; // omega_matter
-vars[1] = 1e-14; // mg param 1 (fr0, omega_rc, w0 --- see src/SpecialFunctions.cpp)
-vars[2] = 1.; // mg param 2 (unused)
-vars[3] = 1.;// mg param 3 (unused)
-
-vars[4] = 1.; // scale factor
+vars[0] = 1.; // scale factor
+vars[1] = 0.24; // omega_matter
+vars[2] = 1e-14; // mg param 1 (fr0, omega_rc, w0 --- see src/SpecialFunctions.cpp)
+vars[3] = 1.; // mg param 2 (unused)
+vars[4] = 1.;// mg param 3 (unused)
 
 // normalise the growth
-iow.inite(vars[4],vars[0],vars[1],vars[2],vars[3]);
+iow.inite(vars[0],vars[1],vars[2],vars[3],vars[4]);
 spt.remp(fl_spt);
 
 

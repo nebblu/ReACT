@@ -98,7 +98,7 @@ When using ReACT in a publication, please acknowledge the code by citing the fol
 
 arXiv:1812.05594 : "On the road to percent accuracy: non-linear reaction of the matter power spectrum to dark energy and modified gravity"
 
-arXiv: : "On the road to per-cent accuracy IV:  ReACT -- computing the non-linear power spectrum beyond LCDM"
+arXiv:2005.12184 : "On the road to per-cent accuracy IV:  ReACT -- computing the non-linear power spectrum beyond LCDM"
 
 Respective bibtex entries:
 
@@ -115,6 +115,18 @@ Respective bibtex entries:
     number = "2",
     pages = "2121--2142",
     year = "2019"
+}
+```
+
+```
+@article{1797732,
+    author = "Bose, Benjamin and Cataneo, Matteo and Tröster, Tilman and Xia, Qianli and Heymans, Catherine and Lombriser, Lucas",
+    title = "{On the road to per-cent accuracy IV: ReACT -- computing the non-linear power spectrum beyond $\Lambda$CDM}",
+    eprint = "2005.12184",
+    archivePrefix = "arXiv",
+    primaryClass = "astro-ph.CO",
+    month = "5",
+    year = "2020"
 }
 ```
 

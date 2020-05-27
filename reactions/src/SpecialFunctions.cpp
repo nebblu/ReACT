@@ -1120,7 +1120,7 @@ void IOW::initnorm(double vars[]) //double A, double omega0, double par1, double
 
 			  	status1 = gsl_odeiv2_driver_apply (d1, &a, 1. , G1);
 
-			  	double dnorm_spt1 = G1[0];
+			  	dnorm_spt = G1[0];
 
 			  	gsl_odeiv2_driver_free(d1);
 
@@ -1145,12 +1145,12 @@ void IOW::initnorm(double vars[]) //double A, double omega0, double par1, double
 			// Solutions of evolution factors @ a=1
 					status3 = gsl_odeiv2_driver_apply (d2, &mya, 1. , G1);
 
-					dnorm_spt = G1[0];
+					double dnorm_spt1 = G1[0];
 
 					gsl_odeiv2_driver_free(d2);
 
 			// correction to virial concentration and P(k)
-					g_de = dnorm_spt/dnorm_spt1;
+					g_de = dnorm_spt1/dnorm_spt;
 }
 
 

@@ -12,6 +12,10 @@ def setup(options):
     config = {}
 
     config["module"] = pyreact.ReACT()
+    config["mode"] = options.get_string(option_section, "mode", "fR").lower()
+    if config["mode"] != "fr":
+        raise ValueError(f"ReACT mode {config['mode']} not supported.")
+
     config["verbose"] = options.get_int(option_section, "verbose", 1)
     config["massloop"] = options.get_int(option_section, "massloop", 30)
     config["z_max"] = options.get_double(option_section, "z_max", 2.5)
@@ -26,7 +30,8 @@ def execute(block, config):
     omega_b = block[names.cosmological_parameters, "omega_b"]
     sigma_8 = block[names.cosmological_parameters, "sigma_8"]
     n_s = block[names.cosmological_parameters, "n_s"]
-    mg1 = block[names.cosmological_parameters, "mg1"]
+    if config["mode"] == "fr":
+        mg1 = block[names.cosmological_parameters, "fR0"]
 
     Pk = block[names.matter_power_lin, "p_k"]
     k_h = block[names.matter_power_lin, "k_h"]

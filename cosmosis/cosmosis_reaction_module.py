@@ -14,6 +14,7 @@ def setup(options):
     config["module"] = pyreact.ReACT()
     config["verbose"] = options.get_int(option_section, "verbose", 1)
     config["massloop"] = options.get_int(option_section, "massloop", 30)
+    config["z_max"] = options.get_double(option_section, "z_max", 2.5)
     config["reaction_output_section"] = options.get_string(option_section, "reaction_output_section", "reaction")
     config["linear_matter_power_output_section"] = options.get_string(option_section, "linear_matter_power_output_section", names.matter_power_lin)
 
@@ -27,21 +28,24 @@ def execute(block, config):
     n_s = block[names.cosmological_parameters, "n_s"]
     mg1 = block[names.cosmological_parameters, "mg1"]
 
-    Pk = block[names.matter_power_lin, "p_k"][0]
+    Pk = block[names.matter_power_lin, "p_k"]
     k_h = block[names.matter_power_lin, "k_h"]
     z = block[names.matter_power_lin, "z"]
 
-    # np.savetxt("pofk.txt", Pk)
-    # np.savetxt("k.txt", k_h)
-    # np.savetxt("z.txt", z)
+    z_react = z[z < config["z_max"]]
 
     reaction, pofk_lin = config["module"].compute_reaction(
                                 h, n_s, omega_m, omega_b, sigma_8, mg1, 
-                                z, k_h, Pk, is_transfer=False, mass_loop=config["massloop"],
+                                z_react, k_h, Pk[0], is_transfer=False, mass_loop=config["massloop"],
                                 verbose=config["verbose"])
 
+    # Replace linear power spectrum below z_max with MG linear power spectrum
+    Pk[z < config["z_max"]] = pofk_lin
+    # Pad the reaction with 1 above z_max
+    reaction = np.concatenate((reaction, np.ones((np.count_nonzero(z >= config["z_max"]), len(k_h)))), axis=0)
+
     block.put_grid(config["reaction_output_section"], "z", z, "k_h", k_h, "reaction", reaction)
-    block.replace_grid(config["linear_matter_power_output_section"], "z", z, "k_h", k_h, "p_k", pofk_lin)
+    block.replace_grid(config["linear_matter_power_output_section"], "z", z, "k_h", k_h, "p_k", Pk)
 
     return 0
 

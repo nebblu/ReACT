@@ -1,5 +1,25 @@
 # ReACT 
 
+## Introduction
+
+ReACT is an extension of the software package Copter (0905:0479) and MG-Copter (1606.02520) which allows for 
+the calculation of redshift and real space large scale structure 
+observables for a wide class of gravity and dark energy models. 
+
+Additions to original Copter code http://mwhite.berkeley.edu/Copter/: 
+
+* Spherical collapse in modified gravity (1812.05594): `reactions/src/SCOL.cpp`
+
+* Halo model power spectrum for general theories (1812.05594):  `reactions/src/HALO.cpp`
+
+* Real and redshift space LSS 2 point statistics for modified gravity and dark energy (1606.02520): `reactions/src/SPT.cpp`
+
+* Numerical perturbation theory kernel solvers (1606.02168): `reactions/src/SpericalFunctions.cpp`
+
+* Real space bispectra in modified gravity (1808.01120): `reactions/src/BSPT.cpp`
+
+* Numerical perturbation theory kernel solver up to 4th order for 1-loop bispectrum (1808.01120): `reactions/src/BSPTN.cpp`
+
 ## Requirements
 ### C++ Compiler and automake
 ReACT is written in C++, so you'll need a relatively modern C++ compiler.
@@ -35,27 +55,6 @@ or
 ```
 $ pip install -e .
 ```
-
-## Introduction
-
-ReACT is an extension of the software package Copter (0905:0479) and MG-Copter (1606.02520) which allows for 
-the calculation of redshift and real space large scale structure 
-observables for a wide class of gravity and dark energy models. 
-
-Additions to original Copter code http://mwhite.berkeley.edu/Copter/: 
-
-* Spherical collapse in modified gravity (1812.05594): `reactions/src/SCOL.cpp`
-
-* Halo model power spectrum for general theories (1812.05594):  `reactions/src/HALO.cpp`
-
-* Real and redshift space LSS 2 point statistics for modified gravity and dark energy (1606.02520): `reactions/src/SPT.cpp`
-
-* Numerical perturbation theory kernel solvers (1606.02168): `reactions/src/SpericalFunctions.cpp`
-
-* Real space bispectra in modified gravity (1808.01120): `reactions/src/BSPT.cpp`
-
-* Numerical perturbation theory kernel solver up to 4th order for 1-loop bispectrum (1808.01120): `reactions/src/BSPTN.cpp`
-
 
 ## Choosing a model of gravity or dark energy
 
@@ -130,10 +129,13 @@ Respective bibtex entries:
 }
 ```
 
-## Notes (22/04/20)
+## Notes on parameter ranges (28/05/20)
 * To optimise root finding within the spherical collapse portion of the code, the maximum redshift that one can solve the reaction for currently is z=2.5. 
 * There are some current issues in the wCDM part of the code. Namely for very particular values of w0 and wa in the CPL evolving dark energy case, the spherical collapse library cannot solve the virial theorem. We advise sticking to the ranges 
 -1.3<w0<-0.7 and -1.5<wa<0.6 to avoid these issues. 
+* Spherical collapse will not solve for values of sigma_8(z=0)< 0.55 or 1.4<sigma_8(z=0).  
+
+## Miscellaneous notes (28/05/20)
 * One may need to add the sundials library directory to LDFLAGS in pyreact/Makefile for installation to complete correctly:
 > LDFLAGS += -lgsl -lgslcblas -lsundials_cvode -lsundials_nvecserial -L/home/bose/sundials/install_dir/lib64
 * One may also need to add the sundials include directory as a CPPFLAG in pyreact/Makefile for installation to complete correctly:

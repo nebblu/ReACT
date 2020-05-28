@@ -13,6 +13,7 @@ libtool
 *.la
 *.lo
 
+include
 lib
 src/.deps
 src/.libs

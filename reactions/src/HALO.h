@@ -13,8 +13,8 @@ public:
 
 
 // initialise spherical collapse quantities
-      void scol_init(double vars[]) const;
-      void scol_initp(double vars[]) const;
+      int scol_init(double vars[]) const;
+      int scol_initp(double vars[]) const;
 
 // halo model components
       double rvirial(double Mvir, double vars[]) const;

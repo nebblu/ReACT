@@ -31,7 +31,7 @@ extern "C" {
         #pragma omp critical
         {
             snprintf(error_message, truncate, "Reaction error: %s", msg);
-            printf("%s\n", error_message);
+            fprintf(stderr, "%s\n", error_message);
         }
     }
 
@@ -59,6 +59,7 @@ extern "C" {
                          int* N_k_pl, int* N_z_pl, double* output_pl,
                          int* verbose)
     {
+        int status = 0;
         if(*N_k != *N_k_pk || *N_k != *N_k_react || *N_k != *N_k_pl){
             react_error("Inconsistency in k array sizes");
             return 1;
@@ -173,8 +174,13 @@ extern "C" {
             iow.initnorm(vars);
             // Spherical collapse stuff
             /// initialise delta_c(M), a_vir(M), delta_avir(M) and v(M)
-            halo.scol_init(vars);
-            halo.scol_initp(vars);
+            status = halo.scol_init(vars);
+            status |= halo.scol_initp(vars);
+
+            if(status != 0) {
+                react_error("Failed to compute spherical collapse.");
+                return 1;
+            }
 
               // initialise k_star and mathcal{E}
             halo.react_init2(vars,mysr,mysp);

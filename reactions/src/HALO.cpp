@@ -104,8 +104,10 @@ Spline a_vir;
 Spline delta_avir;
 Spline mysig;
 Spline mysigp;
-void HALO::scol_init(double vars[]) const{
+int HALO::scol_init(double vars[]) const{
   SCOL scol;
+
+  int status = 0;
   // number of points in mass loop (default is 30)
   int loop_N = (int)vars[5];
 
@@ -147,6 +149,9 @@ for(int i = 0; i< loop_N; i++){
 
 // initialise delta_c, a_vir, delta_vir
    scol.myscol(myscolparams, vars[0], vars[1], Rth, sig1, sig2, pars, 2, yenvf);
+   if(scol.error.errorno != 0) {
+    status = scol.error.errorno;
+   }
 
 // calculate sigma^2
    sigar[i] = sqrt(Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), Rth, std::placeholders::_1), 1e-4, 50., 1e-5, 1e-5));
@@ -168,6 +173,8 @@ for(int i = 0; i< loop_N; i++){
   a_vir = CubicSpline(loop_N,lgmass,scolar1);
 // delta_virial
   delta_avir = CubicSpline(loop_N,lgmass,scolar2);
+
+  return status;
 
 }
 
@@ -191,10 +198,11 @@ static real sigma8d_integrandp(const PowerSpectrum& P, real R, real k) {
 }
 
 
-void HALO::scol_initp(double vars[]) const{
+int HALO::scol_initp(double vars[]) const{
   SCOL scol;
   IOW iow;
 
+  int status = 0;
   int loop_N = 30;
   int loop_Nk = 300;
 
@@ -232,6 +240,9 @@ double sig2 = Integrate<ExpSub>(bind(sigma8d_integrandp, cref(P_l), 8., std::pla
 
 // initialise spherical collapse quantities in GR (independent of R (or M))
   scol.myscol(myscolparams, vars[0], vars[1], 1., sig1, sig2, pars, 1, 0);
+  if(scol.error.errorno != 0) {
+    status = scol.error.errorno;
+  }
 
 //#pragma omp parallel for
 for(int i = 0; i< loop_N; i++){
@@ -257,6 +268,8 @@ for(int i = 0; i< loop_N; i++){
     a_virp = CubicSpline(loop_N,lgmass,scolar1);
   // delta_virial
     delta_avirp = CubicSpline(loop_N,lgmass,scolar2);
+
+    return status;
 }
 
 

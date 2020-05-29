@@ -357,8 +357,14 @@ double HALO::cvirial(double lgmass, double acol) const {
       while ( delta_col(lgmass)/mysig(pos_pt)-1.  < 0.){
           pos_pt = dis(gen);}
 
-      while ( delta_col(lgmass)/mysig(neg_pt)-1. > 0.){
-          neg_pt = dis(gen);}
+        int mycount = 1;
+        while ( delta_col(lgmass)/mysig(neg_pt)-1. > 0.){
+        neg_pt = dis(gen);
+        mycount += 1;
+         if (mycount>100) {
+           return g_de*myc0*pow(10.,-alpha*(lgmass-Mmin))*acol;
+                         }
+                      }
 
        const double about_zero_mag = 1e-3;
       for (;;)
@@ -404,8 +410,14 @@ double HALO::cvirial(double lgmass, double acol) const {
         while ( delta_colp(lgmass)/mysigp(pos_pt)-1.  < 0.){
             pos_pt = dis(gen);}
 
-        while ( delta_colp(lgmass)/mysigp(neg_pt)-1. > 0.){
-            neg_pt = dis(gen);}
+          int mycount = 1;
+          while ( delta_colp(lgmass)/mysigp(neg_pt)-1. > 0.){
+          neg_pt = dis(gen);
+          mycount += 1;
+          if (mycount > 100 ) {
+            return myc0*pow(10.,-alpha*(lgmass-Mmin))*acol;
+                          }
+                        }
 
          const double about_zero_mag = 1e-3;
         for (;;)

@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <sys/stat.h>
 #include <math.h>       /* pow */
+#include <chrono>
 
 
 #include "Common.h"
@@ -357,8 +358,20 @@ double HALO::cvirial(double lgmass, double acol) const {
       while ( delta_col(lgmass)/mysig(pos_pt)-1.  < 0.){
           pos_pt = dis(gen);}
 
+      auto t1 = std::chrono::high_resolution_clock::now();
+     
       while ( delta_col(lgmass)/mysig(neg_pt)-1. > 0.){
-          neg_pt = dis(gen);}
+          neg_pt = dis(gen);
+      
+          auto t2 = std::chrono::high_resolution_clock::now();
+          double duration1 = std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
+          duration1 *= 1e-9;
+       
+          if (duration1>1e-4) {
+          return g_de*myc0*pow(10.,-alpha*(lgmass-Mmin))*acol;
+                        } 
+      
+      }
 
        const double about_zero_mag = 1e-3;
       for (;;)

@@ -61,7 +61,7 @@ $ pip install -e .
 To choose a model of gravity or dark energy within the framework described in `arXiv:1606.02520` for example, open 
 the `SpecialFunction.cpp` file in the `reactions/src` directory. Towards the top of the file you will 
 find the background Hubble and mu, gamma2, gamma3 functions as well as the modified spherical collapse function `F`.
-As examples, the Hu Sawicki, nDGP and GR versions of these functions have been included. wCDM background Hubble rates have also been included as presets. Simply edit in your version of these functions and edit-out the unwanted ones. Then just re-install the package as described above.
+As examples, the Hu Sawicki, nDGP and GR versions of these functions have been included. wCDM background Hubble rates have also been included as presets. Simply edit in your version of these functions and edit-out the unwanted ones. Then just re-install the package as described above. Note that you may need to run `make clean` in the pyreact or reactions directory before reinstalling. 
 
 
 ### Adding in models
@@ -80,7 +80,7 @@ An example jupyter notebook that demonstrates the usage of ReACT can be found in
 ### Stand-alone (ReACT and MG-Copter) 
 One can also run ReACT and MG-Copter for specific cosmologies with specified transfer functions. A number of example output c++ scripts have been included in `reactions/examples` as well as a number of cosmologies in `reactions/examples/transfers`.
 
-In particular, the bs.cpp, spt.cpp, halo_ps.cpp examples compute various quantities like the 1-loop bispectrum, halo-model quantities and redshift space power spectrum (TNS or EFTofLSS). Some example cosmologies are found in examples/transfers. One can produce their own cosmology by getting the transfer function from CAMB say, normalising it to 1 at small k, and also constructing a cosmology .ini file as in the examples. 
+In particular, the bs.cpp, spt.cpp, halo_ps.cpp examples compute various quantities like the 1-loop bispectrum, halo-model quantities and redshift space power spectrum (TNS). Some example cosmologies are found in examples/transfers. One can produce their own cosmology by getting the transfer function from CAMB say, normalising it to 1 at small k, and also constructing a cosmology .ini file as in the examples. 
 
 We can compile these examples with a command similar to : 
 
@@ -118,7 +118,7 @@ Respective bibtex entries:
 ```
 
 ```
-@article{1797732,
+@article{Bose:2020wch,
     author = "Bose, Benjamin and Cataneo, Matteo and Tröster, Tilman and Xia, Qianli and Heymans, Catherine and Lombriser, Lucas",
     title = "{On the road to per-cent accuracy IV: ReACT -- computing the non-linear power spectrum beyond $\Lambda$CDM}",
     eprint = "2005.12184",

@@ -697,6 +697,10 @@ double HALO::plinear_cosmosis(double k) const {
   return pow2(linear_growth(k))*P_l(k);
 }
 
+double HALO::Lin_Grow(double k) const{ 
+    return linear_growth(k);
+}
+
 
 // Pseudo halofit prescription
 ////////////////////////////////////////////////

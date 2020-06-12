@@ -204,7 +204,7 @@ int HALO::scol_initp(double vars[]) const{
 
   int status = 0;
   int loop_N = 30;
-  int loop_Nk = 300;
+  int loop_Nk = 600;
 
     // arrays to store values
   double myscolparams[3],lgmass[loop_N],sigar[loop_N],scolar0[loop_N],scolar1[loop_N],scolar2[loop_N];
@@ -212,7 +212,7 @@ int HALO::scol_initp(double vars[]) const{
 
   // initialise linear growth spline for the theory of gravity/dark energy. See specialfunctions.cpp mu,gamma2,gamma3 functions
   double kmin = 1e-5;
-  double kmax = 100.;
+  double kmax = 120.;
 
   for(int i = 0; i< loop_Nk; i++){
     kval_tab[i] =  kmin * exp(i*log(kmax/kmin)/(loop_Nk-1.));

@@ -202,7 +202,7 @@ extern "C" {
 
             for(int i =0; i < *N_k;  i ++) {
                 output_react[i*(*N_z)+j] =  myreact(kvals[i]);
-                output_pl[i*(*N_z)+j] = halo.plinear_cosmosis(kvals[i]);
+                output_pl[i*(*N_z)+j] = pow2(halo.Lin_Grow(kvals[i]))*powerspectrum[i];//halo.plinear_cosmosis(kvals[i]);
                 if(*verbose > 1) {
                     printf(" %e %e %e \n",zvals[j], kvals[i],halo.plinear_cosmosis(kvals[i]));
                 }

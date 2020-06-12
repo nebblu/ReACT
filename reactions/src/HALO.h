@@ -40,7 +40,9 @@ public:
 
 // Linear spectrum for CosmoSIS
       double plinear_cosmosis(double k) const;
-
+// Linear growth 
+      double Lin_Grow(double k) const;
+  
 // halofit pseudo spectrum
       double PHALO_pseudo(double k) const;
       // initialiser for halofit quantities - vars is as in all other functions, only call once for all k but at fixed scale factor(a = vars[0])

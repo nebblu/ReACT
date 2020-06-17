@@ -362,6 +362,7 @@ double HALO::cvirial(double lgmass, double acol) const {
         neg_pt = dis(gen);
         mycount += 1;
          if (mycount>100) {
+           fprintf(stderr, "Failed to converge in cvirial.\n");
            return g_de*myc0*pow(10.,-alpha*(lgmass-Mmin))*acol;
                          }
                       }
@@ -415,6 +416,7 @@ double HALO::cvirial(double lgmass, double acol) const {
           neg_pt = dis(gen);
           mycount += 1;
           if (mycount > 100 ) {
+            fprintf(stderr, "Failed to converge in cvirialp.\n");
             return myc0*pow(10.,-alpha*(lgmass-Mmin))*acol;
                           }
                         }

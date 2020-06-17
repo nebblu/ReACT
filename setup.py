@@ -15,11 +15,9 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 
 def compile_library(env):
     subprocess.check_call(["make"], env=env, cwd="pyreact")
-    # shutil.copy(os.path.join(here, "cl_to_xi/libwigner.so"), os.path.join(here, "tpst/libwigner.so"))
 
 def clean_library(env={}):
     subprocess.check_call(["make", "clean"], env=env, cwd="pyreact")
-    # os.remove(os.path.join(here, "tpst/libwigner.so"))
 
 class build(_build_py):
     def run(self):

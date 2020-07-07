@@ -632,6 +632,7 @@ real SPT::Lag_bias(int a, real k, real bias[]) const {
 
 /////// Numerical 1-loop spectra /////////////
 
+// BILL MOD
 static double ploopn2_mgdd( const PowerSpectrum& P_L, double vars[], double k, double r, double x){
   double kargs[4],kv[3],xv[3], p22,p13,d;
   IOW iow;
@@ -692,6 +693,7 @@ static double ploopn2_mgtt(const PowerSpectrum& P_L, double vars[], double k, do
 
 
 // pseudo 1-loop matter power spectrum (1812.05594)
+// BILL MOD
 static double ploopn2_mgdd_pseudo( const PowerSpectrum& P_L, double vars[], double k, double r, double x){
   double kargs[4],kv[3],xv[3], p22,p13,d;
   IOW iow;
@@ -715,6 +717,7 @@ static double ploopn2_mgdd_pseudo( const PowerSpectrum& P_L, double vars[], doub
 
 // Choose a {0,...,8}: P_linear, P_dd,P_dt, P_tt (MG), P_linear, P_dd,P_dt, P_tt (IDE), P_dd pseudo (see HALO.cpp)
 // vars: 0 =  scale factor, 1= omega_m(z=0), 2 = mg param , 3 = mg param, 4 = mg param,
+// BILL MOD
 double SPT::PLOOPn2(int a, double vars[], double k, double err) const{
   IOW iow;
 double loop, tree;
@@ -759,6 +762,7 @@ switch (a) {
 // vars:  1 = omega0,  2 = mg param
 // k0 - scale at which to compute Spectra
 
+// BILL MOD
 void SPT::ploop_init(double ploopr[], double ploopp[], double redshifts[], int noz, double vars[], double k0){
   IOW iow;
 

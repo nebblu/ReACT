@@ -650,7 +650,7 @@ static double ploopn2_mgdd( const PowerSpectrum& P_L, double vars[], double k, d
         p22 = pow2(F2_nk);
         p13 = F1_nk*F3_nk;
 
-    return pow2(r)*2.*P_L(k*r)*(P_L(kargs[0])*p22 + 3.*P_L(k)*p13);
+    return pow2(r)*2.*(P_L(k*r)/pow2(F1p_nk))*( (P_L(kargs[0])/pow2(F1kmp_nk))*p22 + 3.*(P_L(k)/pow2(F1_nk))*p13 ); //return pow2(r)*2.*P_L(k*r)*(P_L(kargs[0])*p22 + 3.*P_L(k)*p13);
 }
 
 static double ploopn2_mgdt( const PowerSpectrum& P_L, double vars[], double k, double r, double x){
@@ -711,7 +711,7 @@ static double ploopn2_mgdd_pseudo( const PowerSpectrum& P_L, double vars[], doub
         p22 = pow2(F2_nk);
         p13 = F1_nk*F3_nk;
 
-    return pow2(r)*2.*P_L(k*r)*(P_L(kargs[0])*p22 + 3.*P_L(k)*p13);
+    return pow2(r)*2.*(P_L(k*r)/pow2(F1p_nk))*( (P_L(kargs[0])/pow2(F1kmp_nk))*p22 + 3.*(P_L(k)/pow2(F1_nk))*p13 ); //return pow2(r)*2.*P_L(k*r)*(P_L(kargs[0])*p22 + 3.*P_L(k)*p13);
 }
 
 
@@ -733,7 +733,7 @@ switch (a) {
     return tree;
   case 1:
     loop = prefac*Integrate<2>(bind(ploopn2_mgdd,cref(P_L),vars,k,std::placeholders::_1,std::placeholders::_2), c, d, err);
-    tree = pow2(F1_nk/dnorm_spt)*P_L(k);
+    tree = P_L(k); //pow2(F1_nk/dnorm_spt)*P_L(k);
     return loop+tree;
   case 2:
     loop = prefac*Integrate<2>(bind(ploopn2_mgdt,cref(P_L),vars,k,std::placeholders::_1,std::placeholders::_2), c, d, err,1e-2);
@@ -745,7 +745,7 @@ switch (a) {
     return loop+tree;
   case 8:
     loop = prefac*Integrate<2>(bind(ploopn2_mgdd_pseudo,cref(P_L),vars,k,std::placeholders::_1,std::placeholders::_2), c, d, err);
-    tree = pow2(F1_nk/dnorm_spt)*P_L(k);
+    tree = P_L(k); //pow2(F1_nk/dnorm_spt)*P_L(k);
     return loop+tree;
     default:
     warning("SPT: invalid indices, a = %d \n", a);

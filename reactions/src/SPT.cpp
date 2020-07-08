@@ -650,7 +650,7 @@ static double ploopn2_mgdd( const PowerSpectrum& P_L, double vars[], double k, d
         p22 = pow2(F2_nk);
         p13 = F1_nk*F3_nk;
 
-    return pow2(r)*2.*(P_L(k*r)/pow2(F1p_nk))*( (P_L(kargs[0])/pow2(F1kmp_nk))*p22 + 3.*(P_L(k)/pow2(F1_nk))*p13 ); //return pow2(r)*2.*P_L(k*r)*(P_L(kargs[0])*p22 + 3.*P_L(k)*p13);
+    return pow2(r)*2.*(P_L(k*r)/pow2(F1p_nk))*( (P_L(kargs[0])/pow2(F1kmp_nk))*p22 + 3.*(P_L(k)/pow2(F1_nk))*p13 );
 }
 
 static double ploopn2_mgdt( const PowerSpectrum& P_L, double vars[], double k, double r, double x){
@@ -711,7 +711,7 @@ static double ploopn2_mgdd_pseudo( const PowerSpectrum& P_L, double vars[], doub
         p22 = pow2(F2_nk);
         p13 = F1_nk*F3_nk;
 
-    return pow2(r)*2.*(P_L(k*r)/pow2(F1p_nk))*( (P_L(kargs[0])/pow2(F1kmp_nk))*p22 + 3.*(P_L(k)/pow2(F1_nk))*p13 ); //return pow2(r)*2.*P_L(k*r)*(P_L(kargs[0])*p22 + 3.*P_L(k)*p13);
+    return pow2(r)*2.*(P_L(k*r)/pow2(F1p_nk))*( (P_L(kargs[0])/pow2(F1kmp_nk))*p22 + 3.*(P_L(k)/pow2(F1_nk))*p13 );
 }
 
 
@@ -729,23 +729,23 @@ double d[2] = {KMAX, 1.};
 switch (a) {
   case 0:
     iow.initn_lin(vars[0], k, vars[1],vars[2], vars[3],vars[4]);
-    tree = pow2(F1_nk/dnorm_spt)*P_L(k);
+    tree = P_L(k);
     return tree;
   case 1:
     loop = prefac*Integrate<2>(bind(ploopn2_mgdd,cref(P_L),vars,k,std::placeholders::_1,std::placeholders::_2), c, d, err);
-    tree = P_L(k); //pow2(F1_nk/dnorm_spt)*P_L(k);
+    tree = P_L(k);
     return loop+tree;
-  case 2:
+  case 2: // broken
     loop = prefac*Integrate<2>(bind(ploopn2_mgdt,cref(P_L),vars,k,std::placeholders::_1,std::placeholders::_2), c, d, err,1e-2);
     tree = (G1_nk*F1_nk)/pow2(dnorm_spt)*P_L(k);
     return loop+tree;
-  case 3:
+  case 3: // broken
     loop = prefac*Integrate<2>(bind(ploopn2_mgtt,cref(P_L),vars,k,std::placeholders::_1,std::placeholders::_2), c, d, err,1e-2);
     tree = pow2(G1_nk/dnorm_spt)*P_L(k);
     return loop+tree;
   case 8:
     loop = prefac*Integrate<2>(bind(ploopn2_mgdd_pseudo,cref(P_L),vars,k,std::placeholders::_1,std::placeholders::_2), c, d, err);
-    tree = P_L(k); //pow2(F1_nk/dnorm_spt)*P_L(k);
+    tree = P_L(k);
     return loop+tree;
     default:
     warning("SPT: invalid indices, a = %d \n", a);
@@ -773,7 +773,7 @@ void SPT::ploop_init(double ploopr[], double ploopp[], double redshifts[], int n
   double myresult[noz][loop_N];  // stores result for angular integration
   double myresultp[noz][loop_N]; // stores pseudo result
   double k2val[loop_N]; // k array
-  double mykernelarray[noz][12]; // SPT kernels stored to this array
+  double mykernelarray[noz][20]; // SPT kernels stored to this array
   double ploopr_array[noz],ploopp_array[noz]; // array of final spectra result
 
 // set these to zero because of issue with cosmosis producing nans
@@ -810,15 +810,15 @@ void SPT::ploop_init(double ploopr[], double ploopp[], double redshifts[], int n
  	  double p22[noz],p13[noz], p22p[noz],p13p[noz];
           // assign all redshifts
           for(int zi = 0; zi<noz; zi++){
-            p22[zi] = pow2(mykernelarray[zi][2]);
-            p13[zi] = mykernelarray[zi][0]*mykernelarray[zi][4];
-            p22p[zi] = pow2(mykernelarray[zi][8]);
-            p13p[zi] = mykernelarray[zi][6]*mykernelarray[zi][10];
+            p22[zi] = pow2(mykernelarray[zi][2]); // mykernelarray[zi][2] is F2
+            p13[zi] = mykernelarray[zi][0]*mykernelarray[zi][4]; // mykernelarray[zi][0] is F1, mykernelarray[zi][4] is F3
+            p22p[zi] = pow2(mykernelarray[zi][8]); // mykernelarray[zi][8] is F2_noscr
+            p13p[zi] = mykernelarray[zi][6]*mykernelarray[zi][10]; // mykernelarray[zi][6] is F1_noscr, mykernelarray[zi][10] is F3_noscr
 	   if(kargs[0]<1e-4){
 		kargs[0] =1e-4;
 	    }
-	  temp_ps[zi][i] = pow2(k2val[k2i])*2.*P_L(kv[1])*(P_L(kargs[0])*p22[zi] + 3.*P_L(k0)*p13[zi]);
-          temp_psp[zi][i] = pow2(k2val[k2i])*2.*P_L(kv[1])*(P_L(kargs[0])*p22p[zi] + 3.*P_L(k0)*p13p[zi]);
+	  temp_ps[zi][i] = pow2(k2val[k2i])*2.*(P_L(kv[1])/pow2(mykernelarray[zi][14]))*((P_L(kargs[0])/pow2(mykernelarray[zi][12]))*p22[zi] + 3.*(P_L(k0)/pow2(mykernelarray[zi][0]))*p13[zi]);
+          temp_psp[zi][i] = pow2(k2val[k2i])*2.*(P_L(kv[1])/pow2(mykernelarray[zi][18]))*((P_L(kargs[0])/pow2(mykernelarray[zi][16]))*p22p[zi] + 3.*(P_L(k0)/pow2(mykernelarray[zi][6]))*p13p[zi]);
 	 }
 
   // save angular integral per redshift
@@ -839,9 +839,9 @@ for(int zi = 0; zi<noz; zi++){
 
 // assign values of 1-loop spectra to arrays
   for(int zi=0; zi<noz; zi++){
-    double tree = pow2(mykernelarray[zi][0]/dnorm_spt)*P_L(k0);
-    double loop = pow3(k0)/(4*M_PI*M_PI) * res[zi]/pow4(dnorm_spt);
-    double loopp = pow3(k0)/(4*M_PI*M_PI) * resp[zi]/pow4(dnorm_spt);
+    double tree = P_L(k0);
+    double loop = pow3(k0)/(4*M_PI*M_PI) * res[zi]; // BILL
+    double loopp = pow3(k0)/(4*M_PI*M_PI) * resp[zi]; // BILL
     ploopr[zi] = tree + loop;
     ploopp[zi] = tree + loopp;
 }

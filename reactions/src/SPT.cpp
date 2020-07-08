@@ -721,7 +721,7 @@ static double ploopn2_mgdd_pseudo( const PowerSpectrum& P_L, double vars[], doub
 double SPT::PLOOPn2(int a, double vars[], double k, double err) const{
   IOW iow;
 double loop, tree;
-double prefac = k*k*k/(4*M_PI*M_PI)/pow4(dnorm_spt);
+double prefac = k*k*k/(4*M_PI*M_PI);
 real KMAX = QMAXp/k;
 real KMIN = QMINp/k;
 double c[2] = {KMIN,-1.};
@@ -840,8 +840,8 @@ for(int zi = 0; zi<noz; zi++){
 // assign values of 1-loop spectra to arrays
   for(int zi=0; zi<noz; zi++){
     double tree = P_L(k0);
-    double loop = pow3(k0)/(4*M_PI*M_PI) * res[zi]; // BILL
-    double loopp = pow3(k0)/(4*M_PI*M_PI) * resp[zi]; // BILL
+    double loop = pow3(k0)/(4*M_PI*M_PI) * res[zi];
+    double loopp = pow3(k0)/(4*M_PI*M_PI) * resp[zi];
     ploopr[zi] = tree + loop;
     ploopp[zi] = tree + loopp;
 }

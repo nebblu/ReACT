@@ -43,3 +43,41 @@ real LinearPS::Evaluate(real k) const {
     else
         return pk(k);
 }
+
+
+
+// Accepts as input linear spectrum
+myLinearPS::myLinearPS(const Cosmology& C_, real z_)
+    : C(C_), z(z_), Pnw(C_, z_, EisensteinHu)
+{
+    real T0 = C.Ti[0];
+    int N = C.ki.size();
+
+    /* Calculate P(k) */
+    array p(N);
+    for(int i = 0; i < N; i++) {
+        real k = C.ki[i];
+        real T = C.Ti[i];
+        p[i] =T;
+    }
+    pk = CubicSpline(C.ki, p);
+
+    k0 = C.ki[0];
+    k1 = C.ki[N-1];
+    p0 = p[0];
+    p1 = p[N-1];
+
+    if(k0 <= 0.)
+        error("LinearPS: k0 = %g\n", k0);
+}
+
+real myLinearPS::Evaluate(real k) const {
+    if(k <= 0)
+        return 0;
+    else if(k <= k0)
+        return p0 * Pnw(k)/Pnw(k0);     // Eisenstein-Hu, scaled to match splined P(k) at k = k0
+    else if(k >= k1)
+        return p1 * Pnw(k)/Pnw(k1);     // Eisenstein-Hu, scaled to match splined P(k) at k = k1
+    else
+        return pk(k);
+}

@@ -31,25 +31,4 @@ private:
     NoWigglePS Pnw;     // no-wiggle P(k) for high k
 };
 
-
-// Takes as input the matter power spectrum  
-class myLinearPS :
-public PowerSpectrum {
-public:
-    myLinearPS(const Cosmology& C, real z = 0);
-
-    const Cosmology& GetCosmology() const { return C; }
-    real Evaluate(real k) const;
-
-private:
-//    const Cosmology& C;
-    Cosmology C;
-    real z;
-    real k0, p0;        // k and P(k) of left-most data point
-    real k1, p1;        // k and P(k) of right-most data point
-    Spline pk;          // spline P(k) based on transfer function
-    NoWigglePS Pnw;     // no-wiggle P(k) for high k
-};
-
-
 #endif // LINEAR_PS_H

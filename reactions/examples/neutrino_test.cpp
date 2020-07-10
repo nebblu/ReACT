@@ -30,14 +30,10 @@ vector<vector<double> > mytrans;
 vector<vector<double> > mypk;
 /* Example code to output the reaction and halo spectra for mg + neutrinos */
 
-
-extern "C" {
-
-
 int main(int argc, char* argv[]) {
 
 // input transfer file from MGCAMB
-ifstream fin("tests/test_transfer_z0.5.dat");
+ifstream fin("tests/test_transfer_z0.dat");
 
 // Load in the transfer data
 string line;
@@ -56,7 +52,7 @@ int Nkr = mytrans.size();
 int* Nkt = &Nkr;
 array Tm(*Nkt);
 array Tcb(*Nkt);
-// array Tnu(*Nkt);
+array Tnu(*Nkt);
 array ki(*Nkt);
 
 //double Tm[Nkr],Tcb[Nkr],Tnu[Nkr],ki[Nkr];
@@ -65,7 +61,7 @@ array ki(*Nkt);
                   ki[i] = mytrans[i][0];
                   Tm[i] = mytrans[i][6]/mytrans[0][6];
                   Tcb[i] = mytrans[i][7]/mytrans[0][7];
-                //  Tnu[i] = mytrans[i][5]/mytrans[0][5];
+                  Tnu[i] = mytrans[i][5]/mytrans[0][5];
               }
 
 // Relative error in magnitude integrations
@@ -82,19 +78,19 @@ double sigma_8cb = 0.8989; // IMP
 double sigma_8nu = 0.0375; // IMP
 double modg = 1e-5;  //  modified gravity param
 double massb = 30.; // number of mass bins between 5<Log10[M]<18
-
+double mgcamb = 1.;
 // desired output redshift
 double myz = 0.;
 
 Cosmology Cm(h, n_s, Omega_m, Omega_b, sigma_8m, ki, Tm);
 Cosmology Ccb(h, n_s, Omega_m, Omega_b, sigma_8cb, ki, Tcb);
-// Cosmology Cnu(h, n_s, Omega_nu, Omega_b, sigma_8nu, ki, Tnu);
+Cosmology Cnu(h, n_s, Omega_m, Omega_b, sigma_8nu, ki, Tnu);
 
-LinearPS P_l(Cm, myz);
-LinearPS P_cb(Ccb, myz);
-// myLinearPS P_nu(Cnu, myz);
+LinearPS P_l(Cm, myz*mgcamb);
+LinearPS P_cb(Ccb, myz*mgcamb);
+myLinearPS P_nu(Cnu, myz*mgcamb);
 
-ifstream fin2("tests/test_nupower_z05.dat");
+ifstream fin2("tests/test_nupower_z0.dat");
 
 // Load in the data
 string line2;
@@ -108,49 +104,31 @@ string line2;
             mypk.push_back(lineData);         // add row to allData
     }
 
-
-int Nk = mypk.size();
-int* Nk2 = &Nk;
-
-array kii(*Nk2);
-array Tnu(*Nk2);
-
-for(int i = 0; i< Nk; i++){
-        kii[i] = mypk[i][0];
-        Tnu[i] = mypk[i][1];
-    }
-
-Cosmology Cnu(h, n_s, Omega_nu, Omega_b, sigma_8nu, kii, Tnu);
-
-myLinearPS P_nu(Cnu, myz);
-
-for(int i = 0; i<Nk; i++){
-    double k = mypk[i][0];
-    double pkcamb = mypk[i][1];
-    double pkcop = P_nu(k);
-    printf("%e %e %e %e \n", k, pkcamb, pkcop, pkcamb/pkcop);
-}
+HALO halo_m(C, P_m, P_cb, P_nu, epsrel)
+IOW iow;
 
 
-// HALO halo_mu(C, P_m, P_cb, P_nu, epsrel)
-// IOW iow;
+double vars[8];
+    vars[0] = 1./(myz+1.); //  scale factor
+    vars[2] = modg; //  modified gravity param
+    vars[3] = 1.;  // extra
+    vars[4] = 1.; // extra
+    vars[5] = massb; // number of mass bins between 5<Log10[M]<18
+    vars[6] = mgcamb; // 1 if using mgcamb at z, 0 if using CAMB at z=0
+    vars[7] = Omega_nu;
 
-// double vars[7];
-//
-//     vars[0] = 1./(myz+1.); //  scale factor
-//     vars[1] = Omega_m; // total matter fraction
-//     vars[2] = Omega_nu; // neutrino fraction
-//     vars[3] = modg; //  modified gravity param
-//     vars[4] = 1.;  // extra
-//     vars[5] = 1.; // extra
-//     vars[6] = massb; // number of mass bins between 5<Log10[M]<18
-//     vars[7] = mypar;
 // initialise all  relevant growth factors
-// iow.initnorm_nu(vars);
-// /// initialise delta_c(M), a_vir(M), delta_avir(M) and v(M)
-// halo_mu.scol_initnu(vars);
-// halo_mu.scol_initpnu(vars);
-// halo_mu.react_initnu(vars);
+vars[1] = Omega_m-Omega_nu; // total matter fraction
+iow.initnorm_nu(vars);
+// /// initialise delta_c(M), a_vir(M), delta_avir(M) and v(M) for real cosmology
+halo_cb.scol_initnu(vars);
+
+vars[1] = Omega_m; // total matter fraction
+// /// initialise delta_c(M), a_vir(M), delta_avir(M) and v(M) for pseudo cosmology
+halo_m.scol_initpnu(vars);
+
+// initialise kstar and mathcal E
+halo_m.react_initnu(vars);
 
 // double kmin = 1e-2;
 // double kmax = 10.;
@@ -174,7 +152,29 @@ for(int i = 0; i<Nk; i++){
 
 	/*close output file*/
 //    fclose(fp);
-    return 0;
-}
 
+// Check pure P_l input - output
+// int Nk = mypk.size();
+// int* Nk2 = &Nk;
+//
+// array kii(*Nk2);
+// array Tnu(*Nk2);
+//
+// for(int i = 0; i< Nk; i++){
+//         kii[i] = mypk[i][0];
+//         Tnu[i] = mypk[i][1];
+//     }
+//
+// Cosmology Cnu(h, n_s, Omega_nu, Omega_b, sigma_8nu, kii, Tnu);
+//
+// myLinearPS P_nu(Cnu, myz);
+//
+// for(int i = 0; i<Nk; i++){
+//     double k = mypk[i][0];
+//     double pkcamb = mypk[i][1];
+//     double pkcop = P_nu(k);
+//     printf("%e %e %e %e \n", k, pkcamb, pkcop, pkcamb/pkcop);
+// }
+
+    return 0;
 }

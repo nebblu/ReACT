@@ -9,8 +9,7 @@ const double Mmin = 5.;
 
 class HALO {
 public:
-  HALO(const Cosmology& C, const PowerSpectrum& P_l, real epsrel = 1e-4);
-
+  HALO(const Cosmology& C, const PowerSpectrum& P_l, const PowerSpectrum& P_cb,const PowerSpectrum& P_nu, real epsrel = 1e-4);
 
 // initialise spherical collapse quantities
       void scol_init(double vars[]) const;
@@ -38,6 +37,11 @@ public:
       void react_init2(double vars[],Spline ploopr, Spline ploopp) const;
       double reaction(double k, double vars[]) const;
 
+      // react_init2 with neutrino terms
+      void react_init_nu(double vars[]) const;
+      void react_init_nu2(double vars[], Spline ploopr, Spline ploopp) const;
+      double reaction_nu(double k, double vars[]) const;
+
 // Linear spectrum for CosmoSIS
       double plinear_cosmosis(double k) const;
 
@@ -57,9 +61,13 @@ public:
 private:
     const Cosmology& C;
     const PowerSpectrum& P_l;
+    const PowerSpectrum& P_cb;
+    const PowerSpectrum& P_nu;
     real epsrel;
 
 
 } ;
+
+
 
 #endif // HALO

@@ -632,8 +632,28 @@ real SPT::Lag_bias(int a, real k, real bias[]) const {
 
 /////// Numerical 1-loop spectra /////////////
 
-// BILL MOD
 static double ploopn2_mgdd( const PowerSpectrum& P_L, double vars[], double k, double r, double x){
+  double kargs[4],kv[3],xv[3], p22,p13,d;
+  IOW iow;
+        kv[0] = k;
+        kv[1] = k*r;
+        kv[2] = kv[1];
+        xv[0] = -0.99999999; // don't set to -1 otherwise solver encounters singularity
+        xv[1] = x;
+        xv[2] = -x;
+        kargs[0] = sqrt(kv[1]*kv[1]+kv[0]*kv[0]-2.*kv[1]*kv[0]*xv[1]);
+        kargs[2] = sqrt(kv[1]*kv[1]+2.*kv[1]*kv[2]*xv[0]+kv[2]*kv[2]);
+        kargs[1] = sqrt(kv[2]*kv[2]+2.*kv[2]*kv[0]*xv[2]+kv[0]*kv[0]);
+        kargs[3] = sqrt(kv[0]*kv[0]+2.*kv[0]*kv[1]*xv[1]+kv[1]*kv[1]);
+        iow.initn2(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4]);
+        p22 = pow2(F2_nk);
+        p13 = F1_nk*F3_nk;
+
+    return pow2(r)*2.*P_L(k*r)*(P_L(kargs[0])*p22 + 3.*P_L(k)*p13);
+}
+
+// BILL MOD
+static double ploopn2_mgdd_nu( const PowerSpectrum& P_L, double vars[], double k, double r, double x){
   double kargs[4],kv[3],xv[3], p22,p13,d;
   IOW iow;
         kv[0] = k;
@@ -693,8 +713,28 @@ static double ploopn2_mgtt(const PowerSpectrum& P_L, double vars[], double k, do
 
 
 // pseudo 1-loop matter power spectrum (1812.05594)
-// BILL MOD
 static double ploopn2_mgdd_pseudo( const PowerSpectrum& P_L, double vars[], double k, double r, double x){
+  double kargs[4],kv[3],xv[3], p22,p13,d;
+  IOW iow;
+        kv[0] = k;
+        kv[1] = k*r;
+        kv[2] = kv[1];
+        xv[0] = -0.99999999; // don't set to -1 otherwise solver encounters singularity
+        xv[1] = x;
+        xv[2] = -x;
+        kargs[0] = sqrt(kv[1]*kv[1]+kv[0]*kv[0]-2.*kv[1]*kv[0]*xv[1]);
+        kargs[2] = sqrt(kv[1]*kv[1]+2.*kv[1]*kv[2]*xv[0]+kv[2]*kv[2]);
+        kargs[1] = sqrt(kv[2]*kv[2]+2.*kv[2]*kv[0]*xv[2]+kv[0]*kv[0]);
+        kargs[3] = sqrt(kv[0]*kv[0]+2.*kv[0]*kv[1]*xv[1]+kv[1]*kv[1]);
+        iow.initn2_pseudo(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4]);
+        p22 = pow2(F2_nk);
+        p13 = F1_nk*F3_nk;
+
+    return pow2(r)*2.*P_L(k*r)*(P_L(kargs[0])*p22 + 3.*P_L(k)*p13);
+}
+
+// BILL MOD
+static double ploopn2_mgdd_pseudo_nu( const PowerSpectrum& P_L, double vars[], double k, double r, double x){
   double kargs[4],kv[3],xv[3], p22,p13,d;
   IOW iow;
         kv[0] = k;
@@ -714,11 +754,44 @@ static double ploopn2_mgdd_pseudo( const PowerSpectrum& P_L, double vars[], doub
     return pow2(r)*2.*(P_L(k*r)/pow2(F1p_nk))*( (P_L(kargs[0])/pow2(F1kmp_nk))*p22 + 3.*(P_L(k)/pow2(F1_nk))*p13 );
 }
 
-
 // Choose a {0,...,8}: P_linear, P_dd,P_dt, P_tt (MG), P_linear, P_dd,P_dt, P_tt (IDE), P_dd pseudo (see HALO.cpp)
 // vars: 0 =  scale factor, 1= omega_m(z=0), 2 = mg param , 3 = mg param, 4 = mg param,
-// BILL MOD
 double SPT::PLOOPn2(int a, double vars[], double k, double err) const{
+  IOW iow;
+double loop, tree;
+double prefac = k*k*k/(4*M_PI*M_PI)/pow4(dnorm_spt);
+real KMAX = QMAXp/k;
+real KMIN = QMINp/k;
+double c[2] = {KMIN,-1.};
+double d[2] = {KMAX, 1.};
+switch (a) {
+  case 0:
+    iow.initn_lin(vars[0], k, vars[1],vars[2], vars[3],vars[4]);
+    tree = pow2(F1_nk/dnorm_spt)*P_L(k);
+    return tree;
+  case 1:
+    loop = prefac*Integrate<2>(bind(ploopn2_mgdd,cref(P_L),vars,k,std::placeholders::_1,std::placeholders::_2), c, d, err);
+    tree = pow2(F1_nk/dnorm_spt)*P_L(k);
+    return loop+tree;
+  case 2:
+    loop = prefac*Integrate<2>(bind(ploopn2_mgdt,cref(P_L),vars,k,std::placeholders::_1,std::placeholders::_2), c, d, err,1e-2);
+    tree = (G1_nk*F1_nk)/pow2(dnorm_spt)*P_L(k);
+    return loop+tree;
+  case 3:
+    loop = prefac*Integrate<2>(bind(ploopn2_mgtt,cref(P_L),vars,k,std::placeholders::_1,std::placeholders::_2), c, d, err,1e-2);
+    tree = pow2(G1_nk/dnorm_spt)*P_L(k);
+    return loop+tree;
+  case 8:
+    loop = prefac*Integrate<2>(bind(ploopn2_mgdd_pseudo,cref(P_L),vars,k,std::placeholders::_1,std::placeholders::_2), c, d, err);
+    tree = pow2(F1_nk/dnorm_spt)*P_L(k);
+    return loop+tree;
+    default:
+    warning("SPT: invalid indices, a = %d \n", a);
+        return 0;
+}}
+
+// BILL MOD
+double SPT::PLOOPn2_nu(int a, double vars[], double k, double err) const{
   IOW iow;
 double loop, tree;
 double prefac = k*k*k/(4*M_PI*M_PI);
@@ -732,26 +805,17 @@ switch (a) {
     tree = P_L(k);
     return tree;
   case 1:
-    loop = prefac*Integrate<2>(bind(ploopn2_mgdd,cref(P_L),vars,k,std::placeholders::_1,std::placeholders::_2), c, d, err);
+    loop = prefac*Integrate<2>(bind(ploopn2_mgdd_nu,cref(P_L),vars,k,std::placeholders::_1,std::placeholders::_2), c, d, err);
     tree = P_L(k);
     return loop+tree;
-  case 2: // broken
-    loop = prefac*Integrate<2>(bind(ploopn2_mgdt,cref(P_L),vars,k,std::placeholders::_1,std::placeholders::_2), c, d, err,1e-2);
-    tree = (G1_nk*F1_nk)/pow2(dnorm_spt)*P_L(k);
-    return loop+tree;
-  case 3: // broken
-    loop = prefac*Integrate<2>(bind(ploopn2_mgtt,cref(P_L),vars,k,std::placeholders::_1,std::placeholders::_2), c, d, err,1e-2);
-    tree = pow2(G1_nk/dnorm_spt)*P_L(k);
-    return loop+tree;
   case 8:
-    loop = prefac*Integrate<2>(bind(ploopn2_mgdd_pseudo,cref(P_L),vars,k,std::placeholders::_1,std::placeholders::_2), c, d, err);
+    loop = prefac*Integrate<2>(bind(ploopn2_mgdd_pseudo_nu,cref(P_L),vars,k,std::placeholders::_1,std::placeholders::_2), c, d, err);
     tree = P_L(k);
     return loop+tree;
     default:
     warning("SPT: invalid indices, a = %d \n", a);
         return 0;
 }}
-
 
 // P_loop(k0,z) array initialisation for real and pseudo spectra used in reactions: 1812.05594 (HALO.cpp)
 // The pseudo spectrum simply omits screening terms (gamma_2 = gamma_3 = 0) (1606.02520)
@@ -762,8 +826,92 @@ switch (a) {
 // vars:  1 = omega0,  2 = mg param
 // k0 - scale at which to compute Spectra
 
-// BILL MOD
 void SPT::ploop_init(double ploopr[], double ploopp[], double redshifts[], int noz, double vars[], double k0){
+  IOW iow;
+
+  double res[noz],resp[noz]; // stores loop integral results for real and pseudo spectra
+  const int loop_N = 50; // steps in trap rule for loop integral in integrated wave vector p
+  double KMAX = QMAXp/k0; // max r = p/k (QMAXp = 30 - see SpecialFunctions.h)
+  double KMIN = QMINp/k0; // min r = p/k (QMINp = 1e-4 - ...)
+  double myresult[noz][loop_N];  // stores result for angular integration
+  double myresultp[noz][loop_N]; // stores pseudo result
+  double k2val[loop_N]; // k array
+  double mykernelarray[noz][20]; // SPT kernels stored to this array
+  double ploopr_array[noz],ploopp_array[noz]; // array of final spectra result
+
+// set these to zero because of issue with cosmosis producing nans
+  for(int zi=0; zi<noz; zi++){
+     res[zi] = 0;
+     resp[zi]=0;
+  for(int ki=0;ki<loop_N; ki++){
+	myresult[zi][ki]=0.;
+        myresultp[zi][ki]=0.;
+     }}
+
+ // 2D loop integrals
+ for(int k2i = 0; k2i< loop_N; k2i++){
+
+        k2val[k2i] = KMIN * exp(k2i*log(KMAX/KMIN)/(loop_N*1.-1.));
+
+        double kargs[4],kv[3],xv[3], temp_ps[noz][32], temp_psp[noz][32]; // some intermediary arrays
+
+//integrate over angle using GL quadrature
+	for( int i = 0; i < 32; i++ ){
+          kv[0] = k0;
+          kv[1] = k0*k2val[k2i];
+          kv[2] = kv[1];
+          xv[0] = -0.99999999; // don't set to -1 otherwise solver encounters singularity
+          xv[1] = x32[i];
+          xv[2] = -x32[i];
+          kargs[0] = sqrt(kv[1]*kv[1]+kv[0]*kv[0]-2.*kv[1]*kv[0]*xv[1]);
+          kargs[2] = sqrt(kv[1]*kv[1]+2.*kv[1]*kv[2]*xv[0]+kv[2]*kv[2]);
+          kargs[1] = sqrt(kv[2]*kv[2]+2.*kv[2]*kv[0]*xv[2]+kv[0]*kv[0]);
+          kargs[3] = sqrt(kv[0]*kv[0]+2.*kv[0]*kv[1]*xv[1]+kv[1]*kv[1]);
+          // solve differential equations numerically
+          iow.initn3(redshifts, noz, kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],mykernelarray);
+
+ 	  double p22[noz],p13[noz], p22p[noz],p13p[noz];
+          // assign all redshifts
+          for(int zi = 0; zi<noz; zi++){
+            p22[zi] = pow2(mykernelarray[zi][2]);
+            p13[zi] = mykernelarray[zi][0]*mykernelarray[zi][4];
+            p22p[zi] = pow2(mykernelarray[zi][8]);
+            p13p[zi] = mykernelarray[zi][6]*mykernelarray[zi][10];
+	   if(kargs[0]<1e-4){
+		kargs[0] =1e-4;
+	    }
+	  temp_ps[zi][i] = pow2(k2val[k2i])*2.*P_L(kv[1])*(P_L(kargs[0])*p22[zi] + 3.*P_L(k0)*p13[zi]);
+          temp_psp[zi][i] = pow2(k2val[k2i])*2.*P_L(kv[1])*(P_L(kargs[0])*p22p[zi] + 3.*P_L(k0)*p13p[zi]);
+	 }
+
+  // save angular integral per redshift
+        for(int zii = 0; zii<noz; zii++){
+        myresult[zii][k2i] += w32[i] * temp_ps[zii][i];
+        myresultp[zii][k2i] += w32[i] * temp_psp[zii][i];
+		}
+	      }
+	        }
+
+// integrate over r = k2/k using trap rule
+for(int zi = 0; zi<noz; zi++){
+  for( int i = 1; i < loop_N; i++){
+       res[zi] += 0.5 * (k2val[i] - k2val[i-1])*(myresult[zi][i] + myresult[zi][i-1]);
+       resp[zi] += 0.5 * (k2val[i] - k2val[i-1])*(myresultp[zi][i] + myresultp[zi][i-1]);
+	 }
+      }
+
+// assign values of 1-loop spectra to arrays
+  for(int zi=0; zi<noz; zi++){
+    double tree = pow2(mykernelarray[zi][0]/dnorm_spt)*P_L(k0);
+    double loop = pow3(k0)/(4*M_PI*M_PI) * res[zi]/pow4(dnorm_spt);
+    double loopp = pow3(k0)/(4*M_PI*M_PI) * resp[zi]/pow4(dnorm_spt);
+    ploopr[zi] = tree + loop;
+    ploopp[zi] = tree + loopp;
+}
+}
+
+// BILL MOD
+void SPT::ploop_init_nu(double ploopr[], double ploopp[], double redshifts[], int noz, double vars[], double k0){
   IOW iow;
 
   double res[noz],resp[noz]; // stores loop integral results for real and pseudo spectra
@@ -846,7 +994,6 @@ for(int zi = 0; zi<noz; zi++){
     ploopp[zi] = tree + loopp;
 }
 }
-
 
 
 

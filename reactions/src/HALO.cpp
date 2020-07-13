@@ -62,10 +62,6 @@ HALO::HALO(const Cosmology& C_, const PowerSpectrum& P_l_, const PowerSpectrum& 
     epsrel = epsrel_;
 }
 
-
-// Initial time
-const double ainitial = 0.00003;
-
 // Window function (top hat)
 static real W(real x) {
     if(x < 1e-5)
@@ -110,16 +106,16 @@ static real sigma8d_integrand(const PowerSpectrum& P, real R, real k) {
 
 // Used when input power spectra is given at z and is already modified
 static real sigma_integrand_mgcamb(const PowerSpectrum& P, real R, real k) {
-    return k*k/(2.*M_PI*M_PI) * P(k) * pow2(W(k*R)*Dl_spt/linear_growth(k));
+    return k*k/(2.*M_PI*M_PI) * P(k) * pow2(W(k*R)*Dl_spt/linear_growth(k)/dnorm_spt);
 }
 
 // d(sigma_8^2)/dR
 static real sigma8d_integrand_mgcamb(const PowerSpectrum& P, real R, real k) {
-    return k*k/(2.*M_PI*M_PI) * P(k) * pow2(Dl_spt/linear_growth(k)) * 2.*W(k*R)*Wd(k,R) ;
+    return k*k/(2.*M_PI*M_PI) * P(k) * pow2(Dl_spt/linear_growth(k)/dnorm_spt) * 2.*W(k*R)*Wd(k,R) ;
 }
 
 
-void HALO::scol_init(double vars[]) const{
+void HALO::scol_init(double vars[], bool mgcamb) const{
   SCOL scol;
   IOW iow;
   // number of points in mass loop (default is 30)
@@ -138,21 +134,22 @@ double kmin = 1e-5;
 double kmax = 100.;
 double kval_tab[loop_Nk],ling_tab[loop_Nk];
 
+double omegacb = vars[1]-vars[6];
 
 for(int i = 0; i< loop_Nk; i++){
   kval_tab[i] =  kmin * exp(i*log(kmax/kmin)/(loop_Nk-1.));
   // numerical initialisation of linear growth in general theory of gravity/dark energy - see SpecialFunctions.cpp
-  iow.initn_lin(vars[0], kval_tab[i], vars[1],vars[2], vars[3], vars[4]);
+  iow.initn_lin(vars[0], kval_tab[i], omegacb,vars[2], vars[3], vars[4]);
   ling_tab[i] = F1_nk/dnorm_spt;
     }
 
 // spline linear growth factor
  linear_growth = LinearSpline(loop_Nk,kval_tab,ling_tab);
 
- // select what variance to use  (if input P(k) is LCDM at z=0, vars[6]=0, if P(k) if modified at z=z, vars[6]=1)
+
  double sig1,sig2;
 
-  if (vars[6] < 0.5) {
+  if (!mgcamb) {
   // calculate sigma_8^2 and it's smoothing scale derivative @ R=8.
    sig1 = Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), 8., std::placeholders::_1), 1e-4, 50., 1e-3);
    sig2 = Integrate<ExpSub>(bind(sigma8d_integrand, cref(P_l), 8., std::placeholders::_1), 1e-4, 50., 1e-3);
@@ -185,13 +182,13 @@ for(int i = 0; i< loop_N; i++){
    lgmass[i] = Mmin + i*(Mmax-Mmin)/(loop_N-1.); // linear spacing
 
 // top hat radius
-   double Rth = 0.1*pow((Gnewton*pow(10, lgmass[i]))/(5.*vars[1]),ONE/THREE);
+   double Rth = 0.1*pow((Gnewton*pow(10, lgmass[i]))/(5.*omegacb),ONE/THREE); // check this
 
 // initialise delta_c, a_vir, delta_vir
-   scol.myscol(myscolparams, vars[0], vars[1], Rth, sig1, sig2, pars, 2, yenvf);
+   scol.myscol(myscolparams, vars[0], omegacb, Rth, sig1, sig2, pars, 2, yenvf);
 
 // calculate sigma^2
-  if (vars[6]<0.5) {
+  if (!mgcamb) {
    sigar[i] = sqrt(Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), Rth, std::placeholders::_1), 1e-4, 50., 1e-5, 1e-5));
  }
  else{
@@ -247,7 +244,7 @@ static real sigma8d_integrandp_mgcamb(const PowerSpectrum& P, real R, real k) {
 }
 
 
-void HALO::scol_initp(double vars[]) const{
+void HALO::scol_initp(double vars[], bool mgcamb) const{
   SCOL scol;
 
   int loop_N = 30;
@@ -255,9 +252,8 @@ void HALO::scol_initp(double vars[]) const{
     // arrays to store values
   double myscolparams[3],lgmass[loop_N],sigar[loop_N],scolar0[loop_N],scolar1[loop_N],scolar2[loop_N];
 
-// select what variance to use  (if input P(k) is LCDM at z=0, vars[6]=0, if P(k) if modified at z=z, vars[6]=1)
 double sig1,sig2;
-  if (vars[6] < 0.5) {
+  if (!mgcamb) {
   // calculate sigma_8^2 and it's smoothing scale derivative @ R=8.
    sig1 = Integrate<ExpSub>(bind(sigma_integrandp, cref(P_l), 8., std::placeholders::_1), 1e-4, 50., 1e-3);
    sig2 = Integrate<ExpSub>(bind(sigma8d_integrandp, cref(P_l), 8., std::placeholders::_1), 1e-4, 50., 1e-3);
@@ -273,8 +269,6 @@ double sig1,sig2;
    pars[0] = 1e-15;
    pars[1] = 1.;
    pars[2] = 1.;
-   // y env flag
-   int yenvf = 0;
 
 // initialise spherical collapse quantities in GR (independent of R (or M))
   scol.myscol(myscolparams, vars[0], vars[1], 1., sig1, sig2, pars, 1, 0);
@@ -286,7 +280,7 @@ for(int i = 0; i< loop_N; i++){
    double Rth = 0.1*pow((Gnewton*pow(10, lgmass[i]))/(5.*vars[1]),ONE/THREE);
 
 // calculate sigma^2
-  if (vars[6]<0.5) {
+  if (!mgcamb) {
     sigar[i] = sqrt(Integrate<ExpSub>(bind(sigma_integrandp, cref(P_l), Rth, std::placeholders::_1), 1e-4, 50., 1e-5, 1e-5));
   }
   else{
@@ -355,8 +349,9 @@ return result;
 // real
 double HALO::rvirial(double lgmass, double vars[]) const {
       //virial overdensity
+      double omegacb = vars[1]-vars[6];
       double Deltavir = (1.+ delta_avir(lgmass))*pow3(vars[0]/a_vir(lgmass));
-      return 0.1*pow((pow(10.,lgmass)*Gnewton)/(5.*vars[1]*Deltavir), 1./3.);
+      return 0.1*pow((pow(10.,lgmass)*Gnewton)/(5.*omegacb*Deltavir), 1./3.);
     }
 
 //pseudo
@@ -471,7 +466,7 @@ double HALO::cvirial(double lgmass, double acol) const {
 
 // real
   double HALO::nvirial(double lgmass, double omega0) const {
-       void *params;
+       void *params = nullptr;
        double q = 0.75;
        double p = 0.3;
        double aconst = 1./3.056;
@@ -489,7 +484,7 @@ double HALO::cvirial(double lgmass, double acol) const {
 
 // pseudo
   double HALO::nvirialp(double lgmass, double omega0) const {
-       void *params;
+       void *params = nullptr;
        double q = 0.75;
        double p = 0.3;
        double aconst = 1./3.056;
@@ -530,8 +525,8 @@ static double halo_integrand(const Cosmology& C, const PowerSpectrum& P_l, doubl
         HALO halo(C, P_l,P_l,P_l, 1e-3); // doesn't matter which Pk we feed here
 
         // background matter density
-
-        double myrho = 15.*vars[1]/(4.*M_PI*Gnewton*pow3(0.1));
+        double omegacb = vars[1]-vars[6];
+        double myrho = 15.*omegacb/(4.*M_PI*Gnewton*pow3(0.1));
 
         // Halo density profile components //
 
@@ -549,7 +544,7 @@ static double halo_integrand(const Cosmology& C, const PowerSpectrum& P_l, doubl
         double halof2 = pow2(hpk);
 
         // virial number density
-        double mynvir = halo.nvirial(lgmvir, vars[1]);
+        double mynvir = halo.nvirial(lgmvir, omegacb);
 
         double prefac = pow2(Mvir/myrho);
 
@@ -646,6 +641,7 @@ void HALO::react_init(double vars[]) const{
   // real linear spectrum
   plreal = pow2(linear_growth(0.06))*P_l(0.06);
 
+
   argument = ( (((pspt + p1h)/(psptp + p1hp)) * (plreal + p1hp) - p1h ) / plreal  - bigE )/(1.-bigE);
 
   if(argument<0.001 || argument>1.){
@@ -717,13 +713,13 @@ double HALO::plinear_cosmosis(double k) const {
 
 // vars:
 // 0 = acol, 1= omega0, 2 = mg param
-void HALO::react_init_nu(double vars[]) const{
-  SPT spt(C, P_l, epsrel);
+void HALO::react_init_nu(double vars[], bool mgcamb) const{
+  SPT spt(C, P_cb, epsrel);
 
   double pspt, psptp, p1h, p1hp, plm, plcb, plnu, psptcbv, argument;
 
   // fv
-  double fv  = vars[1]/vars[7];
+  double fv  = vars[6]/vars[1];
   double fv2 = pow(fv,2);
   double fvt = 1.-fv;
   double fvt2  = pow(fvt,2);
@@ -732,21 +728,33 @@ void HALO::react_init_nu(double vars[]) const{
   bigE = pow2(1.-fv)*one_halo(0.01,vars)/one_halop(0.01,vars);
 
   /// Calculate kstar///
-// linear terms
-  plm = P_l(0.06);
-  plcb = P_cb(0.06);
-  plnu = P_nu(0.06);
 
-// 1halo terms
+// 1-halo terms
   p1h = one_halo(0.06,vars); // real
   p1hp = one_halop(0.06,vars); // pseudo
 
 // spt terms
+if(!mgcamb){
+  // linear terms
+    plm = pow2(linear_growth(0.06))*P_l(0.06);
+    plcb = plm;
+    plnu = plm;
+
 // Real PT spectrum
   pspt = spt.PLOOPn2(1, vars, 0.06, 1e-3) + p1h ;
 // GR-1-loop spectrum with linear growth replaced by modified gravity growth (unscreened)
   psptp = spt.PLOOPn2(8, vars, 0.06, 1e-3)+ p1hp ;
+}
+else{
+  plm = P_l(0.06);
+  plcb = P_cb(0.06);
+  plnu = P_nu(0.06);
 
+// Real PT spectrum
+  pspt = spt.PLOOPn2_nu(1, vars, 0.06, 1e-3) + p1h ;
+// GR-1-loop spectrum with linear growth replaced by modified gravity growth (unscreened)
+  psptp = spt.PLOOPn2_nu(8, vars, 0.06, 1e-3)+ p1hp ;
+}
 // cbv terms
   psptcbv = pspt*plnu;
 
@@ -758,7 +766,7 @@ void HALO::react_init_nu(double vars[]) const{
   double term1 = p1h*fvt2 + (fvt2*bigE*plcb - fv2*plnu - (p1hp+plm)*rsptk0);
   double term2 = 2.*sqrt(fvt2*fv2*(p1hp+plm)*plnu*rsptk0);
 
-  argument = prefac * (term1 + term2); // 1st root
+   argument = prefac * (term1 + term2); // 1st root
 // argument = prefac * (term1 - term2); // 2nd root
 
   if(argument<0.001 || argument>1.){
@@ -773,13 +781,13 @@ void HALO::react_init_nu(double vars[]) const{
 
 
 // Reaction using 1-loop splines (ploopr and ploopp) as a function of redshift -- these should be initialised of course, one can use the ploop_init function in SPT.cpp
-void HALO::react_init_nu2(double vars[], Spline ploopr, Spline ploopp) const{
-  SPT spt(C, P_l, epsrel);
+void HALO::react_init_nu2(double vars[], Spline ploopr, Spline ploopp, bool mgcamb) const{
+  SPT spt(C, P_cb, epsrel);
 
   double pspt, psptp, p1h, p1hp, plm, plcb, plnu, psptcbv, argument;
 
   // fv
-  double fv  = vars[1]/vars[7];
+  double fv  = vars[6]/vars[1];
   double fv2 = pow(fv,2);
   double fvt = 1.-fv;
   double fvt2  = pow(fvt,2);
@@ -788,16 +796,25 @@ void HALO::react_init_nu2(double vars[], Spline ploopr, Spline ploopp) const{
   bigE = pow2(1.-fv)*one_halo(0.01,vars)/one_halop(0.01,vars);
 
   /// Calculate kstar///
-// linear terms
-  plm = P_l(0.06);
-  plcb = P_cb(0.06);
-  plnu = P_nu(0.06);
 
-// 1halo terms
+// set linear spectra quantities
+  if(!mgcamb){
+    // linear terms
+      plm = pow2(linear_growth(0.06))*P_l(0.06);
+      plcb = plm;
+      plnu = plm;
+    }
+    else{
+      plm = P_l(0.06);
+      plcb = P_cb(0.06);
+      plnu = P_nu(0.06);
+    }
+
+// 1-halo terms
   p1h = one_halo(0.06,vars); // real
   p1hp = one_halop(0.06,vars); // pseudo
 
-// spt terms
+// 1-loop terms
 // Real PT spectrum
   pspt = ploopr(vars[0]) + p1h ;
 // GR-1-loop spectrum with linear growth replaced by modified gravity growth (unscreened)
@@ -806,13 +823,14 @@ void HALO::react_init_nu2(double vars[], Spline ploopr, Spline ploopp) const{
 // cbv terms
   psptcbv = pspt*plnu;
 
-// reactionm @ k0 with 2halo term = 1 loop spt
+// reaction @ k0 with 2 halo term = 1 loop spt
   double rsptk0 = (fvt2 * pspt + 2.*fv*fvt*sqrt(psptcbv) + fv2*plnu)/(psptp);
 
 
   double prefac = 1./((bigE-1.)*plcb*fvt2);
   double term1 = p1h*fvt2 + (fvt2*bigE*plcb - fv2*plnu - (p1hp+plm)*rsptk0);
   double term2 = 2.*sqrt(fvt2*fv2*(p1hp+plm)*plnu*rsptk0);
+
 
   argument = prefac * (term1 + term2); // 1st root
 // argument = prefac * (term1 - term2); // 2nd root
@@ -829,7 +847,7 @@ void HALO::react_init_nu2(double vars[], Spline ploopr, Spline ploopp) const{
 
 
 double HALO::reaction_nu(double k, double vars[]) const {
-  double fv  = vars[1]/vars[7];
+  double fv  = vars[6]/vars[1];
   double fv2 = pow(fv,2);
   double fvt = 1.-fv;
   double fvt2  = pow(fvt,2);
@@ -852,6 +870,14 @@ double HALO::reaction_nu(double k, double vars[]) const {
 }
 
 
+// Initialise everything - for multiple redshifts, must initialise react_init2 separately
+void HALO::initialise(double vars[], bool mgcamb) const{
+  IOW iow;
+  iow.initnorm(vars);   // LCDM (or wCDM) linear growth rates
+  scol_init(vars,mgcamb); // real spherical collapse quantities
+  scol_initp(vars,mgcamb); // pseudo spherical collapse quantities
+  react_init_nu(vars,mgcamb); // kstar and mathcal E for reaction
+}
 
 
 
@@ -889,6 +915,7 @@ sum3 /= n1;
 wintcambs_pseudo[0] = sqrt(sum1);
 wintcambs_pseudo[1] = -sum2/sum1;
 wintcambs_pseudo[2] = -sum2*sum2/sum1/sum1 - sum3/sum1;
+return 0.;
 }
 
 double phpars_pseudo[13];
@@ -984,7 +1011,6 @@ void HALO::phinit_pseudo(double vars[])const{
 
 
 double HALO::PHALO_pseudo(double k) const{
-  IOW iow;
   if (phpars_pseudo[0] == 1000. || k<=0.005) {
     return pow2(linear_growth(k))*P_l(k);
   }

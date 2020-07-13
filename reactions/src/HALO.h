@@ -12,8 +12,8 @@ public:
   HALO(const Cosmology& C, const PowerSpectrum& P_l, const PowerSpectrum& P_cb,const PowerSpectrum& P_nu, real epsrel = 1e-4);
 
 // initialise spherical collapse quantities
-      void scol_init(double vars[]) const;
-      void scol_initp(double vars[]) const;
+      void scol_init(double vars[], bool mgcamb) const;
+      void scol_initp(double vars[], bool mgcamb) const;
 
 // halo model components
       double rvirial(double Mvir, double vars[]) const;
@@ -38,9 +38,12 @@ public:
       double reaction(double k, double vars[]) const;
 
       // react_init2 with neutrino terms
-      void react_init_nu(double vars[]) const;
-      void react_init_nu2(double vars[], Spline ploopr, Spline ploopp) const;
+      void react_init_nu(double vars[], bool mgcamb) const;
+      void react_init_nu2(double vars[], Spline ploopr, Spline ploopp, bool mgcamb) const;
       double reaction_nu(double k, double vars[]) const;
+
+// Initialise everything for single redshift
+      void initialise(double vars[], bool  mgcamb) const;
 
 // Linear spectrum for CosmoSIS
       double plinear_cosmosis(double k) const;

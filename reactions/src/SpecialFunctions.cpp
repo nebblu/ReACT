@@ -246,7 +246,7 @@ double mymgF(double a, double yh, double yenv, double Rth, double omega0, double
 
 /* f(R)  - Hu-Sawicki model, n =1 */
 		double h0 = 1./2997.92;
-    double dod, dod2, dRRth, fr0, var1, term1, term2 , a3, a9;
+    double dod, dod2, dRRth, fr0, var1, term1, term2;
     fr0 = p1/h0/h0;
     var1 = pow2(3.*omega0 -4.);
 
@@ -400,6 +400,7 @@ struct param_type3 {
 
 
 // system of equations for modified gravity (1606.02520 )
+
 int funcn1(double a, const double G[], double F[], void *params)
 {
 	param_type3 p = *(param_type3 *)(params);
@@ -415,11 +416,11 @@ int funcn1(double a, const double G[], double F[], void *params)
 	real p3 = p.par3;
   real karg1 = p.arg1;
   real karg2 = p.arg2;
-  real karg3 = p.arg3;
+//  real karg3 = p.arg3;
   real karg4 = p.arg4;
 
-  double a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14;
-  double b1,b2,b3,b4,b5,b6,b7;
+  double a1,a2,a5,a6,a7,a8,a10,a11,a13,a14;
+  double b1,b3,b4,b6,b7;
 	double mu1,mu2,mu3;
 
 	double hade1 = HA2g(a,omega0,p1,p2,p3);
@@ -518,12 +519,12 @@ int funcn1_pseudo(double a, const double G[], double F[], void *params)
 	real p3 = p.par3;
   real karg1 = p.arg1;
   real karg2 = p.arg2;
-  real karg3 = p.arg3;
+//  real karg3 = p.arg3;
   real karg4 = p.arg4;
 
 
-  double a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14;
-  double b1,b2,b3,b4,b5,b6,b7;
+  double a1,a2,a5,a6,a7,a8,a10,a11,a13,a14;
+  double b1,b3,b4,b6,b7;
 	double mu1,mu2,mu3;
 	double hade1 = HA2g(a,omega0,p1,p2,p3);
 	double hade2 = HA2g2(a,omega0,p1,p2,p3);
@@ -727,7 +728,8 @@ void IOW::initn2_pseudo(double A, double k[], double x[], double kargs[], double
 
 
 // Used to store kernel values for various redshifts for lensing computation (see HALO.cpp and SPT.cpp - react_init and PLOOPn2 functions respectively)
-void IOW::initn3(double redshifts[], int noz, double k[], double x[], double kargs[], double omega0, double par1, double par2, double par3,double mykernelarray[][12]){
+// BILL MOD
+void IOW::initn3(double redshifts[], int noz, double k[], double x[], double kargs[], double omega0, double par1, double par2, double par3,double mykernelarray[][20]){
 				if(redshifts[0]>2.5){
 					warning("SpecialFunctions: highest z unstable, should be 2.5 or less: z max = %e \n", redshifts[0]);
 				}
@@ -776,6 +778,15 @@ void IOW::initn3(double redshifts[], int noz, double k[], double x[], double kar
                         mykernelarray[0][10]=Gp[12];
                         mykernelarray[0][11]=Gp[13];
 
+												mykernelarray[0][12]=G[2];
+												mykernelarray[0][13]=G[3];
+												mykernelarray[0][14]=G[4];
+												mykernelarray[0][15]=G[5];
+												mykernelarray[0][16]=Gp[2];
+												mykernelarray[0][17]=Gp[3];
+												mykernelarray[0][18]=Gp[4];
+												mykernelarray[0][19]=Gp[5];
+
 
 
 double ai,af,aip,afp;
@@ -792,26 +803,39 @@ double ai,af,aip,afp;
 
                          /*1st order */
                         //F1(k;a), G1(k;a)
-		        						mykernelarray[i][0]=G[0];
+		        						mykernelarray[i][0]=G[0]; //F1(k)
                         mykernelarray[i][1]=G[1];
 
                        /*2nd order*/
 											 //F2/G2(p,k-p) (P22
-												mykernelarray[i][2]=G[6];
+												mykernelarray[i][2]=G[6]; //F2
                         mykernelarray[i][3]=G[7];
 
                         /* 3rd order */
                         //F3/G3[k,p,-p]
-												mykernelarray[i][4]=G[12];
+												mykernelarray[i][4]=G[12]; //F3
                         mykernelarray[i][5]=G[13];
 
                        /*same for pseudo */
-											 mykernelarray[i][6]=Gp[0];
+											 mykernelarray[i][6]=Gp[0]; //F1_noscr(k)
                         mykernelarray[i][7]=Gp[1];
-                        mykernelarray[i][8]=Gp[6];
+                        mykernelarray[i][8]=Gp[6]; //F2_noscr
                         mykernelarray[i][9]=Gp[7];
-                        mykernelarray[i][10]=Gp[12];
+                        mykernelarray[i][10]=Gp[12]; //F3_noscr
                         mykernelarray[i][11]=Gp[13];
+
+												/* Extra 1st order needed for P_L(k, z) instead of P_L(k, 0) input */
+												mykernelarray[i][12]=G[2]; //F1(k-p)
+												mykernelarray[i][13]=G[3]; //G1(k-p)
+
+												mykernelarray[i][14]=G[4]; //F1(p)
+												mykernelarray[i][15]=G[5]; //G1(p)
+
+												mykernelarray[i][16]=Gp[2]; //F1_noscr(k-p)
+												mykernelarray[i][17]=Gp[3]; //G1_noscr(k-p)
+
+												mykernelarray[i][18]=Gp[4]; //F1_noscr(p)
+												mykernelarray[i][19]=Gp[5]; //G1_noscr(p)
 
 		}
 		// free memory
@@ -824,11 +848,11 @@ int funcn_lin(double a, const double G[], double F[], void *params)
 {
   param_type3 p = *(param_type3 *)(params);
 	real k1 = p.kk1;
-	real x1= p.xx1;
-	real k2 = p.kk2;
-	real x2= p.xx2;
-	real k3 = p.kk3;
-	real x3= p.xx3;
+//	real x1= p.xx1;
+//	real k2 = p.kk2;
+//	real x2= p.xx2;
+//	real k3 = p.kk3;
+//	real x3= p.xx3;
 	real omega0 = p.omega00;
 	real p1 = p.par1;
 	real p2 = p.par2;
@@ -895,11 +919,11 @@ int funcn_rsd(double a, const double G[], double F[], void *params)
 	real p3 = p.par3;
   real karg1 = p.arg1;
   real karg2 = p.arg2;
-  real karg3 = p.arg3;
+//  real karg3 = p.arg3;
   real karg4 = p.arg4;
 
-  double a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14;
-  double b1,b2,b3,b4,b5,b6,b7;
+  double a1,a2,a3,a4,a5,a6,a7,a8,a10,a11,a13,a14;
+  double b1,b2,b3,b4,b6,b7;
 	double mu1,mu2,mu3;
 
 	double hade1 = HA2g(a,omega0,p1,p2,p3);

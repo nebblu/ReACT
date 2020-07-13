@@ -60,7 +60,7 @@ static double Pzeta(double x, void * p)
 // derivatives are taken with respect to t (or ln[a])
 static int f_modscol(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-    realtype y1, y2, c0, ET, ET0, yenv, eta1, eta2, DoD, Fvir, hubble2, dhlnaoh, prefac, term1, term2, term4, IC, Rth, OM, T1, maxt;
+    realtype y1, y2, c0, ET, ET0, yenv, Fvir, hubble2, dhlnaoh, prefac, term1, term2, term4, IC, Rth, OM, T1, maxt;
     UserData data;
 
     data    = (UserData) user_data;
@@ -128,7 +128,7 @@ static int f_modscol(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 // EQ.A4 of  1812.05594 with F =0 for y_env
 static int fscol(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype y1, y2, c0, ET, ET0, yenv, eta1, eta2, DoD, Fvir, prefac, term1, term2, term4, IC, OM, T1;
+  realtype y1, y2, c0, ET, ET0, prefac, term1, term2, term4, IC, OM, T1;
   UserData data;
 
   data    = (UserData) user_data;
@@ -184,7 +184,6 @@ double SCOL::maxP_zeta(double sig2, double dsig2dR, double OM, double Z)
   gsl_min_fminimizer *s;
   gsl_function F;
   gsl_function A1; // delta_envc(OM, Z)
-  gsl_function A2;
   struct my_f_params sig2_params = {sig2, dsig2dR, sqrt(sig2)}; /* sig2, dsig2dR, sig_8*/
   struct my_f_params OM_Z_params = {OM, Z, 1.0/(1.0+Z)}; // OM, Z, a0=1/(1+Z)
   A1.function = &delta_envc;
@@ -196,7 +195,7 @@ double SCOL::maxP_zeta(double sig2, double dsig2dR, double OM, double Z)
   double m = 0.0001;
   double varomega = gamma * d_envcr;
 
-	
+
   double betatest =pow(5.0/8.0, 3.0/d_envcr) / pow((sig2_params.c), 2.0/varomega);
   struct my_f_params Pzeta_params = {pow(5.0/8.0, 3.0/d_envcr) / pow((sig2_params.c), 2.0/varomega),
                                      varomega,
@@ -215,7 +214,7 @@ double SCOL::maxP_zeta(double sig2, double dsig2dR, double OM, double Z)
     printf ("The offending values of sigma8, sigma8', z, omega_m, varomega, d_envcr, beta, Dl_spt, g_de : %e %e %e %e %e %e %e %e %e  \n", sig2, dsig2dR, Z, OM,varomega, d_envcr, betatest, Dl_spt, g_de );
   }
  gsl_set_error_handler (NULL);
-	
+
   do
     {
       iter++;
@@ -255,8 +254,6 @@ double SCOL::Delta_Lambda(double OM, double Z)
     = gsl_integration_workspace_alloc (1000);
 
   double result, error;
-  double alpha = 1.0;
-
   struct my_f_params OM_Z_params = {OM, Z, 1.0/(1.0+Z)}; // OM, Z, a0=1/(1+Z)
   gsl_function F;
   F.function    = &xE3;
@@ -281,14 +278,13 @@ double SCOL::Delta_Lambda(double OM, double Z)
 // parameters: omega_matter, -log(1.0 + myz1) , m1/d1, array to store y/y_i
 int SCOL::yenv(double OM_REAL, double XF, double delta_envi, arrays_T xxyy)
 {
-  double xi, yi, xx[1002], yy[1002];
   realtype reltol, t, tout, T1;
   N_Vector y, abstol;
   SUNMatrix A;
   SUNLinearSolver LS;
   UserData data;
   void *cvode_mem;
-  int i, flag, flagr, iout;
+  int flag, flagr, iout;
   int rootsfound[2];
 
       y             = abstol = NULL;
@@ -442,10 +438,9 @@ int SCOL::SphericalCollapse(double *dC, arrays_T3 xxyyzz, UserData data_vec, dou
     SUNLinearSolver LS;
     UserData data;
     void *cvode_mem;
-    int i, flag, flagr, iout, ioutout;
+    int flag, flagr, iout, ioutout;
     int count_of_bisec;
     int rootsfound[2];
-    double xx[1002], yy[1002], zz[1002];
 
     delta_uu = delta_g;
     delta_ll = DELTA2;

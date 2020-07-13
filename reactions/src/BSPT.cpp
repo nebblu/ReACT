@@ -246,7 +246,6 @@ real BSPT::Bloop(int a, double k1, double k2, double x) const {
  }
 
  static real B_222(const PowerSpectrum& P_L, real k1, real k2, real x, real k3, real r, real u, real o) {
-   double k1s = pow2(k1);
    double k2s = pow2(k2);
 
    double p = k1*r;
@@ -265,7 +264,6 @@ real BSPT::Bloop(int a, double k1, double k2, double x) const {
  }
 
  static real B_222D(const PowerSpectrum& P_L, real k1, real k2, real x, real k3, real r, real u, real o) {
-   double k1s = pow2(k1);
    double k2s = pow2(k2);
 
    double p = k1*r;
@@ -287,18 +285,14 @@ real BSPT::Bloop(int a, double k1, double k2, double x) const {
  static real B_321I(const PowerSpectrum& P_L, real k1, real k2, real x, real k3, real r, real u, real o) {
      double k1s = pow2(k1);
      double k2s = pow2(k2);
-     double k3s = pow2(k3);
      double p = k1*r;
      double ps = pow2(p);
      double d = sqrt(1. + r*r - 2.*r*u);
      double d1 = sqrt(1. + r*r + 2.*r*u);
 
      real k1mp = k1*d;
-     real k1pp = k1*d1;
      real k2p = u*x - sqrt((1.-pow2(u))*(1.-pow2(x)))*cos(o);
      real k2mp = sqrt(k2s + ps - 2.*k2*p*k2p);
-     real k2pp = sqrt(k2s + ps + 2.*k2*p*k2p);
-     real k3pp = sqrt(k2s + k1s + ps + 2.*k1*k2*x - 2.*k1s*r*u - 2.*k2*p*k2p);
      real k3mp = sqrt(k2s + k1s + ps + 2.*k1*k2*x + 2.*k1s*r*u + 2.*k2*p*k2p);
 
      double kernel1= F2eds(r*k1,k1mp,(u-r)/d);
@@ -324,18 +318,14 @@ real BSPT::Bloop(int a, double k1, double k2, double x) const {
   static real B_321ID(const PowerSpectrum& P_L, real k1, real k2, real x, real k3, real r, real u, real o) {
       double k1s = pow2(k1);
       double k2s = pow2(k2);
-      double k3s = pow2(k3);
       double p = k1*r;
       double ps = pow2(p);
       double d = sqrt(1. + r*r - 2.*r*u);
       double d1 = sqrt(1. + r*r + 2.*r*u);
 
       real k1mp = k1*d;
-      real k1pp = k1*d1;
       real k2p = u*x - sqrt((1.-pow2(u))*(1.-pow2(x)))*cos(o);
       real k2mp = sqrt(k2s + ps - 2.*k2*p*k2p);
-      real k2pp = sqrt(k2s + ps + 2.*k2*p*k2p);
-      real k3pp = sqrt(k2s + k1s + ps + 2.*k1*k2*x - 2.*k1s*r*u - 2.*k2*p*k2p);
       real k3mp = sqrt(k2s + k1s + ps + 2.*k1*k2*x + 2.*k1s*r*u + 2.*k2*p*k2p);
 
       double kernel1= F2ndgp(p,k1mp,(u-r)/d);
@@ -362,8 +352,6 @@ real BSPT::Bloop(int a, double k1, double k2, double x) const {
  static real B_411(const PowerSpectrum& P_L, real k1, real k2, real x, real k3, real r, real u, real o) {
      double p = k1*r;
      double k2p = u*x - sqrt((1.-pow2(u))*(1.-pow2(x)))*cos(o);
-     double k3p = (-k1*u-k2*k2p)/k3;
-     double k1mp = sqrt(pow2(k1)+pow2(p)-2.*k1*p*u);
      return   12.*pow2(r)*P_L(p)*(F4edsb(k1,k2,p,p,-k2p,k2p,x,-u,u)*P_L(k1)*P_L(k2)
                                +  F4edsb(k2,k3,p,p,(k1*u+k2*k2p)/k3,-(k1*u+k2*k2p)/k3,-(k1*x+k2)/k3,-k2p,k2p)*P_L(k2)*P_L(k3)
                                +  F4edsb(k3,k1,p,p,-u,u,-(k1+k2*x)/k3,(k1*u+k2*k2p)/k3,-(k1*u+k2*k2p)/k3)*P_L(k3)*P_L(k1));
@@ -372,8 +360,6 @@ real BSPT::Bloop(int a, double k1, double k2, double x) const {
  static real B_411D(const PowerSpectrum& P_L, real k1, real k2, real x, real k3, real r, real u, real o) {
      double p = k1*r;
      double k2p = u*x - sqrt((1.-pow2(u))*(1.-pow2(x)))*cos(o);
-     double k3p = (-k1*u-k2*k2p)/k3;
-     double k1mp = sqrt(pow2(k1)+pow2(p)-2.*k1*p*u);
      double karg1[4],karg2[4],karg3[4];
      double xarg1[6],xarg2[6],xarg3[6];
      karg1[0]=k1;
@@ -449,7 +435,6 @@ double BSPT::Bloopterms(int a, real k1, real k2, real k3, real x) const{
 // vars[5] = 2 (f(R) Hu-Sawicki)
 real BSPT::Btreen(double vars[], double k1, double k2, double x) const {
 BSPTN bsptn;
-IOW iow;
 double ka[3],xa[3],kargs[3];
 double k1s,k2s,k3;
 k1s = pow2(k1);
@@ -680,7 +665,6 @@ switch( (int)vars[5] ) {
 // 0 = omega0, 1 = mg1, 2=mg2, 3=mg3, 4=a, 5=which model , 6 = integration accuracy
 double BSPT::Bloopn(double vars[], double k1, double k2, double x)const{
       BSPTN bsptn;
-      IOW iow;
       int check = vars[5];
       double loop,tree,prefac;
       double c[3] = {QMINp,-0.99999999,-1.};

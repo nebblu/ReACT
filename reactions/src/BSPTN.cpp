@@ -153,9 +153,9 @@ int funcb1dgp(double a, const double G[], double F[], void *params)
 	real x2= p.xx2;
 	real k3 = p.kk3;
 	real x3= p.xx3;
-  real k12 = p.arg1;
-  real k13 = p.arg2;
-  real k23 = p.arg3;
+//  real k12 = p.arg1;
+//  real k13 = p.arg2;
+//  real k23 = p.arg3;
 
 	real omega0 = p.omega00;
 	real p1 = p.par1;
@@ -243,8 +243,8 @@ int funcb1fofr(double a, const double G[], double F[], void *params)
 
 	real omega0 = p.omega00;
 	real p1 = p.par1;
-	real p2 = p.par2;
-	real p3 = p.par3;
+//	real p2 = p.par2; // unused
+//	real p3 = p.par3; // unused
 
   double a1,a2,a3,a4,a5,a6;
   double b1,b2,b3;
@@ -548,7 +548,7 @@ int funcdgp(double a, const double G[], double F[], void *params)
   real x7= p.xx7; // p.k2
   real x8= p.xx8; // p.k3
 
-  real k13 = p.arg1; // k2 + 2p
+//  real k13 = p.arg1; // k2 + 2p
   real k16 = p.arg2; // k1 + p
   real k46 = p.arg3; // -k3-p
   real x46 = p.arg4; // k2-p . k1
@@ -577,8 +577,8 @@ int funcdgp(double a, const double G[], double F[], void *params)
 // Cosmological and gravity parameters
  	real omega0 = p.omega00;
 	real p1 = p.par1;
-	real p2 = p.par2;
-	real p3 = p.par3;
+//	real p2 = p.par2; // unused
+//	real p3 = p.par3; // unused
 
   double alph[76];
   double beta[38];
@@ -1824,7 +1824,7 @@ int funcfr(double a, const double G[], double F[], void *params)
   real k6 = p.kk6; // k1
   real k7 = p.kk7; // k2
   real k8 = p.kk8; // k3 (= -k1-k2)
-	real k13 = p.arg1; // k2 + 2p
+//	real k13 = p.arg1; // k2 + 2p
   real k16 = p.arg2; // k1 + p
   real k46 = p.arg3; // -k3-p
 
@@ -1872,8 +1872,8 @@ int funcfr(double a, const double G[], double F[], void *params)
 // Cosmological and gravity parameters
  	real omega0 = p.omega00;
 	real p1 = p.par1;
-	real p2 = p.par2;
-	real p3 = p.par3;
+//	real p2 = p.par2; // unused
+//	real p3 = p.par3; // unused
 
 	sqrs[0] = p.k1s;
 	sqrs[1] = p.k2s;

@@ -107,48 +107,38 @@ string line2;
 HALO halo_m(C, P_m, P_cb, P_nu, epsrel)
 IOW iow;
 
-
-double vars[8];
+double vars[];
     vars[0] = 1./(myz+1.); //  scale factor
+    vars[1] = Omega_m;
     vars[2] = modg; //  modified gravity param
     vars[3] = 1.;  // extra
     vars[4] = 1.; // extra
     vars[5] = massb; // number of mass bins between 5<Log10[M]<18
-    vars[6] = mgcamb; // 1 if using mgcamb at z, 0 if using CAMB at z=0
-    vars[7] = Omega_nu;
+    vars[6] = Omega_nu;
 
-// initialise all  relevant growth factors
-vars[1] = Omega_m-Omega_nu; // total matter fraction
-iow.initnorm_nu(vars);
-// /// initialise delta_c(M), a_vir(M), delta_avir(M) and v(M) for real cosmology
-halo_cb.scol_initnu(vars);
+bool mgcamb = true; // mgcamb transfer input or camb transfer input
 
-vars[1] = Omega_m; // total matter fraction
-// /// initialise delta_c(M), a_vir(M), delta_avir(M) and v(M) for pseudo cosmology
-halo_m.scol_initpnu(vars);
+halo_m.initialise(vars,mgcamb);
 
-// initialise kstar and mathcal E
-halo_m.react_initnu(vars);
+double kmin = 1e-2;
+double kmax = 10.;
+int Nk = 100;
 
-// double kmin = 1e-2;
-// double kmax = 10.;
-// int Nk = 100;
+output file name
+ const char* output = "ps_f5nu_z0.dat";
+ /* Open output file */
+ FILE* fp = fopen(output, "w");
 
-//output file name
-//  const char* output = "ps_f5nu_z0.dat";
-//  /* Open output file */
-//  FILE* fp = fopen(output, "w");
-//
-//  for(int i =0; i < Nk;  i ++) {
-//       // real k =  kmin * exp(i*log(kmax/kmin)/(Nk-1));
-//       // p1 =  halo_mu.one_halonu(k, vars);
-//       // p2 =  halo_mu.one_halopnu(k, vars);
-//       // p3 =  halo_mu.reactionnu(k, vars);
-//
-//      printf("%d %e %e %e %e \n", i, k, p1,p2,p3); // print to terminal
-//      fprintf(fp,"%e %e %e %e \n", k, p1,p2, p3); // print to file
-//
-// }
+ for(int i =0; i < Nk;  i ++) {
+      // real k =  kmin * exp(i*log(kmax/kmin)/(Nk-1));
+      // p1 =  halo_mu.one_halonu(k, vars);
+      // p2 =  halo_mu.one_halopnu(k, vars);
+      // p3 =  halo_mu.reactionnu(k, vars);
+
+     printf("%d %e %e %e %e \n", i, k, p1,p2,p3); // print to terminal
+     fprintf(fp,"%e %e %e %e \n", k, p1,p2, p3); // print to file
+
+}
 
 	/*close output file*/
 //    fclose(fp);

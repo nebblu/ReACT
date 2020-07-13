@@ -32,7 +32,7 @@ private:
 };
 
 
-// Takes as input the matter power spectrum  
+// Takes as input the matter power spectrum
 class myLinearPS :
 public PowerSpectrum {
 public:

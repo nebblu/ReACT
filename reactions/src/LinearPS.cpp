@@ -50,7 +50,6 @@ real LinearPS::Evaluate(real k) const {
 myLinearPS::myLinearPS(const Cosmology& C_, real z_)
     : C(C_), z(z_), Pnw(C_, z_, EisensteinHu)
 {
-    real T0 = C.Ti[0];
     int N = C.ki.size();
 
     /* Calculate P(k) */

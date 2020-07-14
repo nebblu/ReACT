@@ -801,7 +801,6 @@ double c[2] = {KMIN,-1.};
 double d[2] = {KMAX, 1.};
 switch (a) {
   case 0:
-    iow.initn_lin(vars[0], k, vars[1],vars[2], vars[3],vars[4]);
     tree = P_L(k);
     return tree;
   case 1:

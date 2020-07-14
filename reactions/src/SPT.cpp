@@ -911,6 +911,10 @@ for(int zi = 0; zi<noz; zi++){
 }
 
 // BILL MOD
+// In its current form this function is broken as it requires P_L(k, z) at
+// multiple redshifts as input instead of only P_L(k,0) and this currently
+// can't be done.
+/*
 void SPT::ploop_init_nu(double ploopr[], double ploopp[], double redshifts[], int noz, double vars[], double k0){
   IOW iow;
 
@@ -994,7 +998,7 @@ for(int zi = 0; zi<noz; zi++){
     ploopp[zi] = tree + loopp;
 }
 }
-
+*/
 
 
 ////////////////////////////////////////////////

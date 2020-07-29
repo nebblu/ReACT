@@ -31,12 +31,18 @@ public:
 	// 4:  P_dd, 5: P_dt , 6: P_tt ; nDGP
   real PLOOP(real k, int a) const;
 
-	/* P_{ab}(k) 1-loop : numerical for arbitrary model of gravity - kernel dependent */
+	/* P_{ab}(k) 1-loop : numerical for arbitrary model of gravity for massless/no neutrinos- see  1606.02520  */
   // values of a :
-  // 1: P_dd, 2: P_dt , 3: P_tt for mg,
-  // 4: P_dd, 5: P_dt , 6: P_tt for interacting DE of
+  // 0: P_dd linear
+  // 1: P_dd, 2: P_dt , 3: P_tt for mg @ 1-loop level
+  // 4: P_dd pseudo @ 1-loop level - used for halo model reactions (see HALO.cpp)
   // vars: 0:scale factor , 1: omega_0, 2: mg1, 3 : mg2 , 4 : mg3
   real PLOOPn2(int a, double vars[], double k, double err) const;
+
+  /* P_{ab}(k) 1-loop : numerical for arbitrary model of gravity with massive neutrinos - kernel dependent */
+  // 0: P_dd for mg linear
+  // 1: P_dd for mg @ 1-loop
+  // 2: P_dd pseudo @ 1-loop level - used for halo model reactions (see HALO.cpp)
   real PLOOPn2_nu(int a, double vars[], double k, double err) const;
 
   // initialise p_loop values over redshifts[] at k=k0 for k_star in reaction code (HALO.cpp)

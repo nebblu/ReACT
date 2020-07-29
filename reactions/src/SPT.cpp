@@ -633,11 +633,14 @@ real SPT::Lag_bias(int a, real k, real bias[]) const {
 
 static double ploopn2_mgdd( const PowerSpectrum& P_L, double vars[], double k, double r, double x){
   double kargs[4],kv[3],xv[3], p22,p13;
+  // tolerance for ode solver (see SpecialFunctions.cpp, initn2). This encounters a singularity if k'.-k' = -1 exactly.
+  double tol = 1e-8;
+  // The integrated |k'| is parametrised as k*r
   IOW iow;
         kv[0] = k;
         kv[1] = k*r;
         kv[2] = kv[1];
-        xv[0] = -0.99999999; // don't set to -1 otherwise solver encounters singularity
+        xv[0] = -1. + tol;
         xv[1] = x;
         xv[2] = -x;
         kargs[0] = sqrt(kv[1]*kv[1]+kv[0]*kv[0]-2.*kv[1]*kv[0]*xv[1]);
@@ -654,11 +657,14 @@ static double ploopn2_mgdd( const PowerSpectrum& P_L, double vars[], double k, d
 // BILL MOD
 static double ploopn2_mgdd_nu( const PowerSpectrum& P_L, double vars[], double k, double r, double x){
   double kargs[4],kv[3],xv[3], p22,p13;
+  // tolerance for ode solver (see SpecialFunctions.cpp, initn2). This encounters a singularity if k'.-k' = -1 exactly.
+  double tol = 1e-8;
+  // The integrated |k'| is parametrised as k*r
   IOW iow;
         kv[0] = k;
         kv[1] = k*r;
         kv[2] = kv[1];
-        xv[0] = -0.99999999; // don't set to -1 otherwise solver encounters singularity
+        xv[0] = -1. + tol;
         xv[1] = x;
         xv[2] = -x;
         kargs[0] = sqrt(kv[1]*kv[1]+kv[0]*kv[0]-2.*kv[1]*kv[0]*xv[1]);
@@ -674,11 +680,14 @@ static double ploopn2_mgdd_nu( const PowerSpectrum& P_L, double vars[], double k
 
 static double ploopn2_mgdt( const PowerSpectrum& P_L, double vars[], double k, double r, double x){
   double kargs[4],kv[3],xv[3], p22,p13;
+  // tolerance for ode solver (see SpecialFunctions.cpp, initn2). This encounters a singularity if k'.-k' = -1 exactly.
+  double tol = 1e-8;
+  // The integrated |k'| is parametrised as k*r
   IOW iow;
         kv[0] = k;
         kv[1] = k*r;
         kv[2] = kv[1];
-        xv[0] = -0.99999999;
+        xv[0] = -1. + tol ;
         xv[1] = x;
         xv[2] = -x;
         kargs[0] = sqrt(kv[1]*kv[1]+kv[0]*kv[0]-2.*kv[1]*kv[0]*xv[1]);
@@ -693,11 +702,14 @@ static double ploopn2_mgdt( const PowerSpectrum& P_L, double vars[], double k, d
 
 static double ploopn2_mgtt(const PowerSpectrum& P_L, double vars[], double k, double r, double x){
   double kargs[4],kv[3],xv[3], p22,p13;
+  // tolerance for ode solver (see SpecialFunctions.cpp, initn2). This encounters a singularity if k'.-k' = -1 exactly.
+  double tol = 1e-8;
+  // The integrated |k'| is parametrised as k*r
   IOW iow;
         kv[0] = k;
         kv[1] = k*r;
         kv[2] = kv[1];
-        xv[0] = -0.99999999;
+        xv[0] = -1. + tol;
         xv[1] = x;
         xv[2] = -x;
         kargs[0] = sqrt(kv[1]*kv[1]+kv[0]*kv[0]-2.*kv[1]*kv[0]*xv[1]);
@@ -714,11 +726,14 @@ static double ploopn2_mgtt(const PowerSpectrum& P_L, double vars[], double k, do
 // pseudo 1-loop matter power spectrum (1812.05594)
 static double ploopn2_mgdd_pseudo( const PowerSpectrum& P_L, double vars[], double k, double r, double x){
   double kargs[4],kv[3],xv[3], p22,p13;
+  // tolerance for ode solver (see SpecialFunctions.cpp, initn2). This encounters a singularity if k'.-k' = -1 exactly.
+  double tol = 1e-8;
+  // The integrated |k'| is parametrised as k*r
   IOW iow;
         kv[0] = k;
         kv[1] = k*r;
         kv[2] = kv[1];
-        xv[0] = -0.99999999; // don't set to -1 otherwise solver encounters singularity
+        xv[0] = -1. + tol;
         xv[1] = x;
         xv[2] = -x;
         kargs[0] = sqrt(kv[1]*kv[1]+kv[0]*kv[0]-2.*kv[1]*kv[0]*xv[1]);
@@ -735,11 +750,14 @@ static double ploopn2_mgdd_pseudo( const PowerSpectrum& P_L, double vars[], doub
 // BILL MOD
 static double ploopn2_mgdd_pseudo_nu( const PowerSpectrum& P_L, double vars[], double k, double r, double x){
   double kargs[4],kv[3],xv[3], p22,p13;
+  // tolerance for ode solver (see SpecialFunctions.cpp, initn2). This encounters a singularity if k'.-k' = -1 exactly.
+  double tol = 1e-8;
+  // The integrated |k'| is parametrised as k*r
   IOW iow;
         kv[0] = k;
         kv[1] = k*r;
         kv[2] = kv[1];
-        xv[0] = -0.99999999; // don't set to -1 otherwise solver encounters singularity
+        xv[0] = -1. + tol;
         xv[1] = x;
         xv[2] = -x;
         kargs[0] = sqrt(kv[1]*kv[1]+kv[0]*kv[0]-2.*kv[1]*kv[0]*xv[1]);
@@ -753,7 +771,7 @@ static double ploopn2_mgdd_pseudo_nu( const PowerSpectrum& P_L, double vars[], d
     return pow2(r)*2.*(P_L(k*r)/pow2(F1p_nk))*( (P_L(kargs[0])/pow2(F1kmp_nk))*p22 + 3.*(P_L(k)/pow2(F1_nk))*p13 );
 }
 
-// Choose a {0,...,8}: P_linear, P_dd,P_dt, P_tt (MG), P_linear, P_dd,P_dt, P_tt (IDE), P_dd pseudo (see HALO.cpp)
+// Choose a {0,...,4}: P_linear, P_dd,P_dt, P_tt (MG), P_dd pseudo (see HALO.cpp)
 // vars: 0 =  scale factor, 1= omega_m(z=0), 2 = mg param , 3 = mg param, 4 = mg param,
 double SPT::PLOOPn2(int a, double vars[], double k, double err) const{
   IOW iow;
@@ -780,7 +798,7 @@ switch (a) {
     loop = prefac*Integrate<2>(bind(ploopn2_mgtt,cref(P_L),vars,k,std::placeholders::_1,std::placeholders::_2), c, d, err,1e-2);
     tree = pow2(G1_nk/dnorm_spt)*P_L(k);
     return loop+tree;
-  case 8:
+  case 4:
     loop = prefac*Integrate<2>(bind(ploopn2_mgdd_pseudo,cref(P_L),vars,k,std::placeholders::_1,std::placeholders::_2), c, d, err);
     tree = pow2(F1_nk/dnorm_spt)*P_L(k);
     return loop+tree;
@@ -789,7 +807,7 @@ switch (a) {
         return 0;
 }}
 
-// BILL MOD
+// Same as PLOOPn2 but for massive neutrino case
 double SPT::PLOOPn2_nu(int a, double vars[], double k, double err) const{
   IOW iow;
 double loop, tree;
@@ -807,7 +825,7 @@ switch (a) {
     loop = prefac*Integrate<2>(bind(ploopn2_mgdd_nu,cref(P_L),vars,k,std::placeholders::_1,std::placeholders::_2), c, d, err);
     tree = P_L(k);
     return loop+tree;
-  case 8:
+  case 2:
     loop = prefac*Integrate<2>(bind(ploopn2_mgdd_pseudo_nu,cref(P_L),vars,k,std::placeholders::_1,std::placeholders::_2), c, d, err);
     tree = P_L(k);
     return loop+tree;
@@ -829,13 +847,16 @@ void SPT::ploop_init(double ploopr[], double ploopp[], double redshifts[], int n
   IOW iow;
 
   double res[noz],resp[noz]; // stores loop integral results for real and pseudo spectra
-  const int loop_N = 50; // steps in trap rule for loop integral in integrated wave vector p
+  const int loop_N = 50; // steps in trap rule for loop integral in integrated wave vector p. 50 ensures sub percent accuracy but may be optimised.
   double KMAX = QMAXp/k0; // max r = p/k (QMAXp = 30 - see SpecialFunctions.h)
   double KMIN = QMINp/k0; // min r = p/k (QMINp = 1e-4 - ...)
   double myresult[noz][loop_N];  // stores result for angular integration
   double myresultp[noz][loop_N]; // stores pseudo result
   double k2val[loop_N]; // k array
   double mykernelarray[noz][20]; // SPT kernels stored to this array
+
+  // tolerance for ode solver (see SpecialFunctions.cpp, initn2). This encounters a singularity if k'.-k' = -1 exactly.
+  double tol = 1e-8;
 
 // set these to zero because of issue with cosmosis producing nans
   for(int zi=0; zi<noz; zi++){
@@ -858,7 +879,7 @@ void SPT::ploop_init(double ploopr[], double ploopp[], double redshifts[], int n
           kv[0] = k0;
           kv[1] = k0*k2val[k2i];
           kv[2] = kv[1];
-          xv[0] = -0.99999999; // don't set to -1 otherwise solver encounters singularity
+          xv[0] = -1. + tol;
           xv[1] = x32[i];
           xv[2] = -x32[i];
           kargs[0] = sqrt(kv[1]*kv[1]+kv[0]*kv[0]-2.*kv[1]*kv[0]*xv[1]);
@@ -913,13 +934,16 @@ void SPT::ploop_init_nu(double ploopr[], double ploopp[], double redshifts[], in
   IOW iow;
 
   double res[noz],resp[noz]; // stores loop integral results for real and pseudo spectra
-  const int loop_N = 50; // steps in trap rule for loop integral in integrated wave vector p
+  const int loop_N = 50; // steps in trap rule for loop integral in integrated wave vector p. 50 ensures sub percent accuracy but may be optimised.
   double KMAX = QMAXp/k0; // max r = p/k (QMAXp = 30 - see SpecialFunctions.h)
   double KMIN = QMINp/k0; // min r = p/k (QMINp = 1e-4 - ...)
   double myresult[noz][loop_N];  // stores result for angular integration
   double myresultp[noz][loop_N]; // stores pseudo result
   double k2val[loop_N]; // k array
   double mykernelarray[noz][20]; // SPT kernels stored to this array
+
+  // tolerance for ode solver (see SpecialFunctions.cpp, initn2). This encounters a singularity if k'.-k' = -1 exactly.
+  double tol = 1e-8;
 
 // set these to zero because of issue with cosmosis producing nans
   for(int zi=0; zi<noz; zi++){
@@ -942,7 +966,7 @@ void SPT::ploop_init_nu(double ploopr[], double ploopp[], double redshifts[], in
           kv[0] = k0;
           kv[1] = k0*k2val[k2i];
           kv[2] = kv[1];
-          xv[0] = -0.99999999; // don't set to -1 otherwise solver encounters singularity
+          xv[0] = -1. + tol;
           xv[1] = x32[i];
           xv[2] = -x32[i];
           kargs[0] = sqrt(kv[1]*kv[1]+kv[0]*kv[0]-2.*kv[1]*kv[0]*xv[1]);
@@ -1484,16 +1508,20 @@ static double ptns_qb( const PowerSpectrum& P_L, double u0[], double vars[], dou
   double kargs[4],kv[3],xv[3], abct, pdd, pdd22, pdd13, pdt, pdt22, pdt13, ptt, ptt22, ptt13, prefac, plk, plkmp, plkr,d,r2,r3,x2,x3,x4;
   prefac = k*k*k/(4*M_PI*M_PI)/pow4(dnorm_spt);
   d = 1.+ r*r - 2.*r*x;
+  // tolerance for ode solver (see SpecialFunctions.cpp, initn2). This encounters a singularity if k'.-k' = -1 exactly.
+  double tol = 1e-8;
+
 
   if(d < 1e-5){
       return 0;
     }
 
+    // The integrated |k'| is parametrised as k*r
   IOW iow;
         kv[0] = k;
         kv[1] = k*r;
         kv[2] = kv[1];
-        xv[0] = -0.99999999; // don't set to -1 otherwise solver encounters singularity
+        xv[0] = -1. + tol ;
         xv[1] = x;
         xv[2] = -x;
         kargs[0] = sqrt(kv[1]*kv[1]+kv[0]*kv[0]-2.*kv[1]*kv[0]*xv[1]);
@@ -1590,14 +1618,19 @@ static double ptns_lagb( const PowerSpectrum& P_L, double u0[], double vars[], d
     double kargs[4],kv[3],xv[3], abct, pdd, pdd22, pdd13, pdt, pdt22, pdt13, ptt, ptt22, ptt13, prefac, plk, plkmp, plkr,d,r2,r3,x2,x3,x4;
     prefac = k*k*k/(4*M_PI*M_PI)/pow4(dnorm_spt);
     d = 1.+ r*r - 2.*r*x;
+    // tolerance for ode solver (see SpecialFunctions.cpp, initn2). This encounters a singularity if k'.-k' = -1 exactly.
+    double tol = 1e-8;
+
     if(d < 1e-5){
         return 0;
       }
+
+      // The integrated |k'| is parametrised as k*r
     IOW iow;
           kv[0] = k;
           kv[1] = k*r;
           kv[2] = kv[1];
-          xv[0] = -0.99999999; // don't set to -1 otherwise solver encounters singularity
+          xv[0] = -1. + tol;
           xv[1] = x;
           xv[2] = -x;
           kargs[0] = sqrt(kv[1]*kv[1]+kv[0]*kv[0]-2.*kv[1]*kv[0]*xv[1]);

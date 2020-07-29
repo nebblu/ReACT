@@ -4,6 +4,10 @@
 
 
 // limits on mass exponents
+// The maximum mass is chosen sufficiently high so that we get convergence of the 1-halo term
+// The minimum mass is chosen so that we always find a solution for nu = delta_nl/sigma (M) = 1 used in the virial concentration (see  eq 46 of 1812.05594)
+// The current values were chosen to satisfy these properties for a wide range of test cases in f(R) gravity where nu is mass dependent. 
+// Ideally you want as small a range as possible so that you are able to solve spherical collapse less often (mass_loop parameter in cosmosis pipeline)
 const double Mmax = 18.;
 const double Mmin = 5.;
 

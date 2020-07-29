@@ -55,7 +55,8 @@ void react_error_halo(const char* msg) {
 
 /* Code to calculate halo terms */
 
-/*Load the linear power spectrum */
+/*Load the linear power spectra */
+// For massless neutrinos or no neutrinos, user should set P_cb = P_nu = P_l (total matter spectrum)
 HALO::HALO(const Cosmology& C_, const PowerSpectrum& P_l_, const PowerSpectrum& P_cb_, const PowerSpectrum& P_nu_, real epsrel_)
 : C(C_), P_l(P_l_), P_cb(P_cb_), P_nu(P_nu_)
 {
@@ -342,10 +343,12 @@ return result;
 
 
 /* Virial radius */
+// See equation 36 of 1812.05594
+// Note that we use Gnewton in units of [Mpc/M_solar  * (km/s)^2 ] -- see SCOL.h
+// Correspondingly, we have rho_m = 3 x 10^4 / (8 x pi x Gnewton) x Omega_m [M_solar/h / (Mpc/h)^3]
 
 // vars:
 // 0 = acol, 1= omega0, 2 = mg param
-
 // real
 double HALO::rvirial(double lgmass, double vars[]) const {
       //virial overdensity
@@ -366,7 +369,7 @@ double HALO::rvirialp(double lgmass, double vars[]) const {
 
 
 /* Virial concentration */
-
+// see equation 46 of 1812.05594
 // real
 double HALO::cvirial(double lgmass, double acol) const {
 
@@ -415,7 +418,6 @@ double HALO::cvirial(double lgmass, double acol) const {
 
 
 //pseudo
-
   double HALO::cvirialp(double lgmass, double acol) const {
 
         double myc0 = 9.;
@@ -463,7 +465,7 @@ double HALO::cvirial(double lgmass, double acol) const {
     ////////////////////////////////////////////////////////////////////////////////////////
 
 /* Virial number density */
-
+// See equation 40 of 1812.05594
 // real
   double HALO::nvirial(double lgmass, double omega0) const {
        void *params = nullptr;
@@ -620,36 +622,44 @@ void HALO::react_init(double vars[]) const{
 
   double pspt, psptp, p1h, p1hp, plreal,argument;
 
-/// mathcal E///
+  // Scale at which to calculate mathcal{E}. see 1812.05594 eq 54. This should just be sufficiently small so that the 1-halo term is constant.
+    double ke = 0.01;
+  // Smallest scale at which to trust 1-loop PT (at all relevant redshifts). see  see 1812.05594 eq 55. The authors find 0.06h/Mpc to be the optimal value.
+    double k0 = 0.06;
 
-  bigE = one_halo(0.01,vars)/one_halop(0.01,vars);
+
+/// mathcal E ///
+// See equation 5 of 2005.12184
+  bigE = one_halo(ke,vars)/one_halop(ke,vars);
 
   /// Calculate kstar///
+// See equation 6 of 2005.12184
 
 // 1halo terms
-
-  p1h = one_halo(0.06,vars); // real
-  p1hp = one_halop(0.06,vars); // pseudo
+  p1h = one_halo(k0,vars); // real
+  p1hp = one_halop(k0,vars); // pseudo
 
 // spt terms
 // Real PT spectrum
-  pspt = spt.PLOOPn2(1, vars, 0.06, 1e-3);
+  pspt = spt.PLOOPn2(1, vars, k0, 1e-3);
 
   // GR-1-loop spectrum with linear growth replaced by modified gravity growth (unscreened)
-  psptp = spt.PLOOPn2(8, vars, 0.06, 1e-3);
+  psptp = spt.PLOOPn2(4, vars, k0, 1e-3);
 
   // real linear spectrum
-  plreal = pow2(linear_growth(0.06))*P_l(0.06);
+  plreal = pow2(linear_growth(k0))*P_l(k0);
 
 
   argument = ( (((pspt + p1h)/(psptp + p1hp)) * (plreal + p1hp) - p1h ) / plreal  - bigE )/(1.-bigE);
 
+// For very small modifications, numerics can sometimes generate a negative argument.
+// To prevent 'nans' in the log taken below in such cases, we manually set kstar and bigE to their (approximately) GR values.
   if(argument<0.001 || argument>1.){
     kstar = 1e-6;
     bigE = 1.;
   }
   else{
-  kstar = (-0.06/log(argument));
+  kstar = (-k0/log(argument));
   }
 
 }
@@ -663,15 +673,22 @@ void HALO::react_init2(double vars[], Spline ploopr, Spline ploopp) const{
 
   double pspt, psptp, p1h, p1hp, plreal,argument;
 
-/// mathcal E///
+  // Scale at which to calculate mathcal{E}. see 1812.05594 eq 54. This should just be sufficiently small so that the 1-halo term is constant.
+    double ke = 0.01;
+  // Smallest scale at which to trust 1-loop PT (at all relevant redshifts). see  see 1812.05594 eq 55. The authors find 0.06h/Mpc to be the optimal value.
+    double k0 = 0.06;
 
-  bigE = one_halo(0.01,vars)/one_halop(0.01,vars);
+
+/// mathcal E///
+// See equation 5 of 2005.12184
+  bigE = one_halo(ke,vars)/one_halop(ke,vars);
 
   /// Calculate kstar///
+// See equation 6 of 2005.12184
 
 // 1halo terms
-  p1h = one_halo(0.06,vars); // real
-  p1hp = one_halop(0.06,vars); // pseudo
+  p1h = one_halo(k0,vars); // real
+  p1hp = one_halop(k0,vars); // pseudo
 
 // spt terms
 // Real PT spectrum
@@ -680,16 +697,18 @@ void HALO::react_init2(double vars[], Spline ploopr, Spline ploopp) const{
   psptp = ploopp(vars[0]);
 
   // real linear spectrum
-  plreal = pow2(linear_growth(0.06))*P_l(0.06);
+  plreal = pow2(linear_growth(k0))*P_l(k0);
 
   argument = ( (((pspt + p1h)/(psptp + p1hp)) * (plreal + p1hp) - p1h ) / plreal  - bigE )/(1.-bigE);
 
+  // For very small modifications, numerics can sometimes generate a negative argument.
+  // To prevent 'nans' in the log taken below in such cases, we manually set kstar and bigE to their (approximately) GR values.
   if(argument<0.001 || argument>1.){
     kstar = 1e-6;
     bigE = 1.;
   }
   else{
-  kstar = (-0.06/log(argument));
+  kstar = (-k0/log(argument));
   }
 
 }
@@ -724,42 +743,49 @@ void HALO::react_init_nu(double vars[], bool mgcamb) const{
   double fvt = 1.-fv;
   double fvt2  = pow(fvt,2);
 
+// Scale at which to calculate mathcal{E}. see 1812.05594 eq 54. This should just be sufficiently small so that the 1-halo term is constant.
+  double ke = 0.01;
+// Smallest scale at which to trust 1-loop PT (at all relevant redshifts). see  see 1812.05594 eq 55. The authors find 0.06h/Mpc to be the optimal value.
+  double k0 = 0.06;
+
 /// mathcal E///
-  bigE = pow2(1.-fv)*one_halo(0.01,vars)/one_halop(0.01,vars);
+// See equation 5 of 2005.12184
+  bigE = pow2(1.-fv)*one_halo(ke,vars)/one_halop(ke,vars);
 
   /// Calculate kstar///
+  // See equation 6 of 2005.12184
 
 // 1-halo terms
-  p1h = one_halo(0.06,vars); // real
-  p1hp = one_halop(0.06,vars); // pseudo
+  p1h = one_halo(k0,vars); // real
+  p1hp = one_halop(k0,vars); // pseudo
 
 // spt terms
 if(!mgcamb){
   // linear terms
-    plm = pow2(linear_growth(0.06))*P_l(0.06);
+    plm = pow2(linear_growth(k0))*P_l(k0);
     plcb = plm;
     plnu = plm;
 
 // Real PT spectrum
-  pspt = spt.PLOOPn2(1, vars, 0.06, 1e-3) + p1h ;
+  pspt = spt.PLOOPn2(1, vars, k0, 1e-3) + p1h ;
 // GR-1-loop spectrum with linear growth replaced by modified gravity growth (unscreened)
-  psptp = spt.PLOOPn2(8, vars, 0.06, 1e-3)+ p1hp ;
+  psptp = spt.PLOOPn2(4, vars, k0, 1e-3)+ p1hp ;
 }
 else{
-  plm = P_l(0.06);
-  plcb = P_cb(0.06);
-  plnu = P_nu(0.06);
+  plm = P_l(k0);
+  plcb = P_cb(k0);
+  plnu = P_nu(k0);
 
 // Real PT spectrum
-  pspt = spt.PLOOPn2_nu(1, vars, 0.06, 1e-3) + p1h ;
+  pspt = spt.PLOOPn2_nu(1, vars, k0, 1e-3) + p1h ;
 // GR-1-loop spectrum with linear growth replaced by modified gravity growth (unscreened)
-  psptp = spt.PLOOPn2_nu(8, vars, 0.06, 1e-3)+ p1hp ;
+  psptp = spt.PLOOPn2_nu(2, vars, k0, 1e-3)+ p1hp ;
 }
 // cbv terms
-  psptcbv = pspt*plnu;
+  psptcbv = sqrt(pspt*plnu);
 
 // reactionm @ k0 with 2halo term = 1 loop spt
-  double rsptk0 = (fvt2 * pspt + 2.*fv*fvt*sqrt(psptcbv) + fv2*plnu)/(psptp);
+  double rsptk0 = (fvt2 * pspt + 2.*fv*fvt*psptcbv + fv2*plnu)/(psptp);
 
 
   double prefac = 1./((bigE-1.)*plcb*fvt2);
@@ -769,12 +795,15 @@ else{
    argument = prefac * (term1 + term2); // 1st root
 // argument = prefac * (term1 - term2); // 2nd root
 
+
+// For very small modifications, numerics can sometimes generate a negative argument.
+// To prevent 'nans' in the log taken below in such cases, we manually set kstar and bigE to their (approximately) GR values.
   if(argument<0.001 || argument>1.){
     kstar = 1e-6;
     bigE = 1.;
   }
   else{
-  kstar = (-0.06/log(argument));
+  kstar = (-k0/log(argument));
   }
 
 }
@@ -792,27 +821,36 @@ void HALO::react_init_nu2(double vars[], Spline ploopr, Spline ploopp, bool mgca
   double fvt = 1.-fv;
   double fvt2  = pow(fvt,2);
 
+  // Scale at which to calculate mathcal{E}. see 1812.05594 eq 54. This should just be sufficiently small so that the 1-halo term is constant.
+    double ke = 0.01;
+  // Smallest scale at which to trust 1-loop PT (at all relevant redshifts). see  see 1812.05594 eq 55. The authors find 0.06h/Mpc to be the optimal value.
+    double k0 = 0.06;
+
+
 /// mathcal E///
-  bigE = pow2(1.-fv)*one_halo(0.01,vars)/one_halop(0.01,vars);
+// See equation 5 of 2005.12184
+
+  bigE = pow2(1.-fv)*one_halo(ke,vars)/one_halop(ke,vars);
 
   /// Calculate kstar///
+  // See equation 6 of 2005.12184
 
 // set linear spectra quantities
   if(!mgcamb){
     // linear terms
-      plm = pow2(linear_growth(0.06))*P_l(0.06);
+      plm = pow2(linear_growth(k0))*P_l(k0);
       plcb = plm;
       plnu = plm;
     }
     else{
-      plm = P_l(0.06);
-      plcb = P_cb(0.06);
-      plnu = P_nu(0.06);
+      plm = P_l(k0);
+      plcb = P_cb(k0);
+      plnu = P_nu(k0);
     }
 
 // 1-halo terms
-  p1h = one_halo(0.06,vars); // real
-  p1hp = one_halop(0.06,vars); // pseudo
+  p1h = one_halo(k0,vars); // real
+  p1hp = one_halop(k0,vars); // pseudo
 
 // 1-loop terms
 // Real PT spectrum
@@ -821,10 +859,10 @@ void HALO::react_init_nu2(double vars[], Spline ploopr, Spline ploopp, bool mgca
   psptp = ploopp(vars[0]) + p1hp ;
 
 // cbv terms
-  psptcbv = pspt*plnu;
+  psptcbv = sqrt(pspt*plnu);
 
 // reaction @ k0 with 2 halo term = 1 loop spt
-  double rsptk0 = (fvt2 * pspt + 2.*fv*fvt*sqrt(psptcbv) + fv2*plnu)/(psptp);
+  double rsptk0 = (fvt2 * pspt + 2.*fv*fvt*psptcbv + fv2*plnu)/(psptp);
 
 
   double prefac = 1./((bigE-1.)*plcb*fvt2);
@@ -835,12 +873,15 @@ void HALO::react_init_nu2(double vars[], Spline ploopr, Spline ploopp, bool mgca
   argument = prefac * (term1 + term2); // 1st root
 // argument = prefac * (term1 - term2); // 2nd root
 
+
+// For very small modifications, numerics can sometimes generate a negative argument.
+// To prevent 'nans' in the log taken below in such cases, we manually set kstar and bigE to their (approximately) GR values.
   if(argument<0.001 || argument>1.){
     kstar = 1e-6;
     bigE = 1.;
   }
   else{
-  kstar = (-0.06/log(argument));
+  kstar = (-k0/log(argument));
   }
 
 }
@@ -986,7 +1027,7 @@ void HALO::phinit_pseudo(double vars[])const{
 
      phpars_pseudo[7] = pow(10.,nue); // nun
 
-     if (fabs(1-omgm) > 0.01) {
+     if (fabs(1.-omgm) > 0.01) {
        double f1a = pow(omgm,-0.0732);
        double f2a = pow(omgm,-0.1423);
        double f3a = pow(omgm,0.0725);

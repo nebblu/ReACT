@@ -140,7 +140,7 @@ double omegacb = vars[1]-vars[6];
 for(int i = 0; i< loop_Nk; i++){
   kval_tab[i] =  kmin * exp(i*log(kmax/kmin)/(loop_Nk-1.));
   // numerical initialisation of linear growth in general theory of gravity/dark energy - see SpecialFunctions.cpp
-  iow.initn_lin(vars[0], kval_tab[i], omegacb,vars[2], vars[3], vars[4]);
+  iow.initn_lin(vars[0], kval_tab[i], omegacb, vars[2], vars[3], vars[4]);
   ling_tab[i] = F1_nk/dnorm_spt;
     }
 
@@ -261,8 +261,8 @@ double sig1,sig2;
 
   }
   else{
-     sig1 = Integrate<ExpSub>(bind(sigma_integrandp_mgcamb, cref(P_cb), 8., std::placeholders::_1), 1e-4, 50., 1e-3);
-     sig2 = Integrate<ExpSub>(bind(sigma8d_integrandp_mgcamb, cref(P_cb), 8., std::placeholders::_1), 1e-4, 50., 1e-3);
+     sig1 = Integrate<ExpSub>(bind(sigma_integrandp_mgcamb, cref(P_l), 8., std::placeholders::_1), 1e-4, 50., 1e-3);
+     sig2 = Integrate<ExpSub>(bind(sigma8d_integrandp_mgcamb, cref(P_l), 8., std::placeholders::_1), 1e-4, 50., 1e-3);
   }
 
    // theory params
@@ -285,7 +285,7 @@ for(int i = 0; i< loop_N; i++){
     sigar[i] = sqrt(Integrate<ExpSub>(bind(sigma_integrandp, cref(P_l), Rth, std::placeholders::_1), 1e-4, 50., 1e-5, 1e-5));
   }
   else{
-    sigar[i] = sqrt(Integrate<ExpSub>(bind(sigma_integrandp_mgcamb, cref(P_cb), Rth, std::placeholders::_1), 1e-4, 50., 1e-5, 1e-5));
+    sigar[i] = sqrt(Integrate<ExpSub>(bind(sigma_integrandp_mgcamb, cref(P_l), Rth, std::placeholders::_1), 1e-4, 50., 1e-5, 1e-5));
   }
 // store values in arrays
     scolar0[i] = myscolparams[0];
@@ -469,9 +469,9 @@ double HALO::cvirial(double lgmass, double acol) const {
 // real
   double HALO::nvirial(double lgmass, double omega0) const {
        void *params = nullptr;
-       double q = 0.75;
-       double p = 0.3;
-       double aconst = 1./3.056;
+       double q = 0.7665;//0.75;
+       double p = 0.2488;//0.3;
+       double aconst = 0.3292;//1./3.056;
 
 
        double v2 = pow2(mynu(lgmass,params));
@@ -487,9 +487,9 @@ double HALO::cvirial(double lgmass, double acol) const {
 // pseudo
   double HALO::nvirialp(double lgmass, double omega0) const {
        void *params = nullptr;
-       double q = 0.75;
-       double p = 0.3;
-       double aconst = 1./3.056;
+       double q = 0.7665;//0.75;
+       double p = 0.2488;//0.3;
+       double aconst = 0.3292;//1./3.056;
 
 
        double v2 = pow2(mynup(lgmass,params));
@@ -907,7 +907,7 @@ double HALO::reaction_nu(double k, double vars[]) const {
   double php = plm + one_halop(k,vars); // pseudo
 
   // real linear spectrum
- return (fvt2*ph +  fv*fvt*sqrt(ph*plnu) + fv2*plnu)/php;
+ return (fvt2*ph +  2.*fv*fvt*sqrt(ph*plnu) + fv2*plnu)/php;
 }
 
 

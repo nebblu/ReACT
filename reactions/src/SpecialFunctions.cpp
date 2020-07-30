@@ -1134,8 +1134,8 @@ void IOW::initnorm(double vars[]) //double A, double omega0, double par1, double
 			gsl_odeiv2_driver * d2;
 			int status1,status2,status3;
 			//  Solution for wCDM linear growth @ a=1  for our normalisation of the linear power spectrum
-			//DE
-					params_my = {vars[1],vars[2],vars[3],vars[4],1};
+			double omegacb = vars[1]-vars[6];
+					params_my = {omegacb,vars[2],vars[3],vars[4],1};
 
 			  // Solutions of evolution factors @ a=A
 			  	sys1 = {funcn2, jac, 2, &params_my};
@@ -1156,7 +1156,7 @@ void IOW::initnorm(double vars[]) //double A, double omega0, double par1, double
 					double mya = vars[0];
 
 			// LCDM growth @ a=A
-					params_my = {vars[1],-1.,0.,0.,1};
+					params_my = {omegacb,-1.,0.,0.,1};
 			  // Solutions of evolution factors @ a=A
 			  	sys2 = {funcn2, jac, 2, &params_my};
 			  	d2 = gsl_odeiv2_driver_alloc_y_new (&sys2, gsl_odeiv2_step_rk8pd,

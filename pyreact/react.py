@@ -36,7 +36,7 @@ class ReACT:
         r = f(*array_arg(a))
         return r
 
-    def compute_reaction(self, h, n_s, omega_m, omega_b, sigma_8, mg1,
+    def compute_reaction(self, h, n_s, omega_m, omega_b, sigma_8, fR0,
                                z, k, Pk, is_transfer=False, mass_loop=30,
                                verbose=True):
 
@@ -71,7 +71,7 @@ class ReACT:
                 *array_arg(np.ascontiguousarray(z[::-1], dtype=np.float64)), # ReACT expect z order from high to low
                 ct.c_bool(is_transfer),
                 ct.c_double(h), ct.c_double(n_s), ct.c_double(omega_m), ct.c_double(omega_b), ct.c_double(sigma_8),
-                ct.c_double(mg1),
+                ct.c_double(fR0),
                 ct.c_int(mass_loop),
                 *array_arg(reaction),
                 *array_arg(p_lin),

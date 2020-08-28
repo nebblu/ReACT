@@ -104,8 +104,10 @@ Spline a_vir;
 Spline delta_avir;
 Spline mysig;
 Spline mysigp;
-void HALO::scol_init(double vars[]) const{
+int HALO::scol_init(double vars[]) const{
   SCOL scol;
+
+  int status = 0;
   // number of points in mass loop (default is 30)
   int loop_N = (int)vars[5];
 
@@ -147,6 +149,9 @@ for(int i = 0; i< loop_N; i++){
 
 // initialise delta_c, a_vir, delta_vir
    scol.myscol(myscolparams, vars[0], vars[1], Rth, sig1, sig2, pars, 2, yenvf);
+   if(scol.error.errorno != 0) {
+    status = scol.error.errorno;
+   }
 
 // calculate sigma^2
    sigar[i] = sqrt(Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), Rth, std::placeholders::_1), 1e-4, 50., 1e-5, 1e-5));
@@ -168,6 +173,8 @@ for(int i = 0; i< loop_N; i++){
   a_vir = CubicSpline(loop_N,lgmass,scolar1);
 // delta_virial
   delta_avir = CubicSpline(loop_N,lgmass,scolar2);
+
+  return status;
 
 }
 
@@ -191,12 +198,13 @@ static real sigma8d_integrandp(const PowerSpectrum& P, real R, real k) {
 }
 
 
-void HALO::scol_initp(double vars[]) const{
+int HALO::scol_initp(double vars[]) const{
   SCOL scol;
   IOW iow;
 
+  int status = 0;
   int loop_N = 30;
-  int loop_Nk = 300;
+  int loop_Nk = 600;
 
     // arrays to store values
   double myscolparams[3],lgmass[loop_N],sigar[loop_N],scolar0[loop_N],scolar1[loop_N],scolar2[loop_N];
@@ -204,7 +212,7 @@ void HALO::scol_initp(double vars[]) const{
 
   // initialise linear growth spline for the theory of gravity/dark energy. See specialfunctions.cpp mu,gamma2,gamma3 functions
   double kmin = 1e-5;
-  double kmax = 100.;
+  double kmax = 120.;
 
   for(int i = 0; i< loop_Nk; i++){
     kval_tab[i] =  kmin * exp(i*log(kmax/kmin)/(loop_Nk-1.));
@@ -232,6 +240,9 @@ double sig2 = Integrate<ExpSub>(bind(sigma8d_integrandp, cref(P_l), 8., std::pla
 
 // initialise spherical collapse quantities in GR (independent of R (or M))
   scol.myscol(myscolparams, vars[0], vars[1], 1., sig1, sig2, pars, 1, 0);
+  if(scol.error.errorno != 0) {
+    status = scol.error.errorno;
+  }
 
 //#pragma omp parallel for
 for(int i = 0; i< loop_N; i++){
@@ -257,6 +268,8 @@ for(int i = 0; i< loop_N; i++){
     a_virp = CubicSpline(loop_N,lgmass,scolar1);
   // delta_virial
     delta_avirp = CubicSpline(loop_N,lgmass,scolar2);
+
+    return status;
 }
 
 
@@ -344,8 +357,15 @@ double HALO::cvirial(double lgmass, double acol) const {
       while ( delta_col(lgmass)/mysig(pos_pt)-1.  < 0.){
           pos_pt = dis(gen);}
 
-      while ( delta_col(lgmass)/mysig(neg_pt)-1. > 0.){
-          neg_pt = dis(gen);}
+        int mycount = 1;
+        while ( delta_col(lgmass)/mysig(neg_pt)-1. > 0.){
+        neg_pt = dis(gen);
+        mycount += 1;
+         if (mycount>100) {
+           fprintf(stderr, "Failed to converge in cvirial.\n");
+           return g_de*myc0*pow(10.,-alpha*(lgmass-Mmin))*acol;
+                         }
+                      }
 
        const double about_zero_mag = 1e-3;
       for (;;)
@@ -391,8 +411,15 @@ double HALO::cvirial(double lgmass, double acol) const {
         while ( delta_colp(lgmass)/mysigp(pos_pt)-1.  < 0.){
             pos_pt = dis(gen);}
 
-        while ( delta_colp(lgmass)/mysigp(neg_pt)-1. > 0.){
-            neg_pt = dis(gen);}
+          int mycount = 1;
+          while ( delta_colp(lgmass)/mysigp(neg_pt)-1. > 0.){
+          neg_pt = dis(gen);
+          mycount += 1;
+          if (mycount > 100 ) {
+            fprintf(stderr, "Failed to converge in cvirialp.\n");
+            return myc0*pow(10.,-alpha*(lgmass-Mmin))*acol;
+                          }
+                        }
 
          const double about_zero_mag = 1e-3;
         for (;;)
@@ -668,6 +695,10 @@ double HALO::reaction(double k, double vars[]) const {
 double HALO::plinear_cosmosis(double k) const {
   // real linear spectrum
   return pow2(linear_growth(k))*P_l(k);
+}
+
+double HALO::Lin_Grow(double k) const{ 
+    return linear_growth(k);
 }
 
 

@@ -4,6 +4,7 @@ __pycache__
 Makefile
 config.log
 config.status
+config.h
 libtool
 
 *.o
@@ -13,6 +14,7 @@ libtool
 *.la
 *.lo
 
+include
 lib
 src/.deps
 src/.libs

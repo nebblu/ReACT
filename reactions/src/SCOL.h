@@ -74,6 +74,9 @@ typedef struct usdat {
   gsl_interp_accel *acc;
 } *UserData;
 
+typedef struct scol_error{
+  int errorno = 0;
+} scol_error_T;
 
 extern int check_flagscol(void *flagvalue, const char *funcname, int opt); //
 
@@ -97,6 +100,7 @@ public:
 
    double funcscol(double xi, void *user_data); //
 
+   scol_error_T error;
 };
 
 #endif

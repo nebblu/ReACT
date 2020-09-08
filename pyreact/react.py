@@ -45,7 +45,7 @@ class ReACT:
 
         if len(z) > 1 and z[0] > z[-1]:
             raise ValueError("The z array needs to be ordered from low to high redshift.")
-        
+
         f = self.get_function("compute_reaction")
         f.restype = np.int
         f.argtypes = [*array_ctype(ndim=1, dtype=np.float64), # P(k, z=0)
@@ -59,6 +59,7 @@ class ReACT:
                       ct.POINTER(ct.c_double),     # sigma_8
                       ct.POINTER(ct.c_double),     # modified gravity param
                       ct.POINTER(ct.c_int),        # mass_loop
+                      ct.POINTER(ct.c_int),        # model (1: GR, 2: f(R), 3; DGP)
                       *array_ctype(ndim=2, dtype=np.float64), # reaction (output)
                       *array_ctype(ndim=2, dtype=np.float64), # linear MG power spectrum (output)
                       ct.POINTER(ct.c_int),        # verbose
@@ -73,6 +74,7 @@ class ReACT:
                 ct.c_double(h), ct.c_double(n_s), ct.c_double(omega_m), ct.c_double(omega_b), ct.c_double(sigma_8),
                 ct.c_double(mg1),
                 ct.c_int(mass_loop),
+                ct.c_int(model),
                 *array_arg(reaction),
                 *array_arg(p_lin),
                 ct.c_int(verbose),

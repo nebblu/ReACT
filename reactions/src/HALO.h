@@ -13,8 +13,8 @@ public:
 
 
 // initialise spherical collapse quantities
-      void scol_init(double vars[]) const;
-      void scol_initp(double vars[]) const;
+      void scol_init(double vars[], int model) const;
+      void scol_initp(double vars[], int model) const;
 
 // halo model components
       double rvirial(double Mvir, double vars[]) const;
@@ -34,7 +34,7 @@ public:
       double one_halop(double k, double vars[]) const;
 
 // reactions
-      void react_init(double vars[]) const;
+      void react_init(double vars[], int model) const;
       void react_init2(double vars[],Spline ploopr, Spline ploopp) const;
       double reaction(double k, double vars[]) const;
 

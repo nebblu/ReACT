@@ -91,7 +91,7 @@ static real sigma_integrand(const PowerSpectrum& P, real R, real k) {
 }
 
 
-// d(sigma_8^2)/dR 
+// d(sigma_8^2)/dR
 static real sigma8d_integrand(const PowerSpectrum& P, real R, real k) {
     return k*k/(2.*M_PI*M_PI) * P(k) * pow2(Dl_spt/dnorm_spt) * 2.*W(k*R)*Wd(k,R) ;
 }
@@ -104,7 +104,9 @@ Spline a_vir;
 Spline delta_avir;
 Spline mysig;
 Spline mysigp;
-void HALO::scol_init(double vars[]) const{
+
+// model; 1: GR, 2: f(R) Hu Sawicki, n=1  3: DGP normal branch
+void HALO::scol_init(double vars[], int model ) const{
   SCOL scol;
   // number of points in mass loop (default is 30)
   int loop_N = (int)vars[5];
@@ -146,7 +148,7 @@ for(int i = 0; i< loop_N; i++){
    double Rth = 0.1*pow((Gnewton*pow(10, lgmass[i]))/(5.*vars[1]),ONE/THREE);
 
 // initialise delta_c, a_vir, delta_vir
-   scol.myscol(myscolparams, vars[0], vars[1], Rth, sig1, sig2, pars, 2, yenvf);
+   scol.myscol(myscolparams, vars[0], vars[1], Rth, sig1, sig2, pars, model, yenvf);
 
 // calculate sigma^2
    sigar[i] = sqrt(Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), Rth, std::placeholders::_1), 1e-4, 50., 1e-5, 1e-5));
@@ -191,7 +193,8 @@ static real sigma8d_integrandp(const PowerSpectrum& P, real R, real k) {
 }
 
 
-void HALO::scol_initp(double vars[]) const{
+// model; 1: GR, 2: f(R) Hu Sawicki, n=1  3: DGP normal branch
+void HALO::scol_initp(double vars[],int model) const{
   SCOL scol;
   IOW iow;
 
@@ -209,7 +212,7 @@ void HALO::scol_initp(double vars[]) const{
   for(int i = 0; i< loop_Nk; i++){
     kval_tab[i] =  kmin * exp(i*log(kmax/kmin)/(loop_Nk-1.));
     // numerical initialisation of linear growth in general theory of gravity/dark energy - see SpecialFunctions.cpp
-    iow.initn_lin(vars[0], kval_tab[i], vars[1],vars[2], vars[3], vars[4]);
+    iow.initn_lin(vars[0], kval_tab[i], vars[1],vars[2], vars[3], vars[4],model);
     ling_tab[i] = F1_nk/dnorm_spt;
       }
 
@@ -221,7 +224,7 @@ void HALO::scol_initp(double vars[]) const{
 double sig1 = Integrate<ExpSub>(bind(sigma_integrandp, cref(P_l), 8., std::placeholders::_1), 1e-4, 50., 1e-3);
 double sig2 = Integrate<ExpSub>(bind(sigma8d_integrandp, cref(P_l), 8., std::placeholders::_1), 1e-4, 50., 1e-3);
 
-    
+
    // theory params
    double pars[4];
    pars[0] = 1e-15;
@@ -576,7 +579,7 @@ double kstar, bigE;
 
 // vars:
 // 0 = acol, 1= omega0, 2 = mg param
-void HALO::react_init(double vars[]) const{
+void HALO::react_init(double vars[], int model) const{
   SPT spt(C, P_l, epsrel);
 
   double pspt, psptp, p1h, p1hp, plreal,argument;
@@ -594,10 +597,10 @@ void HALO::react_init(double vars[]) const{
 
 // spt terms
 // Real PT spectrum
-  pspt = spt.PLOOPn2(1, vars, 0.06, 1e-3);
+  pspt = spt.PLOOPn2(1, vars, model, 0.06, 1e-3);
 
   // GR-1-loop spectrum with linear growth replaced by modified gravity growth (unscreened)
-  psptp = spt.PLOOPn2(8, vars, 0.06, 1e-3);
+  psptp = spt.PLOOPn2(8, vars, model, 0.06, 1e-3);
 
   // real linear spectrum
   plreal = pow2(linear_growth(0.06))*P_l(0.06);

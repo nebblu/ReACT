@@ -92,16 +92,17 @@ static int f_modscol(realtype t, N_Vector y, N_Vector ydot, void *user_data)
     double myh = (y1 + ET)/ET;
     double myenv = (yenv + ET)/ET;
 
+    // modified (MG or DE ... or both)
+    // these should be edited consistently in SpecialFunctions.cpp
+    Fvir = mymgF(ET*ET0, myh, myenv, Rth, OM, (data->par1),(data->par2),(data->par3), IC, (data->mymg));
+
+
+    // TODO: introduce switch forr background evolution to remove this if statement
     if((data->mymg) ==1){
-      // LCDM (unmodified)
-      Fvir=0;
       hubble2 = pow2(HA(ET*ET0,OM));
       dhlnaoh = HA1(ET*ET0,OM)/hubble2;
     }
     else{
-    // modified (MG or DE ... or both)
-    // these should be edited consistently in SpecialFunctions.cpp
-    Fvir = mymgF(ET*ET0, myh, myenv, Rth, OM, (data->par1),(data->par2),(data->par3), IC);
     // (H/H0)^2
     hubble2 = pow2(HAg(ET*ET0, OM, (data->par1), (data->par2), (data->par3)));
     // d H/ d ln[a] / (H/H0)^2
@@ -196,7 +197,7 @@ double SCOL::maxP_zeta(double sig2, double dsig2dR, double OM, double Z)
   double m = 0.0001;
   double varomega = gamma * d_envcr;
 
-	
+
   double betatest =pow(5.0/8.0, 3.0/d_envcr) / pow((sig2_params.c), 2.0/varomega);
   struct my_f_params Pzeta_params = {pow(5.0/8.0, 3.0/d_envcr) / pow((sig2_params.c), 2.0/varomega),
                                      varomega,
@@ -215,7 +216,7 @@ double SCOL::maxP_zeta(double sig2, double dsig2dR, double OM, double Z)
     printf ("The offending values of sigma8, sigma8', z, omega_m, varomega, d_envcr, beta, Dl_spt, g_de : %e %e %e %e %e %e %e %e %e  \n", sig2, dsig2dR, Z, OM,varomega, d_envcr, betatest, Dl_spt, g_de );
   }
  gsl_set_error_handler (NULL);
-	
+
   do
     {
       iter++;
@@ -586,7 +587,7 @@ int SCOL::SphericalCollapse(double *dC, arrays_T3 xxyyzz, UserData data_vec, dou
 //myscolparams[] is storage for the above quantities (0: delta_collapse, 1: a_virial, 2: delta_virial)
 
 // needs omega0, initial top-hat radius , initial density of enviornment, modification parameters and selection of theory, mymg:
-// mymg = 1 gives GR collapse, 2 gives modified collapse
+// mymg = 1 gives GR collapse, 2 gives f(R) and 3 gives DGP
 double SCOL::myscol(double myscolparams[], double acol, double omega0, double Rthp, double sig1, double sig2, double pars[], int mymg, int yenvf)
 {
 
@@ -644,7 +645,7 @@ double SCOL::myscol(double myscolparams[], double acol, double omega0, double Rt
          data->par3    = p3;
          data->Rth     = Rthp;
          data->mymg    = mymg;
-	 data->maxt    = maximumt;
+	       data->maxt    = maximumt;
 
           // initialse the delta_i (solver spherical collapse differential equation)
         SphericalCollapse (&myscolparams[0], xxyyzz, data, TMULT, mydelta);
@@ -691,14 +692,10 @@ double SCOL::myscol(double myscolparams[], double acol, double omega0, double Rt
          weff = 2.*(1.-omega0)*pow2(myy/arat);
          ke =  pow2(HA(ai, omega0)*(myy + myp)/arat);
        }
-       else if(mymg==2){
-         wphi = prefac * mymgF(ai, myy, myyenv, Rthp, omega0, p1, p2, p3, myscolparams[0])*mydelt;
+       else{
+         wphi = prefac * mymgF(ai, myy, myyenv, Rthp, omega0, p1, p2, p3, myscolparams[0], mymg)*mydelt;
          weff = WEFF(ai,omega0,p1,p2,p3)*pow2(myy/arat);
          ke =  pow2(HAg(ai, omega0,p1,p2,p3)*(myy + myp)/arat);
-       }
-       else{
-         warning("SCOL: invalid indices, mymg = %d\n", mymg);
-         return 0;
        }
 
 

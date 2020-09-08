@@ -13,8 +13,13 @@ public:
 
 
 // initialise spherical collapse quantities
+<<<<<<< HEAD
       void scol_init(double vars[], int model) const;
       void scol_initp(double vars[], int model) const;
+=======
+      int scol_init(double vars[]) const;
+      int scol_initp(double vars[]) const;
+>>>>>>> d075334b938df6e8ee145c73286c16f02ed2048a
 
 // halo model components
       double rvirial(double Mvir, double vars[]) const;
@@ -40,7 +45,9 @@ public:
 
 // Linear spectrum for CosmoSIS
       double plinear_cosmosis(double k) const;
-
+// Linear growth 
+      double Lin_Grow(double k) const;
+  
 // halofit pseudo spectrum
       double PHALO_pseudo(double k) const;
       // initialiser for halofit quantities - vars is as in all other functions, only call once for all k but at fixed scale factor(a = vars[0])

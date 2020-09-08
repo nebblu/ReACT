@@ -38,10 +38,12 @@ double vars[6];
 
     vars[0] = 1.;
     vars[1] = 0.3072;
-    vars[2] = 1e-5;
+    //vars[2] = 1e-5;
+    vars[2] = 0.1;
     vars[3] = 1.;
     vars[4] = 1.;
     vars[5] = 30.;
+    int model = 3;
 
     /* Open output file */
     FILE* fp = fopen(output, "w");
@@ -63,9 +65,9 @@ double vars[6];
 // initialise wCDM/LCDM lin growth for PS normalisation
 iow.initnorm(vars);
 /// initialise delta_c(M), a_vir(M), delta_avir(M) and v(M)
-halo.scol_init(vars);
-halo.scol_initp(vars);
-halo.react_init(vars);
+halo.scol_init(vars,model);
+halo.scol_initp(vars,model);
+halo.react_init(vars,model);
 
 //#pragma omp parallel for
 int Nk =100;

@@ -178,18 +178,13 @@ extern "C" {
             iow.initnorm(vars);
             // Spherical collapse stuff
             /// initialise delta_c(M), a_vir(M), delta_avir(M) and v(M)
-<<<<<<< HEAD
-            halo.scol_init(vars,mod);
-            halo.scol_initp(vars,mod);
-=======
-            status = halo.scol_init(vars);
-            status |= halo.scol_initp(vars);
+            status = halo.scol_init(vars,mod);
+            status |= halo.scol_initp(vars,mod);
 
             if(status != 0) {
                 react_error("Failed to compute spherical collapse.");
                 return 1;
             }
->>>>>>> d075334b938df6e8ee145c73286c16f02ed2048a
 
               // initialise k_star and mathcal{E}
             halo.react_init2(vars,mysr,mysp);

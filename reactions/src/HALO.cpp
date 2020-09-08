@@ -104,13 +104,8 @@ Spline a_vir;
 Spline delta_avir;
 Spline mysig;
 Spline mysigp;
-<<<<<<< HEAD
-
 // model; 1: GR, 2: f(R) Hu Sawicki, n=1  3: DGP normal branch
-void HALO::scol_init(double vars[], int model ) const{
-=======
-int HALO::scol_init(double vars[]) const{
->>>>>>> d075334b938df6e8ee145c73286c16f02ed2048a
+int HALO::scol_init(double vars[], int model ) const{
   SCOL scol;
 
   int status = 0;
@@ -154,14 +149,10 @@ for(int i = 0; i< loop_N; i++){
    double Rth = 0.1*pow((Gnewton*pow(10, lgmass[i]))/(5.*vars[1]),ONE/THREE);
 
 // initialise delta_c, a_vir, delta_vir
-<<<<<<< HEAD
    scol.myscol(myscolparams, vars[0], vars[1], Rth, sig1, sig2, pars, model, yenvf);
-=======
-   scol.myscol(myscolparams, vars[0], vars[1], Rth, sig1, sig2, pars, 2, yenvf);
    if(scol.error.errorno != 0) {
     status = scol.error.errorno;
    }
->>>>>>> d075334b938df6e8ee145c73286c16f02ed2048a
 
 // calculate sigma^2
    sigar[i] = sqrt(Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), Rth, std::placeholders::_1), 1e-4, 50., 1e-5, 1e-5));
@@ -208,12 +199,8 @@ static real sigma8d_integrandp(const PowerSpectrum& P, real R, real k) {
 }
 
 
-<<<<<<< HEAD
 // model; 1: GR, 2: f(R) Hu Sawicki, n=1  3: DGP normal branch
-void HALO::scol_initp(double vars[],int model) const{
-=======
-int HALO::scol_initp(double vars[]) const{
->>>>>>> d075334b938df6e8ee145c73286c16f02ed2048a
+int HALO::scol_initp(double vars[],int model) const{
   SCOL scol;
   IOW iow;
 
@@ -712,7 +699,7 @@ double HALO::plinear_cosmosis(double k) const {
   return pow2(linear_growth(k))*P_l(k);
 }
 
-double HALO::Lin_Grow(double k) const{ 
+double HALO::Lin_Grow(double k) const{
     return linear_growth(k);
 }
 

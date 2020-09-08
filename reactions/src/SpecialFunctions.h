@@ -124,17 +124,18 @@ public:
   	// A is the scale factor
   	// omega0 is the matter density param
   	// par1,par2,par3 are the mg parameters (generally only par1 is used)
-  	void inite(double A, double omega0, double par1, double par2, double par3);
+    // model :  1: GR, 2: f(R) Hu-Sawicki n=1 , 3: DGP normal branch
+  	void inite(double A, double omega0, double par1, double par2, double par3, int model);
     // Evolution factors including those for f4/g4 DGP KERNELS (slower than inite)
-    void inite2(double A, double omega0, double par1, double par2, double par3);
+    void inite2(double A, double omega0, double par1, double par2, double par3, int model);
 
 // numerical kernel initialisation functions
-    void initn_lin(double A, double k, double omega0, double par1, double par2, double par3); // numerical linear growth function solver
+    void initn_lin(double A, double k, double omega0, double par1, double par2, double par3, int model); // numerical linear growth function solver
     void initnorm(double vars[]); // wCDM and LCDM power spectrum normalisation  - roughly the same as above function but with no MG and with dark energy. It solves at a=1 to normalise general spectrum as well solves with LCDM at given a
-    void initn2(double A, double k[], double x[], double kargs[], double omega0, double par1, double par2, double par3); // 1-loop kernel solver
-    void initn2_pseudo(double A, double k[], double x[], double kargs[], double omega0, double par1, double par2, double par3); // 1-loop pseudo spectrum kernel solver
-    void initn3(double redshifts[], int noz, double k[], double x[], double kargs[], double omega0, double par1, double par2, double par3, double mykernelarray[][12]); // 1-loop kernel (real and pseudo) solver for array of redshifts -- used in reaction for lensing
-    void initn_rsd(double A, double k[], double x[], double kargs[], double omega0, double par1, double par2, double par3); // 1-loop TNS solver (also solves for ABC correction term kernels)
+    void initn2(double A, double k[], double x[], double kargs[], double omega0, double par1, double par2, double par3, int model); // 1-loop kernel solver
+    void initn2_pseudo(double A, double k[], double x[], double kargs[], double omega0, double par1, double par2, double par3, int model); // 1-loop pseudo spectrum kernel solver
+    void initn3(double redshifts[], int noz, double k[], double x[], double kargs[], double omega0, double par1, double par2, double par3, double mykernelarray[][12], int model); // 1-loop kernel (real and pseudo) solver for array of redshifts -- used in reaction for lensing
+    void initn_rsd(double A, double k[], double x[], double kargs[], double omega0, double par1, double par2, double par3, int model); // 1-loop TNS solver (also solves for ABC correction term kernels)
 
 };
 
@@ -154,11 +155,11 @@ double WEFF(double a, double omega0, double p1, double p2, double p3);
 
 // Modified gravity functions
 // 1-loop PT (1606.02520)
-double mu(double a, double k0, double omega0, double p1, double p2, double p3 );
-double gamma2(double a, double omega0, double k0, double k1, double k2, double u1, double p1, double p2, double p3 );
-double gamma3(double a, double omega0, double k0, double k1, double k2, double k3, double u1,double u2, double u3, double p1, double p2, double p3);
+double mu(double a, double k0, double omega0, double p1, double p2, double p3, int model);
+double gamma2(double a, double omega0, double k0, double k1, double k2, double u1, double p1, double p2, double p3, int model );
+double gamma3(double a, double omega0, double k0, double k1, double k2, double k3, double u1,double u2, double u3, double p1, double p2, double p3, int model);
 // spherical collapse (1812.05594 - appendix)
-double mymgF(double a, double yh, double yenv, double Rth, double omega0, double p1, double p2, double p3, double delta_initial);
+double mymgF(double a, double yh, double yenv, double Rth, double omega0, double p1, double p2, double p3, double delta_initial, int model);
 
 
 // standard PT kernels

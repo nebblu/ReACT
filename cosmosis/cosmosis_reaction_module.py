@@ -18,11 +18,8 @@ def setup(options):
     config["log10_fR0"] = options.get_bool(option_section, "log10_fR0", True)
     config["verbose"] = options.get_int(option_section, "verbose", 1)
     config["massloop"] = options.get_int(option_section, "massloop", 30)
-<<<<<<< HEAD
     config["model"] = options.get_int(option_section, "model", 2)
-=======
     config["z_max"] = options.get_double(option_section, "z_max", 2.5)
->>>>>>> d075334b938df6e8ee145c73286c16f02ed2048a
     config["reaction_output_section"] = options.get_string(option_section, "reaction_output_section", "reaction")
     config["linear_matter_power_output_section"] = options.get_string(option_section, "linear_matter_power_output_section", names.matter_power_lin)
 
@@ -34,6 +31,7 @@ def execute(block, config):
     omega_b = block[names.cosmological_parameters, "omega_b"]
     sigma_8 = block[names.cosmological_parameters, "sigma_8"]
     n_s = block[names.cosmological_parameters, "n_s"]
+    #Tilman: consistency between mode and model need to be addressed . Model takes values 1:GR, 2: f(R) and 3: DGP.  
     if config["mode"] == "fr":
         if config["log10_fR0"]:
             fR0 = 10**block[names.cosmological_parameters, "log10_fR0"]
@@ -46,16 +44,10 @@ def execute(block, config):
 
     z_react = z[z < config["z_max"]]
 
-<<<<<<< HEAD
-    reaction, pofk_lin = config["module"].compute_reaction(
-                                h, n_s, omega_m, omega_b, sigma_8, mg1,
-                                z, k_h, Pk, is_transfer=False, mass_loop=config["massloop"], model=config["model"],
-=======
     try:
         reaction, pofk_lin = config["module"].compute_reaction(
                                 h, n_s, omega_m, omega_b, sigma_8, fR0, 
-                                z_react, k_h, Pk[0], is_transfer=False, mass_loop=config["massloop"],
->>>>>>> d075334b938df6e8ee145c73286c16f02ed2048a
+                                z_react, k_h, Pk[0], is_transfer=False, mass_loop=config["massloop"], model=config["model"],
                                 verbose=config["verbose"])
     except:
         return 1

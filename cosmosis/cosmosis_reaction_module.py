@@ -36,8 +36,8 @@ def execute(block, config):
     # np.savetxt("z.txt", z)
 
     reaction, pofk_lin = config["module"].compute_reaction(
-                                h, n_s, omega_m, omega_b, sigma_8, mg1, 
-                                z, k_h, Pk, is_transfer=False, mass_loop=config["massloop"],
+                                h, n_s, omega_m, omega_b, sigma_8, mg1,
+                                z, k_h, Pk, is_transfer=False, mass_loop=config["massloop"], model=config["model"],
                                 verbose=config["verbose"])
 
     block.put_grid(config["reaction_output_section"], "z", z, "k_h", k_h, "reaction", reaction)

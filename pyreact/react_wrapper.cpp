@@ -54,7 +54,7 @@ extern "C" {
                          int* N_z, double* zvals,
                          bool* is_transfer,
                          double* h, double* n_s, double* Omega_m, double* Omega_b, double* sigma_8,
-                         double* mg1, int* mass_loop,
+                         double* mg1, int* mass_loop, int* model,
                          int* N_k_react, int* N_z_react, double* output_react,
                          int* N_k_pl, int* N_z_pl, double* output_pl,
                          int* verbose)
@@ -92,6 +92,8 @@ extern "C" {
             std::cout<<"sigma_8: " << *sigma_8 << "\n";
             std::cout<<"mg1: " << *mg1 << "\n";
             std::cout<<"mass loop: " << *mass_loop << "\n";
+            std::cout<<"model 1:GR, 2:f(R), 3: DGP : " << *model << "\n";
+
         }
 
 
@@ -143,6 +145,8 @@ extern "C" {
         vars[3] = 1.;
         vars[4] = 1.;
         vars[5] = *mass_loop;
+
+        int mod = *model;
         // initialise power spectrum normalisation before running 1-loop computations
         iow.initnorm(vars);
 
@@ -154,7 +158,7 @@ extern "C" {
         }
 
         // 1-loop computations at all redshifts @ k0
-        spt.ploop_init(ploopr,ploopp, zvals , *N_z, vars, k0);
+        spt.ploop_init(ploopr,ploopp, zvals , *N_z, vars, mod, k0);
 
         double myscalef[*N_z];
         for(int i = 0; i<*N_z ; i++){
@@ -173,8 +177,8 @@ extern "C" {
             iow.initnorm(vars);
             // Spherical collapse stuff
             /// initialise delta_c(M), a_vir(M), delta_avir(M) and v(M)
-            halo.scol_init(vars);
-            halo.scol_initp(vars);
+            halo.scol_init(vars,mod);
+            halo.scol_initp(vars,mod);
 
               // initialise k_star and mathcal{E}
             halo.react_init2(vars,mysr,mysp);

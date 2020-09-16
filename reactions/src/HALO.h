@@ -8,14 +8,14 @@
 // The minimum mass is chosen so that we always find a solution for nu = delta_nl/sigma (M) = 1 used in the virial concentration (see  eq 46 of 1812.05594)
 // The current values were chosen to satisfy these properties for a wide range of test cases in f(R) gravity where nu is mass dependent.
 // Ideally you want as small a range as possible so that you are able to solve spherical collapse less often (mass_loop parameter in cosmosis pipeline)
-const double Mmax = 18.;
+const double Mmax = 20.;
 const double Mmin = 5.;
 
 
 // For massless neutrinos or no neutrinos, user should set P_cb = P_nu = P_l (total matter spectrum)
 class HALO {
 public:
-  HALO(const Cosmology& C, const PowerSpectrum& P_l, const PowerSpectrum& P_cb,const PowerSpectrum& P_nu, real epsrel = 1e-4);
+  HALO(const Cosmology& C, const PowerSpectrum& P_l, const PowerSpectrum& P_cb,const PowerSpectrum& P_nu,const PowerSpectrum& P_cbl, real epsrel = 1e-4);
 
 // initialise spherical collapse quantities
       void scol_init(double vars[], bool mgcamb) const;
@@ -72,6 +72,7 @@ private:
     const PowerSpectrum& P_l;
     const PowerSpectrum& P_cb;
     const PowerSpectrum& P_nu;
+    const PowerSpectrum& P_cbl;
     real epsrel;
 
 

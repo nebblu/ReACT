@@ -26,9 +26,11 @@
 #define NEQ     2                /* number of equations  */
 #define Y1      RCONST(0.0)      /* initial y components */
 #define RTOL    RCONST(1.0e-5)   /* scalar relative tolerance            */
+
 #define ATOL1   RCONST(1.0e-11)   /* vector absolute tolerance components */
 #define ATOL2   RCONST(1.0e-11)
-#define T00      RCONST(-10.41431317630211772495840705232694745063781738281250)      /* initial time           */
+
+#define T00     RCONST(-10.41431317630211772495840705232694745063781738281250)      /* initial time           */
 #define NOUT    1024               /* number of output times */
 #define NOUT_DC    10               /* number of output times */
 
@@ -36,8 +38,8 @@
 #define ONE     RCONST(1.0)      /* 1.0                    */
 #define TWO     RCONST(2.0)
 #define THREE   RCONST(3.0)       /* 3.0                    */
-#define DELTA1  RCONST(3e-5)   /* Delta_i1 */
-#define DELTA2  RCONST(0.00012)   /* Delta_i2 */
+#define DELTA1  RCONST(3e-5)   /* Delta_i1  = ai */
+#define DELTA2  RCONST(0.00012)   /* Delta_i2 = 4 x ai */
 #define EPSILON RCONST(1.0e-9)
 #define ZERO    RCONST(0.0)
 #define NINE    RCONST(9.0)
@@ -63,12 +65,13 @@ typedef struct arrays3D{
 typedef struct usdat {
   realtype IC;
   realtype OM;
+  realtype OCB;
   realtype Rth;
   realtype T1;
   double par1;
   double par2;
   double par3;
-  int mymg;
+  bool mymg;
   double maxt;
   gsl_spline *spline;
   gsl_interp_accel *acc;
@@ -85,11 +88,11 @@ public:
    double maxP_zeta(double sig2, double dsig2dR, double OM, double Z);
    double Delta_Lambda(double OM, double Z); //
    // solves for y_enviornment
-   int yenv(double OM_REAL, double XF, double delta_envi, arrays_T xxyy); // gives the environmental dependence of spherical collapse
+   int yenv(double OM_REAL,  double OCB_REAL, double XF, double delta_envi, arrays_T xxyy); // gives the environmental dependence of spherical collapse
    // solves for y_halo
    int SphericalCollapse(double *dC, arrays_T3 xxyyzz, UserData data_vec, double TMULT_REAL, double delta_g); // spherical collapse solver
    // solves for a_virial
-   double myscol(double myscolparams[], double acol, double omega0, double Rthp, double sig1, double sig2, double pars[], int mymg, int yenvf); // solves for virial quantities and stores them in array myscolparams
+   double myscol(double myscolparams[], double acol, double omegacb, double omeganu, double Rthp, double sig1, double sig2, double pars[], bool mymg, int yenvf); // solves for virial quantities and stores them in array myscolparams
 
 
    void PrintOutput(realtype t, realtype y1, realtype y2);

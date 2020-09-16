@@ -60,22 +60,19 @@ static double Pzeta(double x, void * p)
 // derivatives are taken with respect to t (or ln[a])
 static int f_modscol(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-    realtype y1, y2, c0, ET, ET0, yenv, Fvir, hubble2, dhlnaoh, prefac, term1, term2, term4, IC, Rth, OM, T1, maxt;
+    realtype y1, y2, ET, ET0, yenv, Fvir, hubble2, dhlnaoh, prefac, prefac2, term1, term2, term4, IC, Rth, OM, OCB, T1, maxt;
     UserData data;
 
     data    = (UserData) user_data;
     IC      = data->IC;
     OM      = data->OM;
+    OCB     = data->OCB;
     T1      = data->T1;
     Rth     = data->Rth;
     maxt    = data->maxt;
 
-    realtype OL = 1 - OM;
-
     y1 = Ith(y,1);
     y2 = Ith(y,2);
-
-    c0      = 4.0*OL/OM;
 
     ET      = SUNRexp(t - T1);
     ET0     = SUNRexp(T1);
@@ -92,7 +89,7 @@ static int f_modscol(realtype t, N_Vector y, N_Vector ydot, void *user_data)
     double myh = (y1 + ET)/ET;
     double myenv = (yenv + ET)/ET;
 
-    if((data->mymg) ==1){
+    if(!(data->mymg)){
       // LCDM (unmodified)
       Fvir=0;
       hubble2 = pow2(HA(ET*ET0,OM));
@@ -104,14 +101,14 @@ static int f_modscol(realtype t, N_Vector y, N_Vector ydot, void *user_data)
     Fvir = mymgF(ET*ET0, myh, myenv, Rth, OM, (data->par1),(data->par2),(data->par3), IC);
     // (H/H0)^2
     hubble2 = pow2(HAg(ET*ET0, OM, (data->par1), (data->par2), (data->par3)));
-    // d H/ d ln[a] / (H/H0)^2
+    // d H/ d ln[a] /H
     dhlnaoh = HA1g(ET*ET0,OM, (data->par1), (data->par2), (data->par3))/hubble2;
      }
 
-    prefac  =  SUNRexp(-THREE*t)*OM; // a^3 Omega_m
+    prefac  =  SUNRexp(-THREE*t)*OCB; // a^3 Omega_cb
 
-    term1   = -dhlnaoh*y2;       //THREE*prefac*y2*HALF/hubble2;
-    term2   = (1.+dhlnaoh)*y1;   //-y1*(prefac-TWO*OL)/hubble2*HALF;
+    term1   = -dhlnaoh*y2;
+    term2   = (1.+dhlnaoh)*y1;
 
     term4   = -prefac*(ET+y1)*(
                                 (IC+ONE)/(y1/ET + ONE)/(y1/ET + ONE)/(y1/ET + ONE) - ONE
@@ -128,23 +125,23 @@ static int f_modscol(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 // EQ.A4 of  1812.05594 with F =0 for y_env
 static int fscol(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-  realtype y1, y2, c0, ET, ET0, prefac, term1, term2, term4, IC, OM, T1;
+  realtype y1, y2, ET, ET0, prefac, term1, term2, term4, IC, OM, OCB, T1;
   UserData data;
 
   data    = (UserData) user_data;
   IC      = data->IC;
   OM      = data->OM;
+  OCB     = data->OCB;
   T1      = data->T1;
   realtype OL      = 1 - OM;
   y1      = Ith(y,1); y2 = Ith(y,2);
-
-  c0      = 4.0*OL/OM;
 
   ET      = SUNRexp(t - T1);
   ET0     = SUNRexp(T1);
 
 
   prefac  =  SUNRexp(-THREE*t)*OM;
+
   term1   =  THREE*prefac*y2*HALF/(prefac+OL);
   term2   = -y1*(prefac-TWO*OL)/(prefac+OL)*HALF;
   term4   = -prefac*(ET+y1)*(
@@ -248,6 +245,7 @@ static double xE3(double x, void * p)
 
 
 
+/// Edit function to solve DE with modified poisson.
 double SCOL::Delta_Lambda(double OM, double Z)
 {
   gsl_integration_workspace * w
@@ -264,9 +262,9 @@ double SCOL::Delta_Lambda(double OM, double Z)
 
   gsl_integration_workspace_free (w);
 
-  return 2.5 * OM_Z_params.a
+  return 2.5 * OM
           * sqrt(OM/ OM_Z_params.c/ OM_Z_params.c / OM_Z_params.c  + 1-OM)
-          / 3e-5 /OM_Z_params.c * result;
+          / 3e-5 * result;
 }
 
 
@@ -276,7 +274,7 @@ double SCOL::Delta_Lambda(double OM, double Z)
 // Solves for y_env (i.e. F=0 in Eq. A4 of 1812.05594 )
 // stores results in xxyy
 // parameters: omega_matter, -log(1.0 + myz1) , m1/d1, array to store y/y_i
-int SCOL::yenv(double OM_REAL, double XF, double delta_envi, arrays_T xxyy)
+int SCOL::yenv(double OM_REAL, double OCB_REAL, double XF, double delta_envi, arrays_T xxyy)
 {
   realtype reltol, t, tout, T1;
   N_Vector y, abstol;
@@ -302,6 +300,7 @@ int SCOL::yenv(double OM_REAL, double XF, double delta_envi, arrays_T xxyy)
       data          = (UserData) malloc(sizeof *data);  /* Allocate data memory */
       data->IC      = delta_envi;  /* this parameter changes the function everytime, and has to be in the loop*/
       data->OM      = OM_REAL;
+      data->OCB     = OCB_REAL;
 
       T1 = T00 + XF;
 
@@ -442,8 +441,8 @@ int SCOL::SphericalCollapse(double *dC, arrays_T3 xxyyzz, UserData data_vec, dou
     int count_of_bisec;
     int rootsfound[2];
 
-    delta_uu = delta_g;
-    delta_ll = DELTA2;
+    delta_uu =  delta_g;
+    delta_ll =  4.*delta_g;
 
 // 32 bisections should be enough for most cases, but increase if needed
     int noofbi = 32;
@@ -476,13 +475,14 @@ int SCOL::SphericalCollapse(double *dC, arrays_T3 xxyyzz, UserData data_vec, dou
       data->mymg    = (*data_vec).mymg;
       data->maxt    = (*data_vec).maxt;
       data->OM      = (*data_vec).OM;
+      data->OCB     = (*data_vec).OCB;
       T1            = (*data_vec).T1;
 
       Ith(y,1)      = Y1;
       Ith(y,2)      = -data->IC/THREE; /* this is the initial condition for y' */
 
 
-      cvode_mem     = CVodeCreate(CV_ADAMS);
+      cvode_mem     = CVodeCreate(CV_BDF);
       flag          = CVodeInit(cvode_mem, f_modscol, T1, y);
       flag          = CVodeSVtolerances(cvode_mem, reltol, abstol);
       flag          = CVodeSetUserData(cvode_mem, data);
@@ -491,7 +491,7 @@ int SCOL::SphericalCollapse(double *dC, arrays_T3 xxyyzz, UserData data_vec, dou
       LS            = SUNDenseLinearSolver(y, A);
       flag          = CVDlsSetLinearSolver(cvode_mem, LS, A);
 
-      iout = 0;  tout = -10.0; ioutout = 0;
+      iout = 0;  tout = -10.; ioutout = 0;
 
       (*xxyyzz).xx[ioutout] = (*data_vec).T1;
       (*xxyyzz).yy[ioutout] = Y1;
@@ -582,29 +582,38 @@ int SCOL::SphericalCollapse(double *dC, arrays_T3 xxyyzz, UserData data_vec, dou
 
 // needs omega0, initial top-hat radius , initial density of enviornment, modification parameters and selection of theory, mymg:
 // mymg = 1 gives GR collapse, 2 gives modified collapse
-double SCOL::myscol(double myscolparams[], double acol, double omega0, double Rthp, double sig1, double sig2, double pars[], int mymg, int yenvf)
+double SCOL::myscol(double myscolparams[], double acol, double omegacb, double omeganu, double Rthp, double sig1, double sig2, double pars[], bool mymg, int yenvf)
 {
+
+        double omega0 = omegacb + omeganu;
 
       // theory params
         double p1 = pars[0];
         double p2 = pars[1];
         double p3 = pars[2];
 
-
         for(int i=0; i<3; i++){
         myscolparams[i] =0.;
         }
 
-// Used to initialise y_env, y_h for all z in order to spline and find a_vir
+        // Used to initialise y_env, y_h for all z in order to spline and find a_vir
        double myz = 1./acol - 1.;
        double XF = -log(1.0 + myz);
 
-       double m = maxP_zeta (sig1, sig2, omega0, myz);
-       double d = Delta_Lambda (omega0, myz);
+       double m = maxP_zeta (sig1, sig2, omegacb, myz);
+       // linear growth divided by initial scale factor for total matter poisson (pseudo) or cb poisson (real)
+       double d;
+       if (!mymg) {
+         d = Delta_Lambda (omega0, myz);
+       }
+        else{
+          d = Dl_spt/3e-5;
+         }
+
 
        arrays_T xxyy = (arrays_T)malloc( sizeof(struct arrays) );
 
-       yenv (omega0, XF , m/d, xxyy);
+       yenv (omega0, omegacb, XF , m/d, xxyy);
 
 // set max scalefactor
        double maximumt = (*xxyy).xx[(*xxyy).count-1];
@@ -613,42 +622,46 @@ double SCOL::myscol(double myscolparams[], double acol, double omega0, double Rt
        gsl_spline *myspline_yenv    = gsl_spline_alloc (gsl_interp_cspline, (*xxyy).count);
        gsl_spline_init (myspline_yenv, (*xxyy).xx, (*xxyy).yy, (*xxyy).count);
 
+      // we progressively solve for final times from af = 0.000045 (Exp[-10]) to acolapse in steps of TMULT, over NOUT_DC steps.
+       double TMULT  = pow(-XF/10.,ONE/(NOUT_DC-1.));
 
-       double TMULT  = pow(-XF/TEN,ONE/NINE);
        // holders for delta_c and for a, y(a), y'(a)
        arrays_T3 xxyyzz = (arrays_T3)malloc( sizeof(struct arrays3D) );
 
-// set initial condition for SC to 10% higher than y_env,initial if we need to use y_env in SC.
-       double mydelta;
-         if (yenvf == 1) {
-           mydelta = m/d*1.1;
-         }
-         else{
-           mydelta = DELTA1;
-         }
+       // set initial condition for SC to 10% higher than y_env,initial if we need to use y_env in SC.
+       // this has an issue with the pseudo cosmology for massive neutrinos  when we remove the acol scaling in ODE
+       // double mydelta;
+       //   if (yenvf == 1) {
+       //     mydelta = m/d*1.1;
+       //   }
+       //   else{
+       //     mydelta = DELTA1/acol;
+       //   }
+
+         double mydelta = DELTA1/acol;
 
          UserData data;
          data          = (UserData) malloc(sizeof(struct usdat));  /* Allocate data memory */
-         data->IC      = (mydelta+DELTA2)*HALF;  /* this parameter changes the function everytime, and has to be in the loop*/
+         data->IC      = (DELTA1+DELTA2)*HALF;  /* this parameter changes the function everytime, and has to be in the loop*/
          data->spline  = myspline_yenv;
          data->acc     = acc;
-         data->T1      = T00 + XF;
+         data->T1      = T00; // = Log[ai]
          data->OM      = omega0;
+         data->OCB     = omegacb;
          data->par1    = p1;
          data->par2    = p2;
          data->par3    = p3;
          data->Rth     = Rthp;
          data->mymg    = mymg;
-	 data->maxt    = maximumt;
+	       data->maxt    = maximumt;
 
           // initialse the delta_i (solver spherical collapse differential equation)
         SphericalCollapse (&myscolparams[0], xxyyzz, data, TMULT, mydelta);
        	free(data);
 
-     double ainit = exp(T00)*acol;
+     double ainit = exp(T00);
 
      arrays_T3 myen = (arrays_T3)malloc( sizeof(struct arrays3D) );
-
      arrays_T3 myamax = (arrays_T3)malloc( sizeof(struct arrays3D) );
 
       // populate arrays for total energy and scale factor lower bound used in root finder
@@ -667,33 +680,27 @@ double SCOL::myscol(double myscolparams[], double acol, double omega0, double Rt
        double myyenv = (yenvq+1./arat)*arat;
 
        // delta as given in Eq.34 of 1812.05594
-       //double di = Delta_Lambda (omega0, 1./ai-1.);
-
        double mydelt =(1.+ myscolparams[0])/pow3(myy) -1.;
 
        // energy contributions
 
       // 1. Potential energy (always the same):
-       double prefac = -omega0*pow2(myy/ainit)/ai;
+       double prefac = -omegacb*pow2(myy/ainit)/ai;
 
        // 2. newtonian contribution
        double wn =  prefac*(1.+mydelt);
         // 3 and 4 and 5.  modified gravity, dark energy  and Kinetic energy contributions
         // edit WEFF and mymgF in SpecialFunctions.cpp for different gravity/evolutions - default is LCDM
        double wphi, weff, ke;
-       if(mymg == 1){
+       if(!mymg){
          wphi = 0.;
          weff = 2.*(1.-omega0)*pow2(myy/arat);
          ke =  pow2(HA(ai, omega0)*(myy + myp)/arat);
        }
-       else if(mymg==2){
-         wphi = prefac * mymgF(ai, myy, myyenv, Rthp, omega0, p1, p2, p3, myscolparams[0])*mydelt;
-         weff = WEFF(ai,omega0,p1,p2,p3)*pow2(myy/arat);
-         ke =  pow2(HAg(ai, omega0,p1,p2,p3)*(myy + myp)/arat);
-       }
        else{
-         warning("SCOL: invalid indices, mymg = %d\n", mymg);
-         return 0;
+         wphi = prefac * mymgF(ai, myy, myyenv, Rthp, omegacb, p1, p2, p3, myscolparams[0])*mydelt;
+         weff = WEFF(ai,omegacb,p1,p2,p3)*pow2(myy/arat);
+         ke =  pow2(HAg(ai, omega0,p1,p2,p3)*(myy + myp)/arat); // might need to change to cb TO CHECK
        }
 
 
@@ -807,9 +814,9 @@ for (;;)
      myscolparams[2] = (1.+ myscolparams[0])/pow3((gsl_spline_eval(myspline_halo, log(myscolparams[1]), acc3)*ainit/myscolparams[1] + 1.)) - 1.;
 
     // delta_acol  (linearly extrapolated.)
-     myscolparams[0] =  d*myscolparams[0];
+     myscolparams[0] = d*myscolparams[0];
 
-// free all memory
+    // free all memory
     gsl_spline_free (myspline_halo);
     gsl_spline_free (myspline_yenv);
     gsl_spline_free (energytot);

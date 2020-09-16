@@ -26,11 +26,31 @@ Cosmology::Cosmology(real h, real n, real Omega_m, real Omega_b, real sigma8, co
     NormalizeTransferFunction(sigma8);
 }
 
+Cosmology::Cosmology(real h, real n, real Omega_m, real Omega_b, real As, real k0, const array& ki, const array& Ti) {
+    Initialize_as(h, n, Omega_m, Omega_b, As, k0);
+    SetTransferFunction(ki, Ti);
+}
+
 Cosmology::Cosmology(const char* cosmo) {
     sigma8 = 0;
     delta_H = 1;
     Initialize(cosmo);
 }
+
+void Cosmology::Initialize_as(real h_, real n_, real Omega_m_, real Omega_b_, real As_, real k0_) {
+    h = h_;
+    n = n_;
+    Omega_m = Omega_m_;
+    Omega_b = Omega_b_;
+    As = As_;
+    k0 = k0_;
+
+    sigma8 = 0;
+    delta_H = 1;
+
+    CalculateAdditionalParameters();
+}
+
 
 void Cosmology::Initialize(real h_, real n_, real Omega_m_, real Omega_b_) {
     h = h_;

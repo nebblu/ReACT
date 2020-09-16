@@ -182,7 +182,7 @@ inline double beta(double a, double omega0, double omegarc){
 
 double mu(double a, double k0, double omega0, double p1, double p2, double p3 ){
 	double h0 = 1./2997.92458;
-   //	return 1.; // GR
+//   	return 1.; // GR
 		double var1 = pow2(k0/a);
 	 return 1. + var1/(3.*(var1+pow3(omega0/pow3(a)-4.*(omega0-1.))/(2.*p1/pow2(h0)*pow2(4.-3.*omega0)))); //f(R) Hu- Sawicki
  //	return 1.+1./(3.*beta(a,omega0,p1)); //nDGP
@@ -1088,6 +1088,7 @@ struct param_type2 {
 	real par2;
 	real par3;
   int par4;
+	real par5;
 };
 
 
@@ -1101,16 +1102,18 @@ int funcn2(double a, const double G[], double F[], void *params)
 	real p1 = p.par1;
   real p2 = p.par2;
 	real p3 = p.par3;
+	int  p4 = p.par4;
+	real omeganu = p.par5;
 
+	double omegacb = omega0-omeganu;
 
-	double hade1 = HA2g(a,omega0,p1,p2,p3);
-	double hade2 = HA2g2(a,omega0,p1,p2,p3);
+	double hub1 = pow2(HAg(a,omega0,p1,p2,p3));
+	double hub2 = HA1g(a,omega0,p1,p2,p3);
+	double ap5 = pow(a,5);
 
+	F[0] = G[1];
+	F[1] = -1./a*(3.+hub2/hub1)*G[1] + 3./2.*omegacb/(hub1*ap5)*G[0];
 
-	/* 1st order */
-	//1. F1/G1(k)
-	F[0] = -G[1]/a;
-	F[1] =1./a*(-(2.-hade1)*G[1]-hade2*G[0]);
 	return GSL_SUCCESS;
 }
 
@@ -1123,22 +1126,23 @@ double g_de;
 // vars[2] = w0 (not used for modified gravity as Hubble function should be set to GR value - see funcn2)
 // vars[3] = wa (not used for modified gravity as Hubble function should be set to GR value - see funcn2)
 // vars[4] unused so far
+// vars[6] = omega_nu
 void IOW::initnorm(double vars[]) //double A, double omega0, double par1, double par2, double par3, int par4)
 {
-			double a = 0.0001;
-	  	double G1[2] = {a,-a}; // initial conditions
-			struct param_type2 params_my;
+			double a = 3e-5;
+	  	double G1[2] = {a,1.}; // initial conditions
+			struct param_type2 myparams, myparams2;
 			gsl_odeiv2_system sys1;
 			gsl_odeiv2_system sys2;
 			gsl_odeiv2_driver * d1;
 			gsl_odeiv2_driver * d2;
 			int status1,status2,status3;
+
 			//  Solution for wCDM linear growth @ a=1  for our normalisation of the linear power spectrum
-			double omegacb = vars[1]-vars[6];
-					params_my = {omegacb,vars[2],vars[3],vars[4],1};
+					myparams = {vars[1],vars[2],vars[3],vars[4],1,vars[6]};
 
 			  // Solutions of evolution factors @ a=A
-			  	sys1 = {funcn2, jac, 2, &params_my};
+			  	sys1 = {funcn2, jac, 2, &myparams};
 			  	d1 = gsl_odeiv2_driver_alloc_y_new (&sys1, gsl_odeiv2_step_rk8pd,
 			  								  1e-6, 1e-6, 1e-6);
 
@@ -1149,16 +1153,16 @@ void IOW::initnorm(double vars[]) //double A, double omega0, double par1, double
 			  	gsl_odeiv2_driver_free(d1);
 
 					//reset
-					a = 0.0001;
-			  	G1[0] =  a;
-					G1[1] = -a;
+					a = 3e-5;
+			  	G1[0] = a;
+					G1[1] = 1.;
 
 					double mya = vars[0];
 
-			// LCDM growth @ a=A
-					params_my = {omegacb,-1.,0.,0.,1};
+			// LCDM growth @ a=A for Omega_cb
+					myparams2 = {vars[1],-1.,0.,0.,1, vars[6]};
 			  // Solutions of evolution factors @ a=A
-			  	sys2 = {funcn2, jac, 2, &params_my};
+			  	sys2 = {funcn2, jac, 2, &myparams2};
 			  	d2 = gsl_odeiv2_driver_alloc_y_new (&sys2, gsl_odeiv2_step_rk8pd,
 			  								  1e-6, 1e-6, 1e-6);
 
@@ -1292,7 +1296,7 @@ void IOW::inite(double A, double omega0, double par1, double par2, double par3)
 
 	double a = 0.00001;
 	double G[20] = {a,1., a, 1., a,  1., a, 1.,  a, 1., a, 1., a, 1., a, 1., a, 1.,a,1.}; // initial conditions
-	struct param_type2 params = {omega0,par1,par2,par3,1};
+	struct param_type2 params = {omega0,par1,par2,par3,1,1.};
 
 // Solutions of evolution factors @ a=A
 	gsl_odeiv2_system sys = {func, jac, 20, &params};
@@ -2791,7 +2795,7 @@ void IOW::inite2(double A, double omega0, double par1, double par2, double par3)
                   a,1., a, 1., a,  1., a, 1.,  a, 1., a, 1., a, 1., a, 1., a, 1.,a,1.,
                   a,1., a, 1., a,  1., a, 1.,  a, 1., a, 1., a, 1., a, 1., a, 1.,a,1.,a, 1., a, 1., a, 1.,a,1.}; // initial conditions
 
-  struct param_type2 params = {omega0,par1,par2,par3,1};
+  struct param_type2 params = {omega0,par1,par2,par3,1,1.};
 
 // Solutions of evolution factors @ a=A
 	gsl_odeiv2_system sys = {funce2, jac, 88, &params};

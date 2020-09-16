@@ -27,6 +27,7 @@ using std::string;
 using std::istringstream;
 
 vector<vector<double> > mytrans;
+vector<vector<double> > mytransl;
 vector<vector<double> > mypk;
 
 
@@ -49,6 +50,7 @@ string line;
             mytrans.push_back(lineData);         // add row to allData
     }
 
+
 // Populate arrays and normalise to 1 at large scales for Cosmology class input
 int Nkr = mytrans.size();
 int* Nkt = &Nkr;
@@ -56,11 +58,12 @@ array Tm(*Nkt);
 array Tcb(*Nkt);
 array Tnu(*Nkt);
 array ki(*Nkt);
+
           for(int i = 0; i< Nkr; i++){
                   ki[i] = mytrans[i][0];
-                  Tm[i] = mytrans[i][6]/mytrans[0][6];
-                  Tcb[i] = mytrans[i][7]/mytrans[0][7];
-                  Tnu[i] = mytrans[i][5]/mytrans[0][5]; // should be adjusted if this column is all 0s ....
+                  Tm[i] = mytrans[i][6];
+                  Tcb[i] = mytrans[i][7];
+                  Tnu[i] = mytrans[i][5]; // should be adjusted if this column is all 0s ....
               }
 
 
@@ -70,53 +73,35 @@ real epsrel = 1e-2;
 // // // Specify params
 double h  = 0.6898;
 double n_s = 0.969; // spectral index
-double Omega_m =  0.281474; // total matter fraction
+double Omega_m = 0.2905; // total matter fraction
 double Omega_b  = 0.0473; //  baryon fraction
 double Omega_nu = 0.00902645;  // neutrino fraction
-
-// z=0
-// double sigma_8m = 0.7296; // IMP
-// double sigma_8cb = 0.7434; // IMP
-// double sigma_8nu = 0.3271; // IMP
-
-// z=1
-double sigma_8m = 0.4507; // IMP
-double sigma_8cb = 0.4602; // IMP
-double sigma_8nu =  0.1730; // IMP
-
-
+double pscale = 0.002;
+double As = 2.442e-9;
 double modg = 1e-15;  //  modified gravity param
-double massb = 30.; // number of mass bins between 5<Log10[M]<18
+double massb = 36.; // number of mass bins between 5<Log10[M]<18
 // // input transfer redshift
 double myz = 1.;
-
 
 // if false, Omega_nu should be 0 --- create flag.
 bool mgcamb = true; // mgcamb transfer input or camb transfer input -- maybe rename to massnu because it's more correctly massive neutrinos or not
 
-// LCDM transfer at z=0 for Copter growth --- current ReACT implementation (for mgcamb=false)
-// const char* cstr = "tests/nu0/test";
-// Cosmology C(cstr);
-// LinearPS P_l(C, 0.);
-// HALO halo(C, P_l, P_l, P_l, epsrel);
-
 // Load cosmology classes
-Cosmology Cm(h, n_s, Omega_m, Omega_b, sigma_8m, ki, Tm);
-Cosmology Ccb(h, n_s, Omega_m, Omega_b, sigma_8cb, ki, Tcb);
-Cosmology Cnu(h, n_s, Omega_m, Omega_b, sigma_8nu, ki, Tnu);
+Cosmology Cm(h, n_s, Omega_m, Omega_b, As, pscale, ki, Tm);
+Cosmology Ccb(h, n_s, Omega_m, Omega_b, As, pscale, ki, Tcb);
+Cosmology Cnu(h, n_s, Omega_m, Omega_b, As, pscale, ki, Tnu);
+
 
 // Get linear P(k) from input transfer
-LinearPS P_l(Cm, 0.);
-LinearPS P_cb(Ccb, 0.);
-LinearPS P_nu(Cnu, 0.);
+LinearPS_as P_l(Cm, 0.);
+LinearPS_as P_cb(Ccb, 0.);
+LinearPS_as P_nu(Cnu, 0.);
+LinearPS_as P_cbl(Ccb, 0.);
 
 // Load halo class witth all linear P(k)
-HALO halo(Cm, P_l, P_cb, P_nu, epsrel);
-// Special functions class
+HALO halo(Cm, P_l, P_cb, P_nu, P_cb, epsrel);
+
 IOW iow;
-
-//SPT spt(Cm, P_l, epsrel);
-
 // store params for passing into React functions
 double vars[7];
     vars[0] = 1./(myz+1.); //  scale factor
@@ -127,19 +112,26 @@ double vars[7];
     vars[5] = massb; // number of mass bins between 5<Log10[M]<18
     vars[6] = Omega_nu;
 
+
 // initialise spherical collapse quantities and reaction quantities
 halo.initialise(vars,mgcamb);
 
-//halo.react_init(vars);
 // Output section
 double kmin = 1e-3;
 double kmax = 0.5;
 
-
-
 // load Matteo's data pk for testing
-//ifstream fin2("validate/matteo_data/1-halo/mnu_0.4_P1h_pseudo_z0.dat");
+//ifstream fin2("validate/matteo_data/linear/mnu_0.4_cbpower_z1.dat");
+
+//ifstream fin2("validate/matteo_data/1-halo/mnu_0.4_P1h_cb_z1.dat");
+//ifstream fin2("validate/matteo_data/1-halo/mnu_0.4_P1h_pseudo_z1.dat");
+
+//ifstream fin2("validate/matteo_data/1-halo/mnu_0.4_dndlnM_pseudo_z1.dat");
+//ifstream fin2("validate/matteo_data/1-halo/mnu_0.4_cvir_cb_z1.dat");
+//ifstream fin2("validate/matteo_data/1-halo/mnu_0.4_Rvir_pseudo_z1.dat");
+
 ifstream fin2("validate/matteo_data/reactions/mnu_0.4_reaction_z1.dat");
+
 
 // Load in the data
 string line2;
@@ -156,21 +148,32 @@ string line2;
 int Nk =  mypk.size();
 
 
-double p1,p2,p3;
+ double p1;
  //output file name
- const char* output = "mytest.dat";
+ const char* output = "p1h_real_z1.dat";
  /* Open output file */
  FILE* fp = fopen(output, "w");
 
- for(int i =0; i < Nk;  i ++) {
+ for(int i =0; i <Nk;  i ++) {
       real k = mypk[i][0];
       // quantity to validate
-      double react_q = halo.reaction_nu(k,vars);
-      p1 = react_q/mypk[i][1];
 
-//if(fabs(p1-1.)>0.001){
+         p1 = halo.reaction_nu(k,vars)/mypk[i][1];
+
+       // p1 = P_cb(k)/mypk[i][1];
+       // p1 = P_nu(k)/mypk[i][1];
+
+      // p1 = halo.one_halo(k,vars) / mypk[i][1];
+      // p1 = halo.one_halop(k,vars)/ mypk[i][1];
+
+      // p1 = halo.cvirialp(log10(k),vars[0])/ mypk[i][1];
+      // p1 = halo.nvirialp(log10(k),vars[1]-vars[6])/mypk[i][1];
+      // p1 = halo.rvirialp(log10(k),vars)/ mypk[i][1];
+
+//if(fabs(p1-1.)>0.002){
      printf("%d %e %e \n", i, k, p1); // print to terminal
-     fprintf(fp,"%e %e \n", k, p1); // print to file
+     fprintf(fp,"%e %e  \n", k, p1); // print to file
+
 //}
 }
 

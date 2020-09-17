@@ -94,7 +94,7 @@ extern "C" {
             std::cout<<"sigma_8: " << *sigma_8 << "\n";
             std::cout<<"mg1: " << *mg1 << "\n";
             std::cout<<"mass loop: " << *mass_loop << "\n";
-            std::cout<<"model 1:GR, 2:f(R), 3: DGP : " << *model << "\n";
+            std::cout<<"model: "  << *model << " (1:GR, 2:f(R), 3:DGP)\n";
 
         }
 
@@ -183,8 +183,8 @@ extern "C" {
             status |= halo.scol_initp(vars,mod);
 
             // store modified sigma 8 at z=0
-            if (zvals[j]==0.) {
-              modsig8 = vars[6];
+            if(j == *N_z-1) {
+                modsig8[0] = vars[6];
             }
 
             if(status != 0) {

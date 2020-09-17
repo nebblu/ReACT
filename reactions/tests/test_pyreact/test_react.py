@@ -23,7 +23,7 @@ def test_reaction_module():
 
     # Check that the code runs with power spectra
     reaction, p_lin = mod.compute_reaction(h, n_s, Omega_m, Omega_b, sigma_8, fR0,
-                                    z, k, pofk, is_transfer=False, mass_loop=mass_loop, model = 2, verbose=1)
+                                    z, k, pofk, is_transfer=False, mass_loop=mass_loop, model = 2, 1., verbose=1)
 
     k, t = np.loadtxt(os.path.join(HERE, "../benchmarks/transfer.dat"), unpack=True)
     z = np.loadtxt(os.path.join(HERE, "../benchmarks/reaction_z.dat"))

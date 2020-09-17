@@ -57,6 +57,7 @@ extern "C" {
                          double* mg1, int* mass_loop, int* model,
                          int* N_k_react, int* N_z_react, double* output_react,
                          int* N_k_pl, int* N_z_pl, double* output_pl,
+                         double* modsig8,
                          int* verbose)
     {
         int status = 0;
@@ -139,7 +140,7 @@ extern "C" {
         /* declare splines */
         Spline mysr,mysp,myreact;
         /*declare variable array*/
-        double vars[6];
+        double vars[7];
         vars[0] = 1.;
         vars[1] = *Omega_m;
         vars[2] = *mg1;//pow(10.0,*mg1); // edit this for new mg param
@@ -180,6 +181,11 @@ extern "C" {
             /// initialise delta_c(M), a_vir(M), delta_avir(M) and v(M)
             status = halo.scol_init(vars,mod);
             status |= halo.scol_initp(vars,mod);
+
+            // store modified sigma 8 at z=0
+            if (zvals[j]==0.) {
+              modsig8 = vars[6];
+            }
 
             if(status != 0) {
                 react_error("Failed to compute spherical collapse.");

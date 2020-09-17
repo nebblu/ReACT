@@ -62,6 +62,7 @@ class ReACT:
                       ct.POINTER(ct.c_int),        # model (1: GR, 2: f(R), 3; DGP)
                       *array_ctype(ndim=2, dtype=np.float64), # reaction (output)
                       *array_ctype(ndim=2, dtype=np.float64), # linear MG power spectrum (output)
+                      ct.POINTER(ct.c_double),     # modified sigma_8 storage variable
                       ct.POINTER(ct.c_int),        # verbose
                      ]
         reaction = np.zeros((len(k), len(z)), dtype=Pk.dtype, order="C")
@@ -77,6 +78,7 @@ class ReACT:
                 ct.c_int(model),
                 *array_arg(reaction),
                 *array_arg(p_lin),
+                ct.c_double(modsig8),
                 ct.c_int(verbose),
                 )
         if r != 0:
@@ -84,4 +86,5 @@ class ReACT:
             error_message = string_type.in_dll(self.lib, "error_message").value.decode()
             raise RuntimeError(f"ReACT code terminated with an error: {error_message}")
         # Get into CAMB ordering (z, k), with increasing z
-        return reaction[:,::-1].T, p_lin[:,::-1].T
+        #Tilman: to check output of modsig8 
+        return reaction[:,::-1].T, p_lin[:,::-1].T, modsig8

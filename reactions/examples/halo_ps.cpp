@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
     const char* cstr = "transfers/dgp";
 
 // 0: scale factor, 1: omega_total, 2-4: mg param (1e-10 ~ GR for default mg functions ), 5: number of points in halo-mass loop in scol_init , 30 works well.
-double vars[6];
+double vars[7];
 
     vars[0] = 1.;
     vars[1] = 0.3072;

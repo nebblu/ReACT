@@ -200,7 +200,7 @@ static real sigma8d_integrandp(const PowerSpectrum& P, real R, real k) {
 
 
 // model; 1: GR, 2: f(R) Hu Sawicki, n=1  3: DGP normal branch
-int HALO::scol_initp(double vars[],int model, double modsig8) const{
+int HALO::scol_initp(double vars[],int model) const{
   SCOL scol;
   IOW iow;
 
@@ -232,7 +232,7 @@ double sig1 = Integrate<ExpSub>(bind(sigma_integrandp, cref(P_l), 8., std::place
 double sig2 = Integrate<ExpSub>(bind(sigma8d_integrandp, cref(P_l), 8., std::placeholders::_1), 1e-4, 50., 1e-3);
 
 // feed back modified sigma8
-    modsig8 = sqrt(sig1);
+    vars[7] = sqrt(sig1);
 
    // theory params
    double pars[4];

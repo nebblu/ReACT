@@ -35,7 +35,7 @@ vector<vector<double> > mypk;
 int main(int argc, char* argv[]) {
 
 
-// Load transfer function at z from MGCAMB with all species at some redshift
+// Load modified transfer function at z from MGCAMB with all species at some redshift
 ifstream fin("validate/mgcamb/transfer_out_z1.dat");
 
 // Load in the transfer data

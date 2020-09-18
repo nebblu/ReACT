@@ -302,7 +302,7 @@ int SCOL::yenv(double OM_REAL, double OCB_REAL, double XF, double delta_envi, ar
       data->OM      = OM_REAL;
       data->OCB     = OCB_REAL;
 
-      T1 = T00 + XF;
+      T1 = T00;
 
       data->T1      = T1;
 
@@ -482,7 +482,7 @@ int SCOL::SphericalCollapse(double *dC, arrays_T3 xxyyzz, UserData data_vec, dou
       Ith(y,2)      = -data->IC/THREE; /* this is the initial condition for y' */
 
 
-      cvode_mem     = CVodeCreate(CV_BDF);
+      cvode_mem     = CVodeCreate(CV_ADAMS);
       flag          = CVodeInit(cvode_mem, f_modscol, T1, y);
       flag          = CVodeSVtolerances(cvode_mem, reltol, abstol);
       flag          = CVodeSetUserData(cvode_mem, data);
@@ -629,7 +629,7 @@ double SCOL::myscol(double myscolparams[], double acol, double omegacb, double o
        arrays_T3 xxyyzz = (arrays_T3)malloc( sizeof(struct arrays3D) );
 
        // set initial condition for SC to 10% higher than y_env,initial if we need to use y_env in SC.
-       // this has an issue with the pseudo cosmology for massive neutrinos  when we remove the acol scaling in ODE
+       // // this has an issue with the pseudo cosmology for massive neutrinos  when we remove the acol scaling in ODE
        // double mydelta;
        //   if (yenvf == 1) {
        //     mydelta = m/d*1.1;

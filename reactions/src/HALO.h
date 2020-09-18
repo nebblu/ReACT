@@ -55,9 +55,9 @@ public:
       double plinear_cosmosis(double k) const;
 
 // halofit pseudo spectrum
-      double PHALO_pseudo(double k) const;
+      double PHALO_pseudo(double k, bool mgcamb) const;
       // initialiser for halofit quantities - vars is as in all other functions, only call once for all k but at fixed scale factor(a = vars[0])
-      void phinit_pseudo(double vars[])const;
+      void phinit_pseudo(double vars[], bool mgcamb)const;
 
 
 // extras

@@ -164,6 +164,7 @@ for(int i = 0; i< loop_Nk; i++){
      sig2 = Integrate<ExpSub>(bind(sigma8d_integrand_mgcamb, cref(P_cbl), 8., std::placeholders::_1), 1e-4, 50., 1e-3);
   }
 
+
  if (!gsl_finite(sig1)) {
   react_error_halo("sigma_8 evaluated to non-numerical value");
 }
@@ -202,6 +203,7 @@ for(int i = 0; i< loop_N; i++){
  else{
    sigar[i] = sqrt(Integrate<ExpSub>(bind(sigma_integrand_mgcamb, cref(P_cbl), Rth, std::placeholders::_1), 1e-4, 50., 1e-5, 1e-5));
  }
+
 
 
 // store values in arrays
@@ -273,6 +275,7 @@ double sig1,sig2;
      sig1 = Integrate<ExpSub>(bind(sigma_integrandp_mgcamb, cref(P_l), 8., std::placeholders::_1), 1e-4, 50., 1e-3);
      sig2 = Integrate<ExpSub>(bind(sigma8d_integrandp_mgcamb, cref(P_l), 8., std::placeholders::_1), 1e-4, 50., 1e-3);
   }
+
 
    // theory params
    double pars[4];
@@ -928,8 +931,6 @@ double HALO::reaction_nu(double k, double vars[]) const {
 
 
 
-
-
 // Initialise everything - for multiple redshifts, must initialise react_init2 separately
 void HALO::initialise(double vars[], bool mgcamb) const{
   IOW iow;
@@ -951,7 +952,7 @@ void HALO::initialise(double vars[], bool mgcamb) const{
 ///////////////////////////////////////////////
 
 double wintcambs_pseudo[3];
-static double wintcamb_pseudo(const PowerSpectrum& P_L, double r){
+static double wintcamb_pseudo(bool mgcamb, const PowerSpectrum& P_L, double r){
  int n1 = 3000;
  double sum1 = 0.;
  double sum2 = 0.;
@@ -961,7 +962,12 @@ static double wintcamb_pseudo(const PowerSpectrum& P_L, double r){
  for(int i = 1; i<=n1 ; i++){
    t = (i-0.5)/n1;
    k = -1. + 1./t;
+   if (mgcamb) {
+     pkterm = P_L(k)*pow3(k)*anorm;
+   }
+   else{
    pkterm = pow2(linear_growth(k))*P_L(k)*pow3(k)*anorm;
+    }
    x = k*r;
    x2 = pow2(x);
    w1 = exp(-x2);
@@ -981,8 +987,10 @@ wintcambs_pseudo[2] = -sum2*sum2/sum1/sum1 - sum3/sum1;
 return 0.;
 }
 
+
+
 double phpars_pseudo[13];
-void parscamb_pseudo(const PowerSpectrum& P_L)
+void parscamb_pseudo(bool mgcamb, const PowerSpectrum& P_L)
 {
   double xlogr1 = -2.;
   double xlogr2 = 3.5;
@@ -991,7 +999,7 @@ void parscamb_pseudo(const PowerSpectrum& P_L)
   for (;;){
     rmid = (xlogr2 + xlogr1)/2.;
     rmid = pow(10,rmid);
-    wintcamb_pseudo(cref(P_L),rmid);
+    wintcamb_pseudo(mgcamb, cref(P_L),rmid);
     diff = wintcambs_pseudo[0]-1.;
     if (fabs(diff)<=0.0001) {
       phpars_pseudo[0] = 1./rmid;
@@ -1017,10 +1025,10 @@ void parscamb_pseudo(const PowerSpectrum& P_L)
 }
 
 // Initialises components
-void HALO::phinit_pseudo(double vars[])const{
+void HALO::phinit_pseudo(double vars[], bool mgcamb)const{
     double scalef = vars[0];
     double omega0 = vars[1];
-    parscamb_pseudo(cref(P_l));
+    parscamb_pseudo(mgcamb, cref(P_l));
 
     double neff = phpars_pseudo[11];
     double curv = phpars_pseudo[12];
@@ -1073,15 +1081,23 @@ void HALO::phinit_pseudo(double vars[])const{
   }
 
 
-double HALO::PHALO_pseudo(double k) const{
+double HALO::PHALO_pseudo(double k, bool mgcamb) const{
+  double mypkl;
+  if (mgcamb) {
+    mypkl = P_l(k);
+  }
+  else{
+    mypkl = pow2(linear_growth(k))*P_l(k);
+  }
+
   if (phpars_pseudo[0] == 1000. || k<=0.005) {
-    return pow2(linear_growth(k))*P_l(k);
+     return mypkl;
   }
   else{
   double kcub = pow3(k)/2./pow2(M_PI);
   double deltahp = phpars_pseudo[1]*pow(k/phpars_pseudo[0],phpars_pseudo[8]*3.)/(1.+phpars_pseudo[2]*pow(k/phpars_pseudo[0],phpars_pseudo[9])+pow(phpars_pseudo[3]*phpars_pseudo[10]*k/phpars_pseudo[0],3.-phpars_pseudo[4]));
   double deltah = deltahp/(1.+ phpars_pseudo[7]/pow2(k/phpars_pseudo[0]));
-  double deltaplin = kcub*pow2(linear_growth(k))*P_l(k);
+  double deltaplin = kcub*mypkl;
   double deltaq = deltaplin*pow(1.+ deltaplin,phpars_pseudo[6])/(1.+phpars_pseudo[5]*deltaplin)*exp(-(k/phpars_pseudo[0])/4.-pow2(k/phpars_pseudo[0])/8.);
   double deltanl = deltaq + deltah;
 

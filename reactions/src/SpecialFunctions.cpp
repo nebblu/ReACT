@@ -395,7 +395,7 @@ struct param_type3 {
   real arg2;
   real arg3;
   real arg4;
-
+	real omeganu;
 };
 
 
@@ -418,6 +418,9 @@ int funcn1(double a, const double G[], double F[], void *params)
   real karg2 = p.arg2;
 //  real karg3 = p.arg3;
   real karg4 = p.arg4;
+	double omeganu = p.omeganu;
+
+	double omegacb = omega0 - omeganu;
 
   double a1,a2,a5,a6,a7,a8,a10,a11,a13,a14;
   double b1,b3,b4,b6,b7;
@@ -448,31 +451,38 @@ int funcn1(double a, const double G[], double F[], void *params)
 	mu2 = mu(a,k2,omega0,p1,p2,p3);
 	mu3 = mu(a,karg1,omega0,p1,p2,p3);
 
+	double hub1 = pow2(HAg(a,omega0,p1,p2,p3));
+	double hub2 = HA1g(a,omega0,p1,p2,p3);
+	double ap5 = pow(a,5);
+
+
+	double rescale = omegacb/omega0;
+
 	/* 1st order */
 	//1. F1/G1(k)
 	F[0] = -G[1]/a;
-	F[1] =1./a*(-(2.-hade1)*G[1]-hade2*G[0]*mu1);
+	F[1] =1./a*(-(2.-hade1)*G[1]-hade2*G[0]*mu1*rescale);
 
 	//2. F1/G1(k-p)
 	F[2] = -G[3]/a;
-	F[3] =1./a*(-(2.-hade1)*G[3]-hade2*G[2]*mu3);
+	F[3] =1./a*(-(2.-hade1)*G[3]-hade2*G[2]*mu3*rescale);
 
 	//3. F1/G1(p)
 	F[4] = -G[5]/a;
-	F[5] =1./a*(-(2.-hade1)*G[5]-hade2*G[4]*mu2);
+	F[5] =1./a*(-(2.-hade1)*G[5]-hade2*G[4]*mu2*rescale);
 
 	/* 2nd order */
 	//4. F2/G2(p,k-p) (P22)
 	F[6] =1./a*(-(a1*G[5]*G[2]+a2*G[3]*G[4])/2.-G[7]);
-	F[7] =1./a*(-(2.-hade1)*G[7]-hade2*G[6]*mu1 - gamma2(a, omega0, k1, k2,karg1,(k1*x2-k2)/karg1,p1,p2,p3)*G[4]*G[2] - b1*G[5]*G[3]);
+	F[7] =1./a*(-(2.-hade1)*G[7]-hade2*G[6]*mu1*rescale - gamma2(a, omega0, k1, k2,karg1,(k1*x2-k2)/karg1,p1,p2,p3)*G[4]*G[2] - b1*G[5]*G[3]);
 
 	//5. F2/G2(p,k)
 	F[8] =1./a*(-(a5*G[5]*G[0]+a6*G[1]*G[4])/2.-G[9]) ;
-	F[9] =1./a*(-(2.-hade1)*G[9]-hade2*G[8]*mu(a,karg4,omega0,p1,p2,p3) - gamma2(a, omega0, karg4, k2,k1,x2,p1,p2,p3)*G[4]*G[0]-b3*G[5]*G[1]);
+	F[9] =1./a*(-(2.-hade1)*G[9]-hade2*G[8]*mu(a,karg4,omega0,p1,p2,p3)*rescale - gamma2(a, omega0, karg4, k2,k1,x2,p1,p2,p3)*G[4]*G[0]-b3*G[5]*G[1]);
 
 	//6. F2/G2(-p,k)=F2/G2(p,-k)
 	F[10] =1./a*(-(a7*G[5]*G[0]+a8*G[1]*G[4])/2.-G[11]) ;
-	F[11] =1./a*(-(2.-hade1)*G[11]-hade2*G[10]*mu3 -gamma2(a, omega0, karg1, k3,k1,x3,p1,p2,p3)*G[4]*G[0]-b4*G[5]*G[1]);
+	F[11] =1./a*(-(2.-hade1)*G[11]-hade2*G[10]*mu3*rescale -gamma2(a, omega0, karg1, k3,k1,x3,p1,p2,p3)*G[4]*G[0]-b4*G[5]*G[1]);
 
 	//7. 3rd order  ~ F3/G3(k,p,-p)
 	F[12] = - 1./(3.*a)*(a10*G[8]*G[5]
@@ -484,7 +494,7 @@ int funcn1(double a, const double G[], double F[], void *params)
 						+3.*G[13]) ;
 
 
-	F[13] =1./(3.*a)*(-3.*(2.-hade1)*G[13]-3.*hade2*G[12]*mu1
+	F[13] =1./(3.*a)*(-3.*(2.-hade1)*G[13]-3.*hade2*G[12]*mu1*rescale
 
 					 -2.*b6*G[5]*G[9]
 
@@ -521,6 +531,9 @@ int funcn1_pseudo(double a, const double G[], double F[], void *params)
   real karg2 = p.arg2;
 //  real karg3 = p.arg3;
   real karg4 = p.arg4;
+	double omeganu = p.omeganu;
+	
+	double omegacb = omega0 - omeganu;
 
 
   double a1,a2,a5,a6,a7,a8,a10,a11,a13,a14;
@@ -553,34 +566,36 @@ int funcn1_pseudo(double a, const double G[], double F[], void *params)
 	mu3 = mu(a,karg1,omega0,p1,p2,p3);
 
 
+	double rescale = omegacb/omega0;
+
 	/* 1st order */
 
 	//1. F1/G1(k)
 	F[0] = -G[1]/a;
-	F[1] =1./a*(-(2.-hade1)*G[1]-hade2*G[0]*mu1);
+	F[1] =1./a*(-(2.-hade1)*G[1]-hade2*G[0]*mu1*rescale);
 
 	//2. F1/G1(k-p)
 	F[2] = -G[3]/a;
-	F[3] =1./a*(-(2.-hade1)*G[3]-hade2*G[2]*mu3);
+	F[3] =1./a*(-(2.-hade1)*G[3]-hade2*G[2]*mu3*rescale);
 
 	//3. F1/G1(p)
 	F[4] = -G[5]/a;
-	F[5] =1./a*(-(2.-hade1)*G[5]-hade2*G[4]*mu2);
+	F[5] =1./a*(-(2.-hade1)*G[5]-hade2*G[4]*mu2*rescale);
 
 	/* 2nd order */
 
 	//4. F2/G2(p,k-p) (P22)
 	F[6] =1./a*(-(a1*G[5]*G[2]+a2*G[3]*G[4])/2.-G[7]);
-	F[7] =1./a*(-(2.-hade1)*G[7]-hade2*G[6]*mu1 - b1*G[5]*G[3]);
+	F[7] =1./a*(-(2.-hade1)*G[7]-hade2*G[6]*mu1*rescale - b1*G[5]*G[3]);
 
 
 	//5. F2/G2(p,k)
 	F[8] =1./a*(-(a5*G[5]*G[0]+a6*G[1]*G[4])/2.-G[9]) ;
-	F[9] =1./a*(-(2.-hade1)*G[9]-hade2*G[8]*mu(a,karg4,omega0,p1,p2,p3) -b3*G[5]*G[1]);
+	F[9] =1./a*(-(2.-hade1)*G[9]-hade2*G[8]*mu(a,karg4,omega0,p1,p2,p3)*rescale -b3*G[5]*G[1]);
 
 	//6. F2/G2(-p,k)=F2/G2(p,-k)
 	F[10] =1./a*(-(a7*G[5]*G[0]+a8*G[1]*G[4])/2.-G[11]) ;
-	F[11] =1./a*(-(2.-hade1)*G[11]-hade2*G[10]*mu3 -b4*G[5]*G[1]);
+	F[11] =1./a*(-(2.-hade1)*G[11]-hade2*G[10]*mu3*rescale -b4*G[5]*G[1]);
 
 	//7. 3rd order  ~ F3/G3(k,p,-p)
 	F[12] = - 1./(3.*a)*(a10*G[8]*G[5]
@@ -592,7 +607,7 @@ int funcn1_pseudo(double a, const double G[], double F[], void *params)
 						+3.*G[13]) ;
 
 
-	F[13] =1./(3.*a)*(-3.*(2.-hade1)*G[13]-3.*hade2*G[12]*mu1
+	F[13] =1./(3.*a)*(-3.*(2.-hade1)*G[13]-3.*hade2*G[12]*mu1*rescale
 
 					 -2.*b6*G[5]*G[9]
 
@@ -604,7 +619,7 @@ int funcn1_pseudo(double a, const double G[], double F[], void *params)
 
 
 /// the new solver for numerical equations - optimised and solved in SPT.cpp's ploopn2 functions
-void IOW::initn2(double A, double k[], double x[], double kargs[], double omega0, double par1, double par2, double par3)
+void IOW::initn2(double A, double k[], double x[], double kargs[], double omega0, double par1, double par2, double par3, double omeganu)
 {
 
 			// Initial scale factor for solving system of equations
@@ -615,7 +630,7 @@ void IOW::initn2(double A, double k[], double x[], double kargs[], double omega0
 
 			/*Parameters passed to system of equations */
       // EDIT : If more than one gravity parameter is used, add them after p1
-				struct param_type3 my_params1 = {k[0],x[0],k[1],x[1],k[2],x[2],omega0, par1, par2, par3,kargs[0],kargs[1],kargs[2],kargs[3]};
+				struct param_type3 my_params1 = {k[0],x[0],k[1],x[1],k[2],x[2],omega0, par1, par2, par3,kargs[0],kargs[1],kargs[2],kargs[3],omeganu};
 
 				gsl_odeiv2_system sys = {funcn1, jac, 14, &my_params1};
 
@@ -667,7 +682,7 @@ void IOW::initn2(double A, double k[], double x[], double kargs[], double omega0
 
 /// Solver for pseudo power spectrum (set of equations omit screening functions gamma_2 and gamma_3 - see funcn1_pseudo)
 
-void IOW::initn2_pseudo(double A, double k[], double x[], double kargs[], double omega0, double par1, double par2, double par3)
+void IOW::initn2_pseudo(double A, double k[], double x[], double kargs[], double omega0, double par1, double par2, double par3, double omeganu)
 {
 
 			// Initial scale factor for solving system of equations
@@ -678,7 +693,7 @@ void IOW::initn2_pseudo(double A, double k[], double x[], double kargs[], double
 
 			/*Parameters passed to system of equations */
       // EDIT : If more than one gravity parameter is used, add them after p1
-				struct param_type3 my_params1 = {k[0],x[0],k[1],x[1],k[2],x[2],omega0, par1, par2, par3,kargs[0],kargs[1],kargs[2],kargs[3]};
+				struct param_type3 my_params1 = {k[0],x[0],k[1],x[1],k[2],x[2],omega0, par1, par2, par3,kargs[0],kargs[1],kargs[2],kargs[3],omeganu};
 
 				gsl_odeiv2_system sys = {funcn1_pseudo, jac, 14, &my_params1};
 
@@ -745,7 +760,7 @@ void IOW::initn3(double redshifts[], int noz, double k[], double x[], double kar
 
 			/*Parameters passed to system of equations */
       // EDIT : If more than one gravity parameter is used, add them after p1
-				struct param_type3 my_params1 = {k[0],x[0],k[1],x[1],k[2],x[2],omega0, par1, par2, par3,kargs[0],kargs[1],kargs[2],kargs[3]};
+				struct param_type3 my_params1 = {k[0],x[0],k[1],x[1],k[2],x[2],omega0, par1, par2, par3,kargs[0],kargs[1],kargs[2],kargs[3],0.};
 
 				gsl_odeiv2_system sys = {funcn1, jac, 14, &my_params1};
 				gsl_odeiv2_system sysp = {funcn1_pseudo, jac, 14, &my_params1};
@@ -1027,7 +1042,7 @@ void IOW::initn_rsd(double A, double k[], double x[], double kargs[], double ome
 
 			/*Parameters passed to system of equations */
       // EDIT : If more than one gravity parameter is used, add them after p1
-				struct param_type3 my_params1 = {k[0],x[0],k[1],x[1],k[2],x[2],omega0, par1, par2, par3,kargs[0],kargs[1],kargs[2],kargs[3]};
+				struct param_type3 my_params1 = {k[0],x[0],k[1],x[1],k[2],x[2],omega0, par1, par2, par3,kargs[0],kargs[1],kargs[2],kargs[3],0.};
 
 				gsl_odeiv2_system sys = {funcn_rsd, jac, 16, &my_params1};
 

@@ -751,7 +751,7 @@ double HALO::plinear_cosmosis(double k) const {
 void HALO::react_init_nu(double vars[], bool mgcamb) const{
   SPT spt(C, P_cb, epsrel);
 
-  double pspt, psptp, p1h, p1hp, plm, plcb, plnu, psptcbv, argument;
+  double pspt, psptp, psptpnosc, p1h, p1hp, plm, plcb, plnu, psptcbv, psptpcbv, argument;
 
   // fv
   double fv  = vars[6]/vars[1];
@@ -795,8 +795,14 @@ else{
 // Real PT spectrum
   pspt = spt.PLOOPn2_nu(1, vars, k0, 1e-3) + p1h ;
 // GR-1-loop spectrum with linear growth replaced by modified gravity growth (unscreened)
-  psptp = spt.PLOOPn2_nu(2, vars, k0, 1e-3)+ p1hp ;
-}
+  psptpnosc = spt.PLOOPn2_nu(2, vars, k0, 1e-3)+ p1hp ;
+
+  psptpcbv = sqrt(psptpnosc*plnu);
+  // pseudo SPT term
+  psptp = (fvt2 * psptpnosc + 2.*fv*fvt*psptpcbv + fv2*plnu);
+
+  }
+
 // cbv terms
   psptcbv = sqrt(pspt*plnu);
 
@@ -806,11 +812,9 @@ else{
 
   double prefac = 1./((bigE-1.)*plcb*fvt2);
   double term1 = p1h*fvt2 + (fvt2*bigE*plcb - fv2*plnu - (p1hp+plm)*rsptk0);
-//  double term2 = 2.*sqrt(fvt2*fv2*(p1hp+plm)*plnu*rsptk0); // suspected typo -- fvt2 inclusion
   double term2 = 2.*sqrt(fv2*(p1hp+plm)*plnu*rsptk0);
 
-   argument = prefac * (term1 + term2); // 1st root
-  //   argument = prefac * (term1 - term2); // 2nd root
+  argument = prefac * (term1 + term2); // 1st root
 
 
 // For very small modifications, numerics can sometimes generate a negative argument.
@@ -830,7 +834,7 @@ else{
 void HALO::react_init_nu2(double vars[], Spline ploopr, Spline ploopp, bool mgcamb) const{
   SPT spt(C, P_cb, epsrel);
 
-  double pspt, psptp, p1h, p1hp, plm, plcb, plnu, psptcbv, argument;
+  double pspt, psptp, psptpnosc, p1h, p1hp, plm, plcb, plnu, psptcbv, psptpcbv, argument;
 
   // fv
   double fv  = vars[6]/vars[1];
@@ -873,10 +877,15 @@ void HALO::react_init_nu2(double vars[], Spline ploopr, Spline ploopp, bool mgca
 // Real PT spectrum
   pspt = ploopr(vars[0]) + p1h ;
 // GR-1-loop spectrum with linear growth replaced by modified gravity growth (unscreened)
-  psptp = ploopp(vars[0]) + p1hp ;
+  psptpnosc = ploopp(vars[0]) + p1hp ;
 
 // cbv terms
   psptcbv = sqrt(pspt*plnu);
+  psptpcbv = sqrt(psptpnosc*plnu);
+
+  // pseudo SPT term
+  psptp = (fvt2 * psptpnosc + 2.*fv*fvt*psptpcbv + fv2*plnu);
+
 
 // reaction @ k0 with 2 halo term = 1 loop spt
   double rsptk0 = (fvt2 * pspt + 2.*fv*fvt*psptcbv + fv2*plnu)/(psptp);
@@ -938,6 +947,7 @@ void HALO::initialise(double vars[], bool mgcamb) const{
   scol_init(vars,mgcamb); // real spherical collapse quantities
   scol_initp(vars,mgcamb); // pseudo spherical collapse quantities
   react_init_nu(vars,mgcamb); // kstar and mathcal E for reaction
+  printf("%e %e \n", bigE, kstar);
 }
 
 

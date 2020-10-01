@@ -41,13 +41,20 @@ int main(int argc, char* argv[]) {
 // 0: scale factor, 1: omega_total, 2-4: mg param (1e-10 ~ GR for default mg functions ), 5: number of points in halo-mass loop in scol_init , 30 works well.
 double vars[7];
 
-    vars[0] = 1./(1.+1.);
-    vars[1] = 0.3072;
-    vars[2] = 1e-5;
-    vars[3] = 1.;
-    vars[4] = 1.;
-    vars[5] = 30.;
-    vars[6] = 0.0;
+  // chosen redshift
+    double myz = 0.;
+  // chosen omega_matter (total)
+    double omega0 = 0.3072;
+  // MG parameter (for f(R) this is |fr0|)
+    double mgpar = 1e-5;
+    
+    vars[0] = 1./(1.+myz);
+    vars[1] =  omega0;
+    vars[2] = mgpar;
+    vars[3] = 1.; // wa for CPL
+    vars[4] = 1.; // unusedd
+    vars[5] = 30.; // number of mass bins
+    vars[6] = 0.0; // omega_neutrinos
 
     /* Open output file */
     FILE* fp = fopen(output, "w");

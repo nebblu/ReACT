@@ -58,14 +58,24 @@ int main(int argc, char* argv[]) {
 // output variables
 real p1,p2,p3,p4,p5;
 
-// parameter values
-double vars[5];
+  // chosen redshift
+    double myz = 0.;
+  // chosen omega_matter (total)
+    double omega0 = 0.24;
+  // MG parameter (for f(R) this is |fr0|)
+    double mgpar = 1e-15;
 
-vars[0] = 1.; // scale factor
-vars[1] = 0.24; // omega_matter
-vars[2] = 1e-14; // mg param 1 (fr0, omega_rc, w0 --- see src/SpecialFunctions.cpp)
-vars[3] = 1.; // mg param 2 (unused)
-vars[4] = 1.;// mg param 3 (unused)
+    // parameter values
+    double vars[7];
+
+    vars[0] = 1./(1.+myz);
+    vars[1] =  omega0;
+    vars[2] = mgpar;
+    vars[3] = 1.; // wa for CPL
+    vars[4] = 1.; // unusedd
+    vars[5] = 30.; // number of mass bins
+    vars[6] = 0.0; // omega_neutrinos
+
 
 // normalise the growth
 iow.inite(vars[0],vars[1],vars[2],vars[3],vars[4]);

@@ -1,4 +1,5 @@
 # ReACT 
+# NOTE: This branch is aimed at implementing massive neutrinos (1909.02561) into the current ReACT code. It is currently undergoing development and validation. 
 
 ## Introduction
 

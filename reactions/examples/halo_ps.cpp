@@ -33,11 +33,14 @@ vector<vector<double> > mypk;
 
 int main(int argc, char* argv[]) {
 
+  // Modified gravity active?
+  bool modg = true;
+  // Is the transfer being fed to ReACT of the target cosmology? If false, the transfer should be LCDM at z=0.
+  bool mgcamb = false;
+
 	 //output file name
     const char* output = "ps_f5_z0.dat";
-
     const char* cstr = "transfers/Matteo_fr";
-
 // 0: scale factor, 1: omega_total, 2-4: mg param (1e-10 ~ GR for default mg functions ), 5: number of points in halo-mass loop in scol_init , 30 works well.
 double vars[7];
 
@@ -47,7 +50,7 @@ double vars[7];
     double omega0 = 0.3072;
   // MG parameter (for f(R) this is |fr0|)
     double mgpar = 1e-5;
-    
+
     vars[0] = 1./(1.+myz);
     vars[1] =  omega0;
     vars[2] = mgpar;
@@ -76,13 +79,12 @@ double vars[7];
 // initialise wCDM/LCDM lin growth for PS normalisation
 iow.initnorm(vars);
 /// initialise delta_c(M), a_vir(M), delta_avir(M) and v(M)
-halo.scol_init(vars,false);
-halo.scol_initp(vars,false);
-halo.react_init(vars);
+halo.scol_init(vars,mgcamb);
+halo.scol_initp(vars,mgcamb);
+halo.react_init(vars,modg);
 
 // load in k-binning from sims
 ifstream fin2("validate/matteo_data/reactions/HM_reaction_standard_HMF_F5_z1.dat");
-
 
 // Load in the data
 string line2;
@@ -110,7 +112,6 @@ double kmax = 10.;
 
       p1 =  halo.one_halo(k, vars);
       p2 =  halo.one_halop(k, vars);
-
       p3 =  halo.reaction(k, vars)/mypk[i][1];
 
      printf("%d %e %e %e %e \n", i, k, p1,p2,p3); // print to terminal

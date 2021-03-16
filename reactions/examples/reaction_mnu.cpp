@@ -51,7 +51,7 @@ bool mgcamb = true;
 const char* output = "nu24_wcdm_z1.dat";
 
 // Load transfer function at z from MGCAMB with all species at some redshift
-ifstream fin("transfers/baha_wcdm_mnu024_z1.dat");
+ifstream fin("transfers/baha/baha_wcdm_mnu024_z1.dat");
 
 // Load in the transfer data
 string line;
@@ -67,7 +67,7 @@ string line;
 
 
 
-ifstream finlcdm("transfers/baha_lcdm_z1.dat");
+ifstream finlcdm("transfers/baha/baha_lcdm_z1.dat");
 // Load in the transfer data
 string linelcdm;
     while (getline(finlcdm, linelcdm)) {      // for each line

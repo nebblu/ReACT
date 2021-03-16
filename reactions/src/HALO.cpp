@@ -637,7 +637,7 @@ double kstar, bigE;
 void HALO::react_init(double vars[], bool modg) const{
   SPT spt(C, P_l, epsrel);
 
-  if (modg!) {
+  if (!modg) {
     kstar = 1e-6;
     bigE = 1.;
     return;
@@ -694,7 +694,7 @@ void HALO::react_init(double vars[], bool modg) const{
 void HALO::react_init2(double vars[], Spline ploopr, Spline ploopp, bool modg) const{
   SPT spt(C, P_l, epsrel);
 
-  if (modg!) {
+  if (!modg) {
     kstar = 1e-6;
     bigE = 1.;
     return;
@@ -772,7 +772,7 @@ void HALO::react_init_nu(double vars[], bool mgcamb, bool modg) const{
   SPT spt(C, P_cb, epsrel);
 
 // adding in because of issues of mathcal{E} not going to 1 for some particular transfers without MG
-  if (modg!) {
+  if (!modg) {
     kstar = 1e-6;
     bigE = 1.;
     return;
@@ -864,7 +864,7 @@ else{
 void HALO::react_init_nu2(double vars[], Spline ploopr, Spline ploopp, bool mgcamb, bool modg) const{
   SPT spt(C, P_cb, epsrel);
 
-  if (modg!) {
+  if (!modg) {
     kstar = 1e-6;
     bigE = 1.;
     return;

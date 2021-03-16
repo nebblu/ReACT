@@ -92,7 +92,7 @@ public:
    // solves for y_halo
    int SphericalCollapse(double *dC, arrays_T3 xxyyzz, UserData data_vec, double TMULT_REAL, double delta_g); // spherical collapse solver
    // solves for a_virial
-   double myscol(double myscolparams[], double acol, double omegacb, double omeganu, double Rthp, double sig1, double sig2, double pars[], bool mymg, int yenvf); // solves for virial quantities and stores them in array myscolparams
+   double myscol(double myscolparams[], double acol, double omegacb, double omeganu, double Rthp, double sig1, double sig2, double pars[], bool mymg); // solves for virial quantities and stores them in array myscolparams
 
 
    void PrintOutput(realtype t, realtype y1, realtype y2);

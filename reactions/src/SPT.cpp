@@ -647,7 +647,7 @@ static double ploopn2_mgdd( const PowerSpectrum& P_L, double vars[], double k, d
         kargs[2] = sqrt(kv[1]*kv[1]+2.*kv[1]*kv[2]*xv[0]+kv[2]*kv[2]);
         kargs[1] = sqrt(kv[2]*kv[2]+2.*kv[2]*kv[0]*xv[2]+kv[0]*kv[0]);
         kargs[3] = sqrt(kv[0]*kv[0]+2.*kv[0]*kv[1]*xv[1]+kv[1]*kv[1]);
-        iow.initn2(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],0.);
+        iow.initn2(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],vars[6]);
         p22 = pow2(F2_nk);
         p13 = F1_nk*F3_nk;
 
@@ -717,7 +717,7 @@ static double ploopn2_mgdd_pseudo( const PowerSpectrum& P_L, double vars[], doub
         kargs[2] = sqrt(kv[1]*kv[1]+2.*kv[1]*kv[2]*xv[0]+kv[2]*kv[2]);
         kargs[1] = sqrt(kv[2]*kv[2]+2.*kv[2]*kv[0]*xv[2]+kv[0]*kv[0]);
         kargs[3] = sqrt(kv[0]*kv[0]+2.*kv[0]*kv[1]*xv[1]+kv[1]*kv[1]);
-        iow.initn2_pseudo(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],0.);
+        iow.initn2_pseudo(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],vars[6]);
         p22 = pow2(F2_nk);
         p13 = F1_nk*F3_nk;
 
@@ -763,14 +763,15 @@ switch (a) {
 
 
 
-// BILL MOD
+/* Massive neutrinos 1-loop real and pseudo spectra as described in https://arxiv.org/abs/1902.10692*/
+
+
 static double ploopn2_mgdd_nu( const PowerSpectrum& P_L, double vars[], double k, double r, double x){
-  double kargs[4],kv[3],xv[3], p22,p13, omegacb;
+  double kargs[4],kv[3],xv[3], p22,p13;
   // tolerance for ode solver (see SpecialFunctions.cpp, initn2). This encounters a singularity if k'.-k' = -1 exactly.
   double tol = 1e-8;
   // The integrated |k'| is parametrised as k*r
   IOW iow;
-        omegacb = vars[1]-vars[6];
         kv[0] = k;
         kv[1] = k*r;
         kv[2] = kv[1];
@@ -781,22 +782,20 @@ static double ploopn2_mgdd_nu( const PowerSpectrum& P_L, double vars[], double k
         kargs[2] = sqrt(kv[1]*kv[1]+2.*kv[1]*kv[2]*xv[0]+kv[2]*kv[2]);
         kargs[1] = sqrt(kv[2]*kv[2]+2.*kv[2]*kv[0]*xv[2]+kv[0]*kv[0]);
         kargs[3] = sqrt(kv[0]*kv[0]+2.*kv[0]*kv[1]*xv[1]+kv[1]*kv[1]);
-        iow.initn2(vars[0],kv,xv,kargs,omegacb,vars[2],vars[3],vars[4],vars[6]);
+        iow.initn2(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],vars[6]);
         p22 = pow2(F2_nk);
-        p13 = F1_nk*F3_nk;
+        p13 = F3_nk;
 
-    return pow2(r)*2.*(P_L(k*r)/pow2(F1p_nk))*( (P_L(kargs[0])/pow2(F1kmp_nk))*p22 + 3.*(P_L(k)/pow2(F1_nk))*p13 );
+    return pow2(r)*2.*(P_L(k*r)/pow2(F1p_nk))*( (P_L(kargs[0])/pow2(F1kmp_nk))*p22 + 3.*(P_L(k)/F1_nk)*p13 );
 }
 
 
-// BILL MOD
 static double ploopn2_mgdd_pseudo_nu( const PowerSpectrum& P_L, double vars[], double k, double r, double x){
-  double kargs[4],kv[3],xv[3], p22,p13,omegacb;
+  double kargs[4],kv[3],xv[3], p22,p13;
   // tolerance for ode solver (see SpecialFunctions.cpp, initn2). This encounters a singularity if k'.-k' = -1 exactly.
   double tol = 1e-8;
   // The integrated |k'| is parametrised as k*r
   IOW iow;
-        omegacb = vars[1]-vars[6];
         kv[0] = k;
         kv[1] = k*r;
         kv[2] = kv[1];
@@ -809,9 +808,9 @@ static double ploopn2_mgdd_pseudo_nu( const PowerSpectrum& P_L, double vars[], d
         kargs[3] = sqrt(kv[0]*kv[0]+2.*kv[0]*kv[1]*xv[1]+kv[1]*kv[1]);
         iow.initn2_pseudo(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],vars[6]);
         p22 = pow2(F2_nk);
-        p13 = F1_nk*F3_nk;
+        p13 = F3_nk;
 
-    return pow2(r)*2.*(P_L(k*r)/pow2(F1p_nk))*( (P_L(kargs[0])/pow2(F1kmp_nk))*p22 + 3.*(P_L(k)/pow2(F1_nk))*p13 );
+    return pow2(r)*2.*(P_L(k*r)/pow2(F1p_nk))*( (P_L(kargs[0])/pow2(F1kmp_nk))*p22 + 3.*(P_L(k)/F1_nk)*p13 );
 }
 
 // Same as PLOOPn2 but for massive neutrino case
@@ -840,6 +839,8 @@ switch (a) {
     warning("SPT: invalid indices, a = %d \n", a);
         return 0;
 }}
+
+
 
 // P_loop(k0,z) array initialisation for real and pseudo spectra used in reactions: 1812.05594 (HALO.cpp)
 // The pseudo spectrum simply omits screening terms (gamma_2 = gamma_3 = 0) (1606.02520)
@@ -936,7 +937,7 @@ for(int zi = 0; zi<noz; zi++){
 }
 }
 
-// BILL MOD
+//16/03/2021:  Work in progress - needs to be updated to be used in cosmosis
 void SPT::ploop_init_nu(double ploopr[], double ploopp[], double redshifts[], int noz, double vars[], double k0){
   IOW iow;
 
@@ -1803,6 +1804,7 @@ switch (a) {
     nonlinear = Integrate<2>(bind(ptns_lagb,cref(P_L), u0x, vars, bias, k,std::placeholders::_1,std::placeholders::_2), c, d, err);
     linear = pow2(F1_nk*bias[0]/dnorm_spt)*(u0x[4]*P_L(k) - 2.*(G1_nk/F1_nk/bias[0])*u0x[0]*P_L(k) + pow2(G1_nk/F1_nk/bias[0])*u0x[1]*P_L(k));
     stoch =  u0x[4]*bias[2];
+    
     return linear + nonlinear + stoch;
 
     default:

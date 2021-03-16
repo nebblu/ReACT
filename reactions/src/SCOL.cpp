@@ -582,7 +582,7 @@ int SCOL::SphericalCollapse(double *dC, arrays_T3 xxyyzz, UserData data_vec, dou
 
 // needs omega0, initial top-hat radius , initial density of enviornment, modification parameters and selection of theory, mymg:
 // mymg = 1 gives GR collapse, 2 gives modified collapse
-double SCOL::myscol(double myscolparams[], double acol, double omegacb, double omeganu, double Rthp, double sig1, double sig2, double pars[], bool mymg, int yenvf)
+double SCOL::myscol(double myscolparams[], double acol, double omegacb, double omeganu, double Rthp, double sig1, double sig2, double pars[], bool mymg)
 {
 
         double omega0 = omegacb + omeganu;
@@ -615,7 +615,7 @@ double SCOL::myscol(double myscolparams[], double acol, double omegacb, double o
 
        yenv (omega0, omegacb, XF , m/d, xxyy);
 
-// set max scalefactor
+       // set max scalefactor
        double maximumt = (*xxyy).xx[(*xxyy).count-1];
 
        gsl_interp_accel *acc = gsl_interp_accel_alloc ();
@@ -627,16 +627,6 @@ double SCOL::myscol(double myscolparams[], double acol, double omegacb, double o
 
        // holders for delta_c and for a, y(a), y'(a)
        arrays_T3 xxyyzz = (arrays_T3)malloc( sizeof(struct arrays3D) );
-
-       // set initial condition for SC to 10% higher than y_env,initial if we need to use y_env in SC.
-       // // this has an issue with the pseudo cosmology for massive neutrinos  when we remove the acol scaling in ODE
-       // double mydelta;
-       //   if (yenvf == 1) {
-       //     mydelta = m/d*1.1;
-       //   }
-       //   else{
-       //     mydelta = DELTA1/acol;
-       //   }
 
          double mydelta = DELTA1/acol;
 

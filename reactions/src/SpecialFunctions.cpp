@@ -147,8 +147,8 @@ double  WEFF(double a, double omega0, double p1, double p2, double p3){
 	//	return -(1.-omega0)*(1.+3.*p1);
 
 		/*CPL*/
-		// double h2 = pow2(HAg(a,omega0,p1,p2,p3));
-		// return -(1.+3.*(p1+(1.-a)*p2))*(h2-omega0/pow3(a));
+		 // double h2 = pow2(HAg(a,omega0,p1,p2,p3));
+		 // return -(1.+3.*(p1+(1.-a)*p2))*(h2-omega0/pow3(a));
 
 }
 
@@ -182,7 +182,7 @@ inline double beta(double a, double omega0, double omegarc){
 
 double mu(double a, double k0, double omega0, double p1, double p2, double p3 ){
 	double h0 = 1./2997.92458;
-//   	return 1.; // GR
+  //	return 1.; // GR
 		double var1 = pow2(k0/a);
 	 return 1. + var1/(3.*(var1+pow3(omega0/pow3(a)-4.*(omega0-1.))/(2.*p1/pow2(h0)*pow2(4.-3.*omega0)))); //f(R) Hu- Sawicki
  //	return 1.+1./(3.*beta(a,omega0,p1)); //nDGP
@@ -209,7 +209,7 @@ double var6 = pow2(k0/a);
 // partially symmetric gamma3 (in last 2 arguments) for DGP
 double gamma3(double a, double omega0, double k0, double k1, double k2, double k3, double u1,double u2, double u3, double p1, double p2, double p3){
 	double h0 = 1./2997.92458;
- 	//return 0. ; // GR
+// 	return 0. ; // GR
 
  double var1 = pow3(a);
  double var2 = pow3(var1);
@@ -451,11 +451,6 @@ int funcn1(double a, const double G[], double F[], void *params)
 	mu2 = mu(a,k2,omega0,p1,p2,p3);
 	mu3 = mu(a,karg1,omega0,p1,p2,p3);
 
-	double hub1 = pow2(HAg(a,omega0,p1,p2,p3));
-	double hub2 = HA1g(a,omega0,p1,p2,p3);
-	double ap5 = pow(a,5);
-
-
 	double rescale = omegacb/omega0;
 
 	/* 1st order */
@@ -532,13 +527,13 @@ int funcn1_pseudo(double a, const double G[], double F[], void *params)
 //  real karg3 = p.arg3;
   real karg4 = p.arg4;
 	double omeganu = p.omeganu;
-	
+
 	double omegacb = omega0 - omeganu;
 
 
   double a1,a2,a5,a6,a7,a8,a10,a11,a13,a14;
   double b1,b3,b4,b6,b7;
-	double mu1,mu2,mu3;
+	double mu1,mu2,mu3,mu4;
 	double hade1 = HA2g(a,omega0,p1,p2,p3);
 	double hade2 = HA2g2(a,omega0,p1,p2,p3);
 
@@ -561,10 +556,10 @@ int funcn1_pseudo(double a, const double G[], double F[], void *params)
   b7 = beta1(k2,karg2,(k3*x1+k1*x2)/karg2);
 
 
-	mu1 = mu(a,k1,omega0,p1,p2,p3);
-	mu2 = mu(a,k2,omega0,p1,p2,p3);
-	mu3 = mu(a,karg1,omega0,p1,p2,p3);
-
+	mu1 = 1;//mu(a,k1,omega0,p1,p2,p3);
+	mu2 = 1;//mu(a,k2,omega0,p1,p2,p3);
+	mu3 = 1;//mu(a,karg1,omega0,p1,p2,p3);
+	mu4 = 1;//mu(a,karg4,omega0,p1,p2,p3);
 
 	double rescale = omegacb/omega0;
 
@@ -591,7 +586,7 @@ int funcn1_pseudo(double a, const double G[], double F[], void *params)
 
 	//5. F2/G2(p,k)
 	F[8] =1./a*(-(a5*G[5]*G[0]+a6*G[1]*G[4])/2.-G[9]) ;
-	F[9] =1./a*(-(2.-hade1)*G[9]-hade2*G[8]*mu(a,karg4,omega0,p1,p2,p3)*rescale -b3*G[5]*G[1]);
+	F[9] =1./a*(-(2.-hade1)*G[9]-hade2*G[8]*mu4*rescale -b3*G[5]*G[1]);
 
 	//6. F2/G2(-p,k)=F2/G2(p,-k)
 	F[10] =1./a*(-(a7*G[5]*G[0]+a8*G[1]*G[4])/2.-G[11]) ;
@@ -888,7 +883,7 @@ int funcn_lin(double a, const double G[], double F[], void *params)
 // Include MG extension
 void IOW::initn_lin(double A, double k, double omega0, double par1, double par2, double par3)
 {
-				double a = 0.0001;
+				double a = 3e-5;
 
 // Non-Eds ICs
 			  double G[2] = { a,-a};
@@ -901,7 +896,7 @@ void IOW::initn_lin(double A, double k, double omega0, double par1, double par2,
 			//  this gives the system, the method, the initial interval step, the absolute error and the relative error.
 				gsl_odeiv2_driver * d =
 				gsl_odeiv2_driver_alloc_y_new (&sys, gsl_odeiv2_step_rk8pd,
-										   1e-3, 1e-3, 1e-3);
+										   1e-4, 1e-4, 1e-4);
 
 				int status1 = gsl_odeiv2_driver_apply (d, &a, A, G);
 
@@ -1117,7 +1112,6 @@ int funcn2(double a, const double G[], double F[], void *params)
 	real p1 = p.par1;
   real p2 = p.par2;
 	real p3 = p.par3;
-	int  p4 = p.par4;
 	real omeganu = p.par5;
 
 	double omegacb = omega0-omeganu;
@@ -1163,7 +1157,7 @@ void IOW::initnorm(double vars[]) //double A, double omega0, double par1, double
 
 			  	status1 = gsl_odeiv2_driver_apply (d1, &a, 1. , G1);
 
-			  	dnorm_spt = G1[0];
+			  	dnorm_spt = G1[0]; // omega_cb + DE  background ....
 
 			  	gsl_odeiv2_driver_free(d1);
 
@@ -1183,7 +1177,7 @@ void IOW::initnorm(double vars[]) //double A, double omega0, double par1, double
 
 					status2 = gsl_odeiv2_driver_apply (d2, &a, mya , G1);
 
-				 	Dl_spt = G1[0];
+				 	Dl_spt = G1[0]; // omega_cb + LCDM  background ....
 
 			// Solutions of evolution factors @ a=1
 					status3 = gsl_odeiv2_driver_apply (d2, &mya, 1. , G1);

@@ -39,17 +39,20 @@ public:
       double one_halop(double k, double vars[]) const;
 
 // reactions
-      void react_init(double vars[]) const;
-      void react_init2(double vars[],Spline ploopr, Spline ploopp) const;
+      void react_init(double vars[], bool modg) const;
+      void react_init2(double vars[],Spline ploopr, Spline ploopp, bool modg) const;
       double reaction(double k, double vars[]) const;
 
-      // react_init2 with neutrino terms
-      void react_init_nu(double vars[], bool mgcamb) const;
-      void react_init_nu2(double vars[], Spline ploopr, Spline ploopp, bool mgcamb) const;
+// reactions with massive neutrinos
+      void react_init_nu(double vars[], bool mgcamb, bool modg) const;
+      void react_init_nu2(double vars[], Spline ploopr, Spline ploopp, bool mgcamb, bool modg) const;
       double reaction_nu(double k, double vars[]) const;
 
+// 1-loop SPT reaction 
+      double reaction_spt(double k0, double vars[], bool mgcamb) const;
+
 // Initialise everything for single redshift
-      void initialise(double vars[], bool  mgcamb) const;
+      void initialise(double vars[], bool  mgcamb, bool modg) const;
 
 // Linear spectrum for CosmoSIS
       double plinear_cosmosis(double k) const;
@@ -58,7 +61,6 @@ public:
       double PHALO_pseudo(double k, bool mgcamb) const;
       // initialiser for halofit quantities - vars is as in all other functions, only call once for all k but at fixed scale factor(a = vars[0])
       void phinit_pseudo(double vars[], bool mgcamb)const;
-
 
 // extras
       // density profile in real and fourier space (see expression in .cpp to edit to desired profile )

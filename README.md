@@ -1,6 +1,8 @@
 # ReACT 
 # NOTE: This branch is aimed at implementing massive neutrinos (1909.02561) into the current ReACT code. It is currently undergoing development and validation. 
 
+# Installation goes the same way as master. Pyreact shouldn't break - to be tested. Run tests_mnu in the react/tests folder to check output. 
+
 ## Introduction
 
 ReACT is an extension of the software package Copter (0905:0479) and MG-Copter (1606.02520) which allows for 

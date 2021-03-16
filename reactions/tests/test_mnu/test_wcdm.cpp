@@ -37,21 +37,20 @@ int main(int argc, char* argv[]) {
 
 // target redshift
 double myz = 1.;
-
-//double Omega_nu = 0.00;  // neutrino fraction mv = 0.0ev
 double Omega_nu = 0.0053;  // neutrino fraction mv = 0.24
+// CPL parameters
+double w0 = -0.9;
+double wa = 0.1;
 
-// Modified gravity active? This allows k* and \mathcal{E} to take on non LCDM values.
+
+// Modified gravity active?
 bool modg = false;
 
 // Is the transfer being fed to ReACT of the target cosmology? If false, the transfer should be LCDM at z=0.
 bool mgcamb = true;
 
-//output file name
-const char* output = "nu24_wcdm_z1.dat";
-
 // Load transfer function at z from MGCAMB with all species at some redshift
-ifstream fin("transfers/baha/baha_wcdm_mnu024_z1.dat");
+ifstream fin("transfers/wcdm_nu024_transfer_1.dat");
 
 // Load in the transfer data
 string line;
@@ -66,8 +65,7 @@ string line;
     }
 
 
-
-ifstream finlcdm("transfers/baha/baha_lcdm_z1.dat");
+ifstream finlcdm("transfers/lcdm_nu024_transfer_1.dat");
 // Load in the transfer data
 string linelcdm;
     while (getline(finlcdm, linelcdm)) {      // for each line
@@ -99,19 +97,13 @@ array kil(*Nktl);
 real epsrel = 1e-3;
 
 /*Specify params*/
-
-/* Dustgrain */
 double h  = 0.7; // hubble constant
 double n_s = 0.972; // spectral index
 double Omega_m = 0.2793; // total matter fraction
 double Omega_b  = 0.0463; //  baryon fraction
 
 double pscale = 0.002;
-double As = 2.45e-09; // initial amplitude of fluctuations
-
-// CPL parameters
-double w0 = -0.9;
-double wa = 0.1;
+double As = 2.392e-09;
 
 // number of mass bins between 5<Log10[M]<20
 double massb = 50.;
@@ -166,28 +158,41 @@ SPT spt(Cm, P_cb, epsrel);
 halo.initialise(vars,mgcamb,modg);
 halo.phinit_pseudo(vars,mgcamb);
 
-double p1,p2,p3,p4,p5;
-int Nk = 500;
-double kmin = 1e-4;
-double kmax = 100.;
 
- /* Open output file */
- FILE* fp = fopen(output, "w");
+ifstream fin2("benchmark_data/nu24_wcdm_z1.dat");
+
+// Load in the data
+string line2;
+    while (getline(fin2, line2)) {      // for each line
+            vector<double> lineData;           // create a new row
+            double val;
+            istringstream lineStream(line2);
+            while (lineStream >> val) {          // for each value in line
+                    lineData.push_back(val);           // add to the current row
+            }
+            mypk.push_back(lineData);         // add row to allData
+    }
+
+
+int Nk = mypk.size();
+double p1,p2,p3;
 
  for(int i =0; i <Nk;  i ++) {
 
-      real k = kmin* exp(i*log(kmax/kmin)/(Nk-1));
+      real k = mypk[i][0];
 
-      p1 = P_l(k);
-      p2 = halo.reaction_nu(k,vars);
-      p3 = halo.PHALO_pseudo(k,mgcamb);
+      p1 = P_l(k)/mypk[i][1];
+      p2 = halo.reaction_nu(k,vars)/mypk[i][2]; ;
+      p3 = halo.PHALO_pseudo(k,mgcamb)/mypk[i][3];
 
-      printf("%e %e %e %e %e  \n", k, p1,p2, p3,p3*p2);
-      fprintf(fp,"%e %e %e %e %e \n", k, p1,p2,p3,p3*p2);
-
+      if(fabs(p1-1.)>0.01 || fabs(p2-1.)>0.01 || fabs(p3-1.)>0.01){
+      printf("%e %e %e %e  \n", k, p1,p2, p3);
+      std::cout << "Test failed: check output";
+      return 0.;
+      }
 }
 
-	/*close output file*/
-    fclose(fp);
+  std::cout << "Test passed";
+
     return 0;
 }

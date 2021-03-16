@@ -18,8 +18,8 @@ public:
   HALO(const Cosmology& C, const PowerSpectrum& P_l, const PowerSpectrum& P_cb,const PowerSpectrum& P_nu,const PowerSpectrum& P_cbl, real epsrel = 1e-4);
 
 // initialise spherical collapse quantities
-      void scol_init(double vars[], bool mgcamb) const;
-      void scol_initp(double vars[], bool mgcamb) const;
+      void scol_init(double vars[], bool mgcamb = false) const;
+      void scol_initp(double vars[], bool mgcamb = false) const;
 
 // halo model components
       double rvirial(double Mvir, double vars[]) const;
@@ -39,28 +39,28 @@ public:
       double one_halop(double k, double vars[]) const;
 
 // reactions
-      void react_init(double vars[], bool modg) const;
-      void react_init2(double vars[],Spline ploopr, Spline ploopp, bool modg) const;
+      void react_init(double vars[], bool modg = true) const;
+      void react_init2(double vars[],Spline ploopr, Spline ploopp, bool modg = true) const;
       double reaction(double k, double vars[]) const;
 
 // reactions with massive neutrinos
-      void react_init_nu(double vars[], bool mgcamb, bool modg) const;
-      void react_init_nu2(double vars[], Spline ploopr, Spline ploopp, bool mgcamb, bool modg) const;
+      void react_init_nu(double vars[], bool mgcamb = false, bool modg = true) const;
+      void react_init_nu2(double vars[], Spline ploopr, Spline ploopp, bool mgcamb = false, bool modg = true) const;
       double reaction_nu(double k, double vars[]) const;
 
-// 1-loop SPT reaction 
-      double reaction_spt(double k0, double vars[], bool mgcamb) const;
+// 1-loop SPT reaction
+      double reaction_spt(double k0, double vars[], bool mgcamb = false) const;
 
 // Initialise everything for single redshift
-      void initialise(double vars[], bool  mgcamb, bool modg) const;
+      void initialise(double vars[], bool  mgcamb = false, bool modg = true) const;
 
 // Linear spectrum for CosmoSIS
       double plinear_cosmosis(double k) const;
 
 // halofit pseudo spectrum
-      double PHALO_pseudo(double k, bool mgcamb) const;
+      double PHALO_pseudo(double k, bool mgcamb = false) const;
       // initialiser for halofit quantities - vars is as in all other functions, only call once for all k but at fixed scale factor(a = vars[0])
-      void phinit_pseudo(double vars[], bool mgcamb)const;
+      void phinit_pseudo(double vars[], bool mgcamb = false)const;
 
 // extras
       // density profile in real and fourier space (see expression in .cpp to edit to desired profile )

@@ -56,7 +56,7 @@ double vars[7];
     vars[2] = mgpar;
     vars[3] = 1.; // wa for CPL
     vars[4] = 1.; // unusedd
-    vars[5] = 30.; // number of mass bins
+    vars[5] = 50.; // number of mass bins
     vars[6] = 0.0; // omega_neutrinos
 
     /* Open output file */
@@ -65,7 +65,7 @@ double vars[7];
     // Keep it z=0 to keep Copter's Growth @ 1
     real z = 0;
     // Relative error in magnitude integrations
-    real epsrel = 1e-2;
+    real epsrel = 1e-3;
 
     Cosmology C(cstr);
     LinearPS P_l(C, z);
@@ -83,27 +83,9 @@ halo.scol_init(vars,mgcamb);
 halo.scol_initp(vars,mgcamb);
 halo.react_init(vars,modg);
 
-// load in k-binning from sims
-ifstream fin2("validate/matteo_data/reactions/HM_reaction_standard_HMF_F5_z1.dat");
-
-// Load in the data
-string line2;
-    while (getline(fin2, line2)) {      // for each line
-            vector<double> lineData;           // create a new row
-            double val;
-            istringstream lineStream(line2);
-            while (lineStream >> val) {          // for each value in line
-                    lineData.push_back(val);           // add to the current row
-            }
-            mypk.push_back(lineData);         // add row to allData
-    }
-
-    int Nk =  mypk.size();
-
-
 //#pragma omp parallel for
-//int Nk =100;
-double kmin = 0.0001;
+int Nk =100;
+double kmin = 0.001;
 double kmax = 10.;
 
  for(int i =0; i < Nk;  i ++) {
@@ -112,7 +94,7 @@ double kmax = 10.;
 
       p1 =  halo.one_halo(k, vars);
       p2 =  halo.one_halop(k, vars);
-      p3 =  halo.reaction(k, vars)/mypk[i][1];
+      p3 =  halo.reaction(k, vars);
 
      printf("%d %e %e %e %e \n", i, k, p1,p2,p3); // print to terminal
      fprintf(fp,"%e %e %e %e \n", k, p1,p2, p3); // print to file

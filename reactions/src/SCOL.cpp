@@ -628,7 +628,15 @@ double SCOL::myscol(double myscolparams[], double acol, double omegacb, double o
        // holders for delta_c and for a, y(a), y'(a)
        arrays_T3 xxyyzz = (arrays_T3)malloc( sizeof(struct arrays3D) );
 
-         double mydelta = DELTA1/acol;
+       // set initial condition for SC to 10% higher than y_env,initial if we need to use y_env in SC.
+         double mydelta;// = DELTA1/acol;
+
+         if (mymg) {
+           mydelta = m/d*1.1/acol;
+         }
+         else{
+           mydelta = DELTA1/acol;
+         }
 
          UserData data;
          data          = (UserData) malloc(sizeof(struct usdat));  /* Allocate data memory */

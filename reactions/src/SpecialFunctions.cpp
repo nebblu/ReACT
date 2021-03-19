@@ -556,10 +556,18 @@ int funcn1_pseudo(double a, const double G[], double F[], void *params)
   b7 = beta1(k2,karg2,(k3*x1+k1*x2)/karg2);
 
 
+// Full pseudo
 	mu1 = 1;//mu(a,k1,omega0,p1,p2,p3);
 	mu2 = 1;//mu(a,k2,omega0,p1,p2,p3);
 	mu3 = 1;//mu(a,karg1,omega0,p1,p2,p3);
 	mu4 = 1;//mu(a,karg4,omega0,p1,p2,p3);
+
+// unscreened approximation
+	// mu1 = mu(a,k1,omega0,p1,p2,p3);
+	// mu2 = mu(a,k2,omega0,p1,p2,p3);
+	// mu3 = mu(a,karg1,omega0,p1,p2,p3);
+	// mu4 = mu(a,karg4,omega0,p1,p2,p3);
+
 
 	double rescale = omegacb/omega0;
 

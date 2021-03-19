@@ -424,7 +424,7 @@ int funcn1(double a, const double G[], double F[], void *params)
 
   double a1,a2,a5,a6,a7,a8,a10,a11,a13,a14;
   double b1,b3,b4,b6,b7;
-	double mu1,mu2,mu3;
+	double mu1,mu2,mu3,mu4;
 
 	double hade1 = HA2g(a,omega0,p1,p2,p3);
 	double hade2 = HA2g2(a,omega0,p1,p2,p3);
@@ -450,6 +450,7 @@ int funcn1(double a, const double G[], double F[], void *params)
 	mu1 = mu(a,k1,omega0,p1,p2,p3);
 	mu2 = mu(a,k2,omega0,p1,p2,p3);
 	mu3 = mu(a,karg1,omega0,p1,p2,p3);
+	mu4 = mu(a,karg4,omega0,p1,p2,p3);
 
 	double rescale = omegacb/omega0;
 
@@ -473,7 +474,7 @@ int funcn1(double a, const double G[], double F[], void *params)
 
 	//5. F2/G2(p,k)
 	F[8] =1./a*(-(a5*G[5]*G[0]+a6*G[1]*G[4])/2.-G[9]) ;
-	F[9] =1./a*(-(2.-hade1)*G[9]-hade2*G[8]*mu(a,karg4,omega0,p1,p2,p3)*rescale - gamma2(a, omega0, karg4, k2,k1,x2,p1,p2,p3)*G[4]*G[0]-b3*G[5]*G[1]);
+	F[9] =1./a*(-(2.-hade1)*G[9]-hade2*G[8]*mu4*rescale - gamma2(a, omega0, karg4, k2,k1,x2,p1,p2,p3)*G[4]*G[0]-b3*G[5]*G[1]);
 
 	//6. F2/G2(-p,k)=F2/G2(p,-k)
 	F[10] =1./a*(-(a7*G[5]*G[0]+a8*G[1]*G[4])/2.-G[11]) ;

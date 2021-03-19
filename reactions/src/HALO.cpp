@@ -159,7 +159,6 @@ for(int i = 0; i< loop_Nk; i++){
   }
 
 
-
  if (!gsl_finite(sig1)) {
   react_error_halo("sigma_8 evaluated to non-numerical value");
 }
@@ -476,6 +475,8 @@ double HALO::cvirial(double lgmass, double acol) const {
 // real
   double HALO::nvirial(double lgmass, double omega0) const {
        void *params = nullptr;
+
+       // Quantities as in https://arxiv.org/abs/1812.05594
        double q = 0.75;
        double p = 0.3;
        double aconst = 1./3.056 /1.012;
@@ -499,6 +500,8 @@ double HALO::cvirial(double lgmass, double acol) const {
 // pseudo
   double HALO::nvirialp(double lgmass, double omega0) const {
        void *params = nullptr;
+
+       // Quantities as in https://arxiv.org/abs/1812.05594
        double q = 0.75;
        double p = 0.3;
        double aconst = 1./3.056 /1.012;
@@ -1061,7 +1064,7 @@ static double wintcamb_pseudo(bool mgcamb, const PowerSpectrum& P_L, double r){
    t = (i-0.5)/n1;
    k = -1. + 1./t;
    if (mgcamb) {
-     pkterm = P_L(k)*pow3(k)*anorm;
+    pkterm = P_L(k)*pow3(k)*anorm;
    }
    else{
    pkterm = pow2(linear_growth(k))*P_L(k)*pow3(k)*anorm;
@@ -1188,7 +1191,7 @@ double HALO::PHALO_pseudo(double k, bool mgcamb) const{
     mypkl = pow2(linear_growth(k))*P_l(k);
   }
 
-  if (phpars_pseudo[0] == 1000. || k<=0.005) {
+  if (phpars_pseudo[0] == 1000. || k<=0.01) {
      return mypkl;
   }
   else{

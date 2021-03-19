@@ -1194,7 +1194,7 @@ double HALO::PHALO_pseudo(double k, bool mgcamb) const{
     mypkl = pow2(linear_growth(k))*P_l(k);
   }
 
-  if (phpars_pseudo[0] == 1000. || k<=0.01) {
+  if (phpars_pseudo[0] == 1000. || k<=0.005) {
      return mypkl;
   }
   else{

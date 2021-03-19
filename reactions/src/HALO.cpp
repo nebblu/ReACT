@@ -862,8 +862,10 @@ else{
 
 }
 
-
-// Reaction initialisation with massive neutrinos using 1-loop splines (ploopr and ploopp) as a function of redshift -- these should be initialised of course, one can use the ploop_init function in SPT.cpp
+// Work in progress 19/03/2021
+// Reaction initialisation with massive neutrinos using 1-loop splines (ploopr and ploopp) as a function of redshift
+//These should be initialised of course, one can use the ploop_init_nu function in SPT.cpp which is under construction
+/*
 void HALO::react_init_nu2(double vars[], Spline ploopr, Spline ploopp, bool mgcamb, bool modg) const{
   SPT spt(C, P_cb, epsrel);
 
@@ -950,6 +952,7 @@ else{
   }
 
 }
+*/
 
 
 /* The 1-loop SPT reaction */

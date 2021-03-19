@@ -45,8 +45,11 @@ public:
 
 // reactions with massive neutrinos
       void react_init_nu(double vars[], bool mgcamb = false, bool modg = true) const;
-      void react_init_nu2(double vars[], Spline ploopr, Spline ploopp, bool mgcamb = false, bool modg = true) const;
       double reaction_nu(double k, double vars[]) const;
+
+// Multiple redshift intialisation for cosmosis - work in progress 
+//  void react_init_nu2(double vars[], Spline ploopr, Spline ploopp, bool mgcamb = false, bool modg = true) const;
+
 
 // 1-loop SPT reaction
       double reaction_spt(double k0, double vars[], bool mgcamb = false) const;

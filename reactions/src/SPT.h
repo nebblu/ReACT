@@ -47,7 +47,9 @@ public:
 
   // initialise p_loop values over redshifts[] at k=k0 for k_star in reaction code (HALO.cpp)
   void ploop_init(double ploopr[], double ploopp[], double redshifts[], int noz, double vars[], double k0);
-  void ploop_init_nu(double ploopr[], double ploopp[], double redshifts[], int noz, double vars[], double k0);
+
+// Work in progress -- initialisation of 1-loop k0 predictions for multiple redshifts 
+  //void ploop_init_nu(double ploopr[], double ploopp[], double redshifts[], int noz, double vars[], double k0);
 
   // halo fit coefficient initialisation
   void phinit(double scalef, double omega0) const;

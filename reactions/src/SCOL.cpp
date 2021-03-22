@@ -628,13 +628,15 @@ double SCOL::myscol(double myscolparams[], double acol, double omegacb, double o
        // holders for delta_c and for a, y(a), y'(a)
        arrays_T3 xxyyzz = (arrays_T3)malloc( sizeof(struct arrays3D) );
 
-       // set initial condition for SC to 10% higher than y_env,initial if we need to use y_env in SC.
-         double mydelta;// = DELTA1/acol;
+         double mydelta;
 
          if (mymg) {
+           // If modified gravity is active, set initial condition for SC to 10% higher than y_{env,initial} if we need to use y_env in spherical collapse as in f(R)
+           // This guess allows us to solve for extreme cases (e.g. fr0=10^{-4}, m_nu>0.3eV). 
            mydelta = m/d*1.1/acol;
          }
          else{
+           // otherwise take standard guess
            mydelta = DELTA1/acol;
          }
 

@@ -1,13 +1,12 @@
-# ReACT 
-# NOTE: This branch is aimed at implementing massive neutrinos (1909.02561) into the current ReACT code. It is currently undergoing development and validation. 
 
-# Installation goes the same way as master. Pyreact shouldn't break - to be tested. Run tests_mnu in the react/tests folder to check output. 
+# ReACT 
+## NOTE: This branch is aimed at implementing massive neutrinos (1909.02561) into the current ReACT code. It is currently undergoing development and validation. 
+
+## Installation goes the same way as master. Pyreact shouldn't break - to be tested. Run tests_mnu in the react/tests folder to check output. 
 
 ## Introduction
 
-ReACT is an extension of the software package Copter (0905:0479) and MG-Copter (1606.02520) which allows for 
-the calculation of redshift and real space large scale structure 
-observables for a wide class of gravity and dark energy models. 
+ReACT is an extension of the software package Copter (0905.0479) and MG-Copter (1606.02520) which allows for the calculation of redshift and real space large scale structure observables for a wide class of gravity and dark energy models. 
 
 Additions to original Copter code http://mwhite.berkeley.edu/Copter/: 
 
@@ -85,6 +84,8 @@ One can also run ReACT and MG-Copter for specific cosmologies with specified tra
 
 In particular, the bs.cpp, spt.cpp, halo_ps.cpp examples compute various quantities like the 1-loop bispectrum, halo-model quantities and redshift space power spectrum (TNS). Some example cosmologies are found in examples/transfers. One can produce their own cosmology by getting the transfer function from CAMB say, normalising it to 1 at small k, and also constructing a cosmology .ini file as in the examples. 
 
+Note that the transfer function should have two columns: k[h/Mpc] and T(k). The supplied transfer function should also be a LCDM transfer function at z=0. MG-Copter then renormalises the P(k) using internally computed LCDM and MG/DE growth factors. 
+
 We can compile these examples with a command similar to : 
 
 > gcc -I/Users/bbose/Desktop/ReACT-master/reactions/include -L/Users/bbose/Desktop/ReACT-master/reactions/lib -lcopter -lgsl -lstdc++ bs.cpp -o test
@@ -93,6 +94,24 @@ Then just run
 
 > ./test 
 
+
+## 22/03/2021: Extended ReACT: massive neutrinos with modified gravity and/or evolving dark energy. 
+
+We have made extensions to the ReACT framework to include the effects of massive neutrinos, combining [1909.02561](https://arxiv.org/abs/1909.02561) and [1812.05594](https://arxiv.org/abs/1812.05594).  To accommodate massive neutrino effects, ReACT now has the option to take the 'real' cosmology's transfer function at the target redshift as produced by MGCAMB (as opposed to the LCDM transfer at z=0). The 1-loop perturbation theory part of the reaction is then approximated by neglecting beyond linear order massive neutrino effects as described in [1902.10692](https://arxiv.org/abs/1902.10692) . 
+
+We have introduced two new flags when computing the reaction. These are then fed to a global initialiser '$initialise$' that calculates linear growth rates, performs modified and unmodified spherical collapse, as well as calculation of $k_\star$ and $\mathcal{E}$.   
+
+These flags are evident in the new example file reactions/examples/reactions_mnu.cpp which computes the wCDM + massive neutrino reaction and halofit pseudo spectrum for a target cosmology and transfer function. Specifically, the flags perform the following roles
+
+**modg**: Tells ReACT to manually set $k_\star$ and $\mathcal{E}$ to LCDM values (1e-6 and 1. resp.). This is needed because of sensitivity of $\mathcal{E}$ to the ratio of 1-halo terms which may not be exactly equal at large scales for different cosmologies even when modified gravity isn't present. 
+
+**mgcamb**:  Tells ReACT whether or not to treat the input transfer function file as the full real transfer function at the target redshift (as produced by MGCAMB) - true value - or as a z=0, LCDM transfer (two columns k[h/Mpc] and T(k) normalised to 1. at small k) - false value. 
+
+Note that the MGCAMB produced transfer should include columns for total matter (col 7), cdm + baryons (col 8) and massive neutrinos (col6). It does not need to be normalised to 1. at small k. There should be no header line in the transfer function file so this may need to be removed manually ( a segmentation fault will be thrown if it is not removed). 
+
+If these flags are not specified, ReACT will assume a LCDM, z=0 transfer is being fed  (mgcamb=false)  modified gravity active (modg = true) as in original version of the code which is compatible with pyreact and the cosmoSIS module.  
+
+Note that Pyreact and the cosmoSIS module have not yet been extended to include massive neutrinos. 
 
 ## Citation
 
@@ -132,11 +151,13 @@ Respective bibtex entries:
 }
 ```
 
-## Notes on parameter ranges (28/05/20)
+## Notes on parameter ranges (Updated: 22/03/21)
 * To optimise root finding within the spherical collapse portion of the code, the maximum redshift that one can solve the reaction for currently is z=2.5. 
 * There are some current issues in the wCDM part of the code. Namely for very particular values of w0 and wa in the CPL evolving dark energy case, the spherical collapse library cannot solve the virial theorem. We advise sticking to the ranges 
 -1.3<w0<-0.7 and -1.5<wa<0.6 to avoid these issues. 
 * Spherical collapse will not solve for values of sigma_8(z=0)< 0.55 or 1.4<sigma_8(z=0).  
+* We have tested the massive neutrino code for m_nu=0.48eV (Omega_nu = 0.0105) without issue in the absence of modified gravity or evolving dark energy. 
+* Spherical collapse may encounter issues for high fr0 values in combination with high Omega_nu. We have tested the code for Log[fr0]=-4 with m_nu=0.3eV with success but do not recommend higher values than these in combination.  
 
 ## Miscellaneous notes (28/05/20)
 * One may need to add the sundials library directory to LDFLAGS in pyreact/Makefile for installation to complete correctly:
@@ -174,3 +195,4 @@ PMG_Interpolation.cpp
 
 Note that the SpecialFunctions.cpp and SPT.cpp libraries in the extra_libraries folder
 contain some additional functions which are necessary for some of these extra libraries. Please contact benjamin.bose@unige.ch if you are interested in implementing these and encounter trouble in doing so. 
+

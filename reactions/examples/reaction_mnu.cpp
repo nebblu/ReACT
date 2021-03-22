@@ -44,7 +44,10 @@ double Omega_nu = 0.0053;  // neutrino fraction mv = 0.24
 // Modified gravity active? This allows k* and \mathcal{E} to take on non LCDM values.
 bool modg = false;
 
-// Is the transfer being fed to ReACT of the target cosmology? If false, the transfer should be LCDM at z=0.
+// Is the transfer being fed to ReACT of the target cosmology?
+//If false, the transfer should be LCDM at z=0 and ReACT will rescale P_L using internally computed modified growth - see README.
+// If true, the transfer function should be that of the real cosmology (with MG or/and massive neutrinos)
+// Note that ReACT does not calculate growth factors for massive neutrino cosmologies and so the real transfer function should be supplied.  
 bool mgcamb = true;
 
 //output file name

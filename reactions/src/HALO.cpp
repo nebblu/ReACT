@@ -154,8 +154,8 @@ for(int i = 0; i< loop_Nk; i++){
    sig2 = Integrate<ExpSub>(bind(sigma8d_integrand, cref(P_l), 8., std::placeholders::_1), 1e-4, 50., 1e-5,1e-5);
   }
   else{
-     sig1 = Integrate<ExpSub>(bind(sigma_integrand_mgcamb, cref(P_cbl), 8., std::placeholders::_1), 1e-4, 100., 1e-5,1e-5);
-     sig2 = Integrate<ExpSub>(bind(sigma8d_integrand_mgcamb, cref(P_cbl), 8., std::placeholders::_1), 1e-4, 100., 1e-5,1e-5);
+     sig1 = Integrate<ExpSub>(bind(sigma_integrand_mgcamb, cref(P_cbl), 8., std::placeholders::_1), 1e-4, 50., 1e-5,1e-5);
+     sig2 = Integrate<ExpSub>(bind(sigma8d_integrand_mgcamb, cref(P_cbl), 8., std::placeholders::_1), 1e-4, 50., 1e-5,1e-5);
   }
 
 

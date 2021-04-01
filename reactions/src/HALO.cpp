@@ -1038,7 +1038,7 @@ double HALO::reaction_nu(double k, double vars[]) const {
 // Initialise everything - for multiple redshifts, must initialise react_init2 separately
 void HALO::initialise(double vars[], bool mgcamb, bool modg) const{
   IOW iow;
-  if (fabs(vars[6])>1e-6 && mgcamb = false) {
+  if (fabs(vars[6])>1e-6 && !mgcamb) {
     react_error_halo("Omega neutrino is not 0 but you have specified a LCDM transfer - set mgcamb = true or set Omega_nu = 0");
   }
   iow.initnorm(vars);   // LCDM (or wCDM) linear growth rates

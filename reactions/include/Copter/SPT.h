@@ -31,15 +31,25 @@ public:
 	// 4:  P_dd, 5: P_dt , 6: P_tt ; nDGP
   real PLOOP(real k, int a) const;
 
-	/* P_{ab}(k) 1-loop : numerical for arbitrary model of gravity - kernel dependent */
+	/* P_{ab}(k) 1-loop : numerical for arbitrary model of gravity for massless/no neutrinos- see  1606.02520  */
   // values of a :
-  // 1: P_dd, 2: P_dt , 3: P_tt for mg,
-  // 4: P_dd, 5: P_dt , 6: P_tt for interacting DE of
-  // vars: 0: omega_0, 1: mg1, 2:mg2 , 3:mg3, 4:scale factor
-  real PLOOPn2(int a, double vars[], double k, double err) const;
+  // 0: P_dd linear
+  // 1: P_dd, 2: P_dt , 3: P_tt for mg @ 1-loop level
+  // 4: P_dd pseudo @ 1-loop level - used for halo model reactions (see HALO.cpp)
+  // vars: 0:scale factor , 1: omega_0, 2: mg1, 3 : mg2 , 4 : mg3
+  real PLOOPn2(int a, double vars[], int model, double k, double err) const;
+
+  /* P_{ab}(k) 1-loop : numerical for arbitrary model of gravity with massive neutrinos - kernel dependent */
+  // 0: P_dd for mg linear
+  // 1: P_dd for mg @ 1-loop
+  // 2: P_dd pseudo @ 1-loop level - used for halo model reactions (see HALO.cpp)
+  real PLOOPn2_nu(int a, double vars[], int model, double k, double err) const;
 
   // initialise p_loop values over redshifts[] at k=k0 for k_star in reaction code (HALO.cpp)
-  void ploop_init(double ploopr[], double ploopp[], double redshifts[], int noz, double vars[], double k0);
+  void ploop_init(double ploopr[], double ploopp[], double redshifts[], int noz, double vars[], int model, double k0);
+
+// Work in progress -- initialisation of 1-loop k0 predictions for multiple redshifts
+  //void ploop_init_nu(double ploopr[], double ploopp[], double redshifts[], int noz, double vars[], double k0);
 
   // halo fit coefficient initialisation
   void phinit(double scalef, double omega0) const;
@@ -103,7 +113,7 @@ public:
 
 
   // modified gravity TNS and Kaiser model - numerically calculated
-  double PRSD_mg(int a, int b, double bias[], double vars[], double sigma_v, double k, double err) const;
+  double PRSD_mg(int a, int b, double bias[], double vars[], int model, double sigma_v, double k, double err) const;
 
 /// lagrangian bias terms
   real Lag_bias(int a, real k, real bias[]) const;

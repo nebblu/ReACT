@@ -631,7 +631,7 @@ real SPT::Lag_bias(int a, real k, real bias[]) const {
 
 /////// Numerical 1-loop spectra /////////////
 
-static double ploopn2_mgdd( const PowerSpectrum& P_L, double vars[], double k, double r, double x){
+static double ploopn2_mgdd( const PowerSpectrum& P_L, double vars[], int model,  double k, double r, double x){
   double kargs[4],kv[3],xv[3], p22,p13;
   // tolerance for ode solver (see SpecialFunctions.cpp, initn2). This encounters a singularity if k'.-k' = -1 exactly.
   double tol = 1e-8;
@@ -647,7 +647,7 @@ static double ploopn2_mgdd( const PowerSpectrum& P_L, double vars[], double k, d
         kargs[2] = sqrt(kv[1]*kv[1]+2.*kv[1]*kv[2]*xv[0]+kv[2]*kv[2]);
         kargs[1] = sqrt(kv[2]*kv[2]+2.*kv[2]*kv[0]*xv[2]+kv[0]*kv[0]);
         kargs[3] = sqrt(kv[0]*kv[0]+2.*kv[0]*kv[1]*xv[1]+kv[1]*kv[1]);
-        iow.initn2(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],vars[6]);
+        iow.initn2(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],vars[6],model);
         p22 = pow2(F2_nk);
         p13 = F1_nk*F3_nk;
 
@@ -655,7 +655,7 @@ static double ploopn2_mgdd( const PowerSpectrum& P_L, double vars[], double k, d
 }
 
 
-static double ploopn2_mgdt( const PowerSpectrum& P_L, double vars[], double k, double r, double x){
+static double ploopn2_mgdt( const PowerSpectrum& P_L, double vars[], int model, double k, double r, double x){
   double kargs[4],kv[3],xv[3], p22,p13;
   // tolerance for ode solver (see SpecialFunctions.cpp, initn2). This encounters a singularity if k'.-k' = -1 exactly.
   double tol = 1e-8;
@@ -671,13 +671,13 @@ static double ploopn2_mgdt( const PowerSpectrum& P_L, double vars[], double k, d
         kargs[2] = sqrt(kv[1]*kv[1]+2.*kv[1]*kv[2]*xv[0]+kv[2]*kv[2]);
         kargs[1] = sqrt(kv[2]*kv[2]+2.*kv[2]*kv[0]*xv[2]+kv[0]*kv[0]);
         kargs[3] = sqrt(kv[0]*kv[0]+2.*kv[0]*kv[1]*xv[1]+kv[1]*kv[1]);
-        iow.initn2(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],vars[6]);
+        iow.initn2(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],vars[6],model);
         p22 = G2_nk*F2_nk;
         p13 = 0.5*(G1_nk*F3_nk + F1_nk*G3_nk);
     return pow2(r)*2.*P_L(k*r)*(P_L(kargs[0])*p22 + 3.*P_L(k)*p13);
 }
 
-static double ploopn2_mgtt(const PowerSpectrum& P_L, double vars[], double k, double r, double x){
+static double ploopn2_mgtt(const PowerSpectrum& P_L, double vars[], int model, double k, double r, double x){
   double kargs[4],kv[3],xv[3], p22,p13;
   // tolerance for ode solver (see SpecialFunctions.cpp, initn2). This encounters a singularity if k'.-k' = -1 exactly.
   double tol = 1e-8;
@@ -693,7 +693,7 @@ static double ploopn2_mgtt(const PowerSpectrum& P_L, double vars[], double k, do
         kargs[2] = sqrt(kv[1]*kv[1]+2.*kv[1]*kv[2]*xv[0]+kv[2]*kv[2]);
         kargs[1] = sqrt(kv[2]*kv[2]+2.*kv[2]*kv[0]*xv[2]+kv[0]*kv[0]);
         kargs[3] = sqrt(kv[0]*kv[0]+2.*kv[0]*kv[1]*xv[1]+kv[1]*kv[1]);
-        iow.initn2(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],vars[6]);
+        iow.initn2(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],vars[6],model);
         p22 = pow2(G2_nk);
         p13 = G1_nk * G3_nk;
     return pow2(r)*2.*P_L(k*r)*(P_L(kargs[0])*p22 + 3.*P_L(k)*p13);
@@ -701,7 +701,7 @@ static double ploopn2_mgtt(const PowerSpectrum& P_L, double vars[], double k, do
 
 
 // pseudo 1-loop matter power spectrum (1812.05594)
-static double ploopn2_mgdd_pseudo( const PowerSpectrum& P_L, double vars[], double k, double r, double x){
+static double ploopn2_mgdd_pseudo( const PowerSpectrum& P_L, double vars[], int model, double k, double r, double x){
   double kargs[4],kv[3],xv[3], p22,p13;
   // tolerance for ode solver (see SpecialFunctions.cpp, initn2). This encounters a singularity if k'.-k' = -1 exactly.
   double tol = 1e-8;
@@ -717,7 +717,7 @@ static double ploopn2_mgdd_pseudo( const PowerSpectrum& P_L, double vars[], doub
         kargs[2] = sqrt(kv[1]*kv[1]+2.*kv[1]*kv[2]*xv[0]+kv[2]*kv[2]);
         kargs[1] = sqrt(kv[2]*kv[2]+2.*kv[2]*kv[0]*xv[2]+kv[0]*kv[0]);
         kargs[3] = sqrt(kv[0]*kv[0]+2.*kv[0]*kv[1]*xv[1]+kv[1]*kv[1]);
-        iow.initn2_pseudo(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],vars[6]);
+        iow.initn2_pseudo(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],vars[6],model);
         p22 = pow2(F2_nk);
         p13 = F1_nk*F3_nk;
 
@@ -727,7 +727,7 @@ static double ploopn2_mgdd_pseudo( const PowerSpectrum& P_L, double vars[], doub
 
 // Choose a {0,...,4}: P_linear, P_dd,P_dt, P_tt (MG), P_dd pseudo (see HALO.cpp)
 // vars: 0 =  scale factor, 1= omega_m(z=0), 2 = mg param , 3 = mg param, 4 = mg param,
-double SPT::PLOOPn2(int a, double vars[], double k, double err) const{
+double SPT::PLOOPn2(int a, double vars[], int model, double k, double err) const{
   IOW iow;
 double loop, tree;
 double prefac = k*k*k/(4*M_PI*M_PI)/pow4(dnorm_spt);
@@ -737,23 +737,23 @@ double c[2] = {KMIN,-1.};
 double d[2] = {KMAX, 1.};
 switch (a) {
   case 0:
-    iow.initn_lin(vars[0], k, vars[1],vars[2], vars[3],vars[4]);
+    iow.initn_lin(vars[0], k, vars[1],vars[2], vars[3],vars[4],model);
     tree = pow2(F1_nk/dnorm_spt)*P_L(k);
     return tree;
   case 1:
-    loop = prefac*Integrate<2>(bind(ploopn2_mgdd,cref(P_L),vars,k,std::placeholders::_1,std::placeholders::_2), c, d, err);
+    loop = prefac*Integrate<2>(bind(ploopn2_mgdd,cref(P_L),vars,model,k,std::placeholders::_1,std::placeholders::_2), c, d, err);
     tree = pow2(F1_nk/dnorm_spt)*P_L(k);
     return loop+tree;
   case 2:
-    loop = prefac*Integrate<2>(bind(ploopn2_mgdt,cref(P_L),vars,k,std::placeholders::_1,std::placeholders::_2), c, d, err,1e-2);
+    loop = prefac*Integrate<2>(bind(ploopn2_mgdt,cref(P_L),vars,model,k,std::placeholders::_1,std::placeholders::_2), c, d, err,1e-2);
     tree = (G1_nk*F1_nk)/pow2(dnorm_spt)*P_L(k);
     return loop+tree;
   case 3:
-    loop = prefac*Integrate<2>(bind(ploopn2_mgtt,cref(P_L),vars,k,std::placeholders::_1,std::placeholders::_2), c, d, err,1e-2);
+    loop = prefac*Integrate<2>(bind(ploopn2_mgtt,cref(P_L),vars,model,k,std::placeholders::_1,std::placeholders::_2), c, d, err,1e-2);
     tree = pow2(G1_nk/dnorm_spt)*P_L(k);
     return loop+tree;
   case 4:
-    loop = prefac*Integrate<2>(bind(ploopn2_mgdd_pseudo,cref(P_L),vars,k,std::placeholders::_1,std::placeholders::_2), c, d, err);
+    loop = prefac*Integrate<2>(bind(ploopn2_mgdd_pseudo,cref(P_L),vars,model,k,std::placeholders::_1,std::placeholders::_2), c, d, err);
     tree = pow2(F1_nk/dnorm_spt)*P_L(k);
     return loop+tree;
     default:
@@ -766,7 +766,7 @@ switch (a) {
 /* Massive neutrinos 1-loop real and pseudo spectra as described in https://arxiv.org/abs/1902.10692*/
 
 
-static double ploopn2_mgdd_nu( const PowerSpectrum& P_L, double vars[], double k, double r, double x){
+static double ploopn2_mgdd_nu( const PowerSpectrum& P_L, double vars[], int model, double k, double r, double x){
   double kargs[4],kv[3],xv[3], p22,p13;
   // tolerance for ode solver (see SpecialFunctions.cpp, initn2). This encounters a singularity if k'.-k' = -1 exactly.
   double tol = 1e-8;
@@ -782,7 +782,7 @@ static double ploopn2_mgdd_nu( const PowerSpectrum& P_L, double vars[], double k
         kargs[2] = sqrt(kv[1]*kv[1]+2.*kv[1]*kv[2]*xv[0]+kv[2]*kv[2]);
         kargs[1] = sqrt(kv[2]*kv[2]+2.*kv[2]*kv[0]*xv[2]+kv[0]*kv[0]);
         kargs[3] = sqrt(kv[0]*kv[0]+2.*kv[0]*kv[1]*xv[1]+kv[1]*kv[1]);
-        iow.initn2(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],vars[6]);
+        iow.initn2(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],vars[6],model);
         p22 = pow2(F2_nk);
         p13 = F3_nk;
 
@@ -790,7 +790,7 @@ static double ploopn2_mgdd_nu( const PowerSpectrum& P_L, double vars[], double k
 }
 
 
-static double ploopn2_mgdd_pseudo_nu( const PowerSpectrum& P_L, double vars[], double k, double r, double x){
+static double ploopn2_mgdd_pseudo_nu( const PowerSpectrum& P_L, double vars[], int model, double k, double r, double x){
   double kargs[4],kv[3],xv[3], p22,p13;
   // tolerance for ode solver (see SpecialFunctions.cpp, initn2). This encounters a singularity if k'.-k' = -1 exactly.
   double tol = 1e-8;
@@ -806,7 +806,7 @@ static double ploopn2_mgdd_pseudo_nu( const PowerSpectrum& P_L, double vars[], d
         kargs[2] = sqrt(kv[1]*kv[1]+2.*kv[1]*kv[2]*xv[0]+kv[2]*kv[2]);
         kargs[1] = sqrt(kv[2]*kv[2]+2.*kv[2]*kv[0]*xv[2]+kv[0]*kv[0]);
         kargs[3] = sqrt(kv[0]*kv[0]+2.*kv[0]*kv[1]*xv[1]+kv[1]*kv[1]);
-        iow.initn2_pseudo(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],vars[6]);
+        iow.initn2_pseudo(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],vars[6],model);
         p22 = pow2(F2_nk);
         p13 = F3_nk;
 
@@ -814,7 +814,7 @@ static double ploopn2_mgdd_pseudo_nu( const PowerSpectrum& P_L, double vars[], d
 }
 
 // Same as PLOOPn2 but for massive neutrino case
-double SPT::PLOOPn2_nu(int a, double vars[], double k, double err) const{
+double SPT::PLOOPn2_nu(int a, double vars[], int model, double k, double err) const{
   IOW iow;
 double loop, tree;
 double prefac = k*k*k/(4*M_PI*M_PI);
@@ -824,15 +824,15 @@ double c[2] = {KMIN,-1.};
 double d[2] = {KMAX, 1.};
 switch (a) {
   case 0:
-    iow.initn_lin(vars[0], k, vars[1],vars[2], vars[3],vars[4]);
+    iow.initn_lin(vars[0], k, vars[1],vars[2], vars[3],vars[4],model);
     tree = P_L(k);
     return tree;
   case 1:
-    loop = prefac*Integrate<2>(bind(ploopn2_mgdd_nu,cref(P_L),vars,k,std::placeholders::_1,std::placeholders::_2), c, d, err);
+    loop = prefac*Integrate<2>(bind(ploopn2_mgdd_nu,cref(P_L),vars,model,k,std::placeholders::_1,std::placeholders::_2), c, d, err);
     tree = P_L(k);
     return loop+tree;
   case 2:
-    loop = prefac*Integrate<2>(bind(ploopn2_mgdd_pseudo_nu,cref(P_L),vars,k,std::placeholders::_1,std::placeholders::_2), c, d, err);
+    loop = prefac*Integrate<2>(bind(ploopn2_mgdd_pseudo_nu,cref(P_L),vars,model,k,std::placeholders::_1,std::placeholders::_2), c, d, err);
     tree = P_L(k);
     return loop+tree;
     default:
@@ -851,7 +851,7 @@ switch (a) {
 // vars:  1 = omega0,  2 = mg param
 // k0 - scale at which to compute Spectra
 
-void SPT::ploop_init(double ploopr[], double ploopp[], double redshifts[], int noz, double vars[], double k0){
+void SPT::ploop_init(double ploopr[], double ploopp[], double redshifts[], int noz, double vars[], int model, double k0){
   IOW iow;
 
   double res[noz],resp[noz]; // stores loop integral results for real and pseudo spectra
@@ -895,7 +895,7 @@ void SPT::ploop_init(double ploopr[], double ploopp[], double redshifts[], int n
           kargs[1] = sqrt(kv[2]*kv[2]+2.*kv[2]*kv[0]*xv[2]+kv[0]*kv[0]);
           kargs[3] = sqrt(kv[0]*kv[0]+2.*kv[0]*kv[1]*xv[1]+kv[1]*kv[1]);
           // solve differential equations numerically
-          iow.initn3(redshifts, noz, kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],mykernelarray);
+          iow.initn3(redshifts, noz, kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],mykernelarray,model);
 
  	  double p22[noz],p13[noz], p22p[noz],p13p[noz];
           // assign all redshifts
@@ -1520,7 +1520,7 @@ real SPT::AB_mu(real k, real bl, real u, int a) const{
 
 
 // Q-bias
-static double ptns_qb( const PowerSpectrum& P_L, double u0[], double vars[], double bk, double k, double r, double x){
+static double ptns_qb( const PowerSpectrum& P_L, double u0[], double vars[], int model, double bk, double k, double r, double x){
   double kargs[4],kv[3],xv[3], abct, pdd, pdd22, pdd13, pdt, pdt22, pdt13, ptt, ptt22, ptt13, prefac, plk, plkmp, plkr,d,r2,r3,x2,x3,x4;
   prefac = k*k*k/(4*M_PI*M_PI)/pow4(dnorm_spt);
   d = 1.+ r*r - 2.*r*x;
@@ -1544,7 +1544,7 @@ static double ptns_qb( const PowerSpectrum& P_L, double u0[], double vars[], dou
         kargs[2] = sqrt(kv[1]*kv[1]+2.*kv[1]*kv[2]*xv[0]+kv[2]*kv[2]);
         kargs[1] = sqrt(kv[2]*kv[2]+2.*kv[2]*kv[0]*xv[2]+kv[0]*kv[0]);
         kargs[3] = sqrt(kv[0]*kv[0]+2.*kv[0]*kv[1]*xv[1]+kv[1]*kv[1]);
-        iow.initn_rsd(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4]);
+        iow.initn_rsd(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],model);
 
         pdd22 = pow2(F2_nk);
         pdd13 = F1_nk*F3_nk;
@@ -1630,7 +1630,7 @@ static double ptns_qb( const PowerSpectrum& P_L, double u0[], double vars[], dou
 
 //// Lagrangian bias of Roy and Mac Donald
 
-static double ptns_lagb( const PowerSpectrum& P_L, double u0[], double vars[], double bias[], double k, double r, double x){
+static double ptns_lagb( const PowerSpectrum& P_L, double u0[], double vars[], int model, double bias[], double k, double r, double x){
     double kargs[4],kv[3],xv[3], abct, pdd, pdd22, pdd13, pdt, pdt22, pdt13, ptt, ptt22, ptt13, prefac, plk, plkmp, plkr,d,r2,r3,x2,x3,x4;
     prefac = k*k*k/(4*M_PI*M_PI)/pow4(dnorm_spt);
     d = 1.+ r*r - 2.*r*x;
@@ -1653,7 +1653,7 @@ static double ptns_lagb( const PowerSpectrum& P_L, double u0[], double vars[], d
           kargs[2] = sqrt(kv[1]*kv[1]+2.*kv[1]*kv[2]*xv[0]+kv[2]*kv[2]);
           kargs[1] = sqrt(kv[2]*kv[2]+2.*kv[2]*kv[0]*xv[2]+kv[0]*kv[0]);
           kargs[3] = sqrt(kv[0]*kv[0]+2.*kv[0]*kv[1]*xv[1]+kv[1]*kv[1]);
-          iow.initn_rsd(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4]);
+          iow.initn_rsd(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],model);
 
           pdd22 = pow2(F2_nk);
           pdd13 = F1_nk*F3_nk;
@@ -1774,7 +1774,7 @@ static double ptns_lagb( const PowerSpectrum& P_L, double u0[], double vars[], d
 // err -  absolute error in differential equation solver
 
 
-double SPT::PRSD_mg(int a, int b, double bias[], double vars[], double sigmav, double k, double err) const{
+double SPT::PRSD_mg(int a, int b, double bias[], double vars[], int model, double sigmav, double k, double err) const{
 IOW iow;
 double linear, nonlinear, u0x[5], bk, bl, stoch;
 real KMAX = QMAXp/k;
@@ -1784,7 +1784,7 @@ double d[2] = {KMAX, 0.99999999};
 switch (a) {
   case 0:
       bl = bias[0];
-      iow.initn_lin(vars[0], k, vars[1],vars[2], vars[3], vars[4]);
+      iow.initn_lin(vars[0], k, vars[1],vars[2], vars[3], vars[4],model);
       linear = pow2(F1_nk*bl/dnorm_spt)*(factL(k, sigmav, 1., 1., 0, b, 7)*P_L(k) - 2.*(G1_nk/F1_nk/bl)*factL(k, sigmav, 1., 1., 1, b, 7)*P_L(k) + pow2(G1_nk/F1_nk/bl)*factL(k, sigmav, 1., 1., 2, b, 7)* P_L(k));
 
     return linear;
@@ -1797,7 +1797,7 @@ switch (a) {
     u0x[2]=factL(k, sigmav, 1., 1., 3, b, 7);
     u0x[3]=factL(k, sigmav, 1., 1., 4, b, 7);
     u0x[4]=factL(k, sigmav, 1., 1., 0, b, 7);
-    nonlinear = Integrate<2>(bind(ptns_qb,cref(P_L), u0x, vars, bk, k, std::placeholders::_1,std::placeholders::_2), c, d, err);
+    nonlinear = Integrate<2>(bind(ptns_qb,cref(P_L), u0x, vars, model, bk, k, std::placeholders::_1,std::placeholders::_2), c, d, err);
     linear = pow2(F1_nk*bias[0]/dnorm_spt)*(u0x[4]*P_L(k) - 2.*(G1_nk/F1_nk/bias[0])*u0x[0]*P_L(k) + pow2(G1_nk/F1_nk/bias[0])*u0x[1]*P_L(k));
 
     return linear + nonlinear;
@@ -1809,7 +1809,7 @@ switch (a) {
     u0x[2]=factL(k, sigmav, 1., 1., 3, b, 7);
     u0x[3]=factL(k, sigmav, 1., 1., 4, b, 7);
     u0x[4]=factL(k, sigmav, 1., 1., 0, b, 7);
-    nonlinear = Integrate<2>(bind(ptns_lagb,cref(P_L), u0x, vars, bias, k,std::placeholders::_1,std::placeholders::_2), c, d, err);
+    nonlinear = Integrate<2>(bind(ptns_lagb,cref(P_L), u0x, vars, model, bias, k,std::placeholders::_1,std::placeholders::_2), c, d, err);
     linear = pow2(F1_nk*bias[0]/dnorm_spt)*(u0x[4]*P_L(k) - 2.*(G1_nk/F1_nk/bias[0])*u0x[0]*P_L(k) + pow2(G1_nk/F1_nk/bias[0])*u0x[1]*P_L(k));
     stoch =  u0x[4]*bias[2];
 

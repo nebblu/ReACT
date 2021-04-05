@@ -18,7 +18,7 @@ public:
   HALO(const Cosmology& C, const PowerSpectrum& P_l, const PowerSpectrum& P_cb,const PowerSpectrum& P_nu,const PowerSpectrum& P_cbl, real epsrel = 1e-4);
 
 // initialise spherical collapse quantities
-      void scol_init(double vars[], bool mgcamb = false) const;
+      void scol_init(double vars[], bool mgcamb = false , int model = 1) const;
       void scol_initp(double vars[], bool mgcamb = false) const;
 
 // halo model components
@@ -39,26 +39,29 @@ public:
       double one_halop(double k, double vars[]) const;
 
 // reactions
-      void react_init(double vars[], bool modg = true) const;
+      void react_init(double vars[], bool modg = true, int model = 1) const;
       void react_init2(double vars[],Spline ploopr, Spline ploopp, bool modg = true) const;
       double reaction(double k, double vars[]) const;
 
 // reactions with massive neutrinos
-      void react_init_nu(double vars[], bool mgcamb = false, bool modg = true) const;
+      void react_init_nu(double vars[], bool mgcamb = false, bool modg = true, int model = 1) const;
       double reaction_nu(double k, double vars[]) const;
 
-// Multiple redshift intialisation for cosmosis - work in progress 
+// Multiple redshift intialisation for cosmosis - work in progress
 //  void react_init_nu2(double vars[], Spline ploopr, Spline ploopp, bool mgcamb = false, bool modg = true) const;
 
 
 // 1-loop SPT reaction
-      double reaction_spt(double k0, double vars[], bool mgcamb = false) const;
+      double reaction_spt(double k0, double vars[], bool mgcamb = false, int model = 1) const;
 
 // Initialise everything for single redshift
-      void initialise(double vars[], bool  mgcamb = false, bool modg = true) const;
+      void initialise(double vars[], bool  mgcamb = false, bool modg = true, int model = 1) const;
 
 // Linear spectrum for CosmoSIS
       double plinear_cosmosis(double k) const;
+
+// Linear growth
+      double Lin_Grow(double k) const;
 
 // halofit pseudo spectrum
       double PHALO_pseudo(double k, bool mgcamb = false) const;

@@ -118,11 +118,13 @@ static real sigma8d_integrand_mgcamb(const PowerSpectrum& P, real R, real k) {
 }
 
 
-void HALO::scol_init(double vars[], bool mgcamb) const{
+void HALO::scol_init(double vars[], bool mgcamb, int model) const{
   SCOL scol;
   IOW iow;
   // number of points in mass loop (default is 30)
   int loop_N = (int)vars[5];
+
+  int status = 0;
 
 // arrays to store values
 double lgmass[loop_N],sigar[loop_N],scolar0[loop_N],scolar1[loop_N],scolar2[loop_N];
@@ -135,16 +137,17 @@ double kval_tab[loop_Nk],ling_tab[loop_Nk];
 
 double omegacb = vars[1]-vars[6];
 
+if(!mgcamb){
 for(int i = 0; i< loop_Nk; i++){
   kval_tab[i] =  kmin * exp(i*log(kmax/kmin)/(loop_Nk-1.));
   // numerical initialisation of linear growth in general theory of gravity/dark energy - see SpecialFunctions.cpp
-  iow.initn_lin(vars[0], kval_tab[i], omegacb, vars[2], vars[3], vars[4]);
+  iow.initn_lin(vars[0], kval_tab[i], omegacb, vars[2], vars[3], vars[4], model);
   ling_tab[i] = F1_nk/dnorm_spt;
     }
 
-
-// spline linear growth factor
- linear_growth = LinearSpline(loop_Nk,kval_tab,ling_tab);
+    // spline linear growth factor
+     linear_growth = LinearSpline(loop_Nk,kval_tab,ling_tab);
+}
 
  double sig1,sig2;
 
@@ -173,9 +176,6 @@ pars[0] = vars[2];
 pars[1] = vars[3];
 pars[2] = vars[4];
 
-// activate modified gravity in spherical collapse
-double mymg = true;
-
 // log(mass) loop for calculating the collapse quantities
 //#pragma omp parallel for
 for(int i = 0; i< loop_N; i++){
@@ -188,7 +188,10 @@ for(int i = 0; i< loop_N; i++){
    double Rth = 0.1*pow((Gnewton*pow(10, lgmass[i]))/(5.*omegacb),ONE/THREE);
 
 // initialise delta_c, a_vir, delta_vir
-   scol.myscol(myscolparams, vars[0], omegacb, vars[6], Rth, sig1, sig2, pars, mymg);
+   scol.myscol(myscolparams, vars[0], omegacb, vars[6], Rth, sig1, sig2, pars, model);
+   if(scol.error.errorno != 0) {
+    status = scol.error.errorno;
+   }
 
 // calculate sigma^2
   if (!mgcamb) {
@@ -254,6 +257,7 @@ void HALO::scol_initp(double vars[], bool mgcamb) const{
   SCOL scol;
 
   int loop_N = 30;
+  int status = 0;
 
     // arrays to store values
   double myscolparams[3],lgmass[loop_N],sigar[loop_N],scolar0[loop_N],scolar1[loop_N],scolar2[loop_N];
@@ -277,10 +281,14 @@ double sig1,sig2;
    pars[1] = 1.;
    pars[2] = 1.;
 
-// deactivate modified gravity in spherical collapse
-double mymg=false;
+// set collapse model to GR
+int mymodel = 1;
+
 // initialise spherical collapse quantities in GR (independent of R (or M))
-  scol.myscol(myscolparams, vars[0], vars[1], 0, 1., sig1, sig2, pars, mymg);
+  scol.myscol(myscolparams, vars[0], vars[1], 0, 1., sig1, sig2, pars, mymodel);
+  if(scol.error.errorno != 0) {
+   status = scol.error.errorno;
+  }
 
 //#pragma omp parallel for
 for(int i = 0; i< loop_N; i++){
@@ -290,10 +298,10 @@ for(int i = 0; i< loop_N; i++){
 
 // calculate sigma^2
   if (!mgcamb) {
-    sigar[i] = sqrt(Integrate<ExpSub>(bind(sigma_integrandp, cref(P_l), Rth, std::placeholders::_1), 1e-4, 100., 1e-5,1e-5));
+    sigar[i] = sqrt(Integrate<ExpSub>(bind(sigma_integrandp, cref(P_l), Rth, std::placeholders::_1), 1e-4, 50., 1e-5,1e-5));
   }
   else{
-    sigar[i] = sqrt(Integrate<ExpSub>(bind(sigma_integrandp_mgcamb, cref(P_l), Rth, std::placeholders::_1), 1e-4, 100., 1e-5,1e-5));
+    sigar[i] = sqrt(Integrate<ExpSub>(bind(sigma_integrandp_mgcamb, cref(P_l), Rth, std::placeholders::_1), 1e-4, 50., 1e-5,1e-5));
   }
 // store values in arrays
     scolar0[i] = myscolparams[0];
@@ -637,7 +645,7 @@ double kstar, bigE;
 
 // vars:
 // 0 = acol, 1= omega0, 2 = mg param
-void HALO::react_init(double vars[], bool modg) const{
+void HALO::react_init(double vars[], bool modg, int model) const{
   SPT spt(C, P_l, epsrel);
 
   if (!modg) {
@@ -667,10 +675,10 @@ void HALO::react_init(double vars[], bool modg) const{
 
 // spt terms
 // Real PT spectrum
-  pspt = spt.PLOOPn2(1, vars, k0, 1e-3);
+  pspt = spt.PLOOPn2(1, vars, model,  k0, 1e-3);
 
   // GR-1-loop spectrum with linear growth replaced by modified gravity growth (unscreened)
-  psptp = spt.PLOOPn2(4, vars, k0, 1e-3);
+  psptp = spt.PLOOPn2(4, vars, model, k0, 1e-3);
 
   // real linear spectrum
   plreal = pow2(linear_growth(k0))*P_l(k0);
@@ -765,13 +773,17 @@ double HALO::plinear_cosmosis(double k) const {
   return pow2(linear_growth(k))*P_l(k);
 }
 
+// Linear growth only
+double HALO::Lin_Grow(double k) const{
+    return linear_growth(k);
+}
 
 
 /* Massive neutrino reaction */
 
 // vars:
 // 0 = acol, 1= omega0, 2 = mg param
-void HALO::react_init_nu(double vars[], bool mgcamb, bool modg) const{
+void HALO::react_init_nu(double vars[], bool mgcamb, bool modg, int model) const{
   SPT spt(C, P_cb, epsrel);
 
 // adding in because of issues of mathcal{E} not going to 1 for some particular transfers without MG
@@ -812,9 +824,9 @@ if(!mgcamb){
     plnu = plm;
 
 // Real PT spectrum
-  pspt = spt.PLOOPn2(1, vars, k0, 1e-3) + p1h ;
+  pspt = spt.PLOOPn2(1, vars, model, k0, 1e-3) + p1h ;
 // GR-1-loop spectrum with linear growth replaced by modified gravity growth (unscreened)
-  psptp = spt.PLOOPn2(4, vars, k0, 1e-3);
+  psptp = spt.PLOOPn2(4, vars, model, k0, 1e-3);
 }
 else{
   plm = P_l(k0);
@@ -822,9 +834,9 @@ else{
   plnu = P_nu(k0);
 
 // Real PT spectrum
-  pspt = spt.PLOOPn2_nu(1, vars, k0, 1e-3) + p1h ;
+  pspt = spt.PLOOPn2_nu(1, vars, model, k0, 1e-3) + p1h ;
 // GR-1-loop spectrum with linear growth replaced by modified gravity growth (unscreened)
-  psptpnosc = spt.PLOOPn2_nu(2, vars, k0, 1e-3);
+  psptpnosc = spt.PLOOPn2_nu(2, vars, model, k0, 1e-3);
 
   psptpcbv = sqrt(psptpnosc*plnu);
   // pseudo SPT term
@@ -837,6 +849,7 @@ else{
 
 // reaction  @ k0 with 2halo term = 1 loop spt
   double rsptk0 = (fvt2 * pspt + 2.*fv*fvt*psptcbv + fv2*plnu)/(psptp + p1hp);
+
 
   double a1 = ((1.-bigE)*plcb*fvt2);
 
@@ -957,10 +970,10 @@ else{
 
 /* The 1-loop SPT reaction */
 
-double HALO::reaction_spt(double k0, double vars[], bool mgcamb) const{
+double HALO::reaction_spt(double k0, double vars[], bool mgcamb, int model) const{
   SPT spt(C, P_cb, epsrel);
 
-  double pspt, psptp, psptpnosc, p1h, p1hp, plm, plcb, plnu, psptcbv, psptpcbv, argument;
+  double pspt, psptp, psptpnosc, p1h, p1hp, plm, plcb, plnu, psptcbv, psptpcbv;
 
   // fv
   double fv  = vars[6]/vars[1];
@@ -981,9 +994,9 @@ if(!mgcamb){
     plnu = plm;
 
 // Real PT spectrum
-  pspt = spt.PLOOPn2(1, vars, k0, 1e-3) + p1h ;
+  pspt = spt.PLOOPn2(1, vars, model, k0, 1e-3) + p1h ;
 // GR-1-loop spectrum with linear growth replaced by modified gravity growth (unscreened)
-  psptp = spt.PLOOPn2(4, vars, k0, 1e-3);
+  psptp = spt.PLOOPn2(4, vars, model, k0, 1e-3);
 }
 else{
   plm = P_l(k0);
@@ -991,9 +1004,9 @@ else{
   plnu = P_nu(k0);
 
 // Real PT spectrum
-  pspt = spt.PLOOPn2_nu(1, vars, k0, 1e-3) + p1h ;
+  pspt = spt.PLOOPn2_nu(1, vars, model, k0, 1e-3) + p1h ;
 // GR-1-loop spectrum with linear growth replaced by modified gravity growth (unscreened)
-  psptpnosc = spt.PLOOPn2_nu(2, vars, k0, 1e-3);
+  psptpnosc = spt.PLOOPn2_nu(2, vars, model, k0, 1e-3);
 
   psptpcbv = sqrt(psptpnosc*plnu);
   // pseudo SPT term
@@ -1036,15 +1049,16 @@ double HALO::reaction_nu(double k, double vars[]) const {
 
 
 // Initialise everything - for multiple redshifts, must initialise react_init2 separately
-void HALO::initialise(double vars[], bool mgcamb, bool modg) const{
+void HALO::initialise(double vars[], bool mgcamb, bool modg, int model) const{
   IOW iow;
-  if (fabs(vars[6])>1e-6 && mgcamb = false) {
+  if ( fabs(vars[6])>1e-6 && !mgcamb) {
     react_error_halo("Omega neutrino is not 0 but you have specified a LCDM transfer - set mgcamb = true or set Omega_nu = 0");
   }
-  iow.initnorm(vars);   // LCDM (or wCDM) linear growth rates
-  scol_init(vars,mgcamb); // real spherical collapse quantities
+  iow.initnorm(vars, model);   // LCDM (or wCDM) linear growth rates
+  scol_init(vars,mgcamb,model); // real spherical collapse quantities
   scol_initp(vars,mgcamb); // pseudo spherical collapse quantities
-  react_init_nu(vars,mgcamb,modg); // kstar and mathcal E for reaction
+  react_init_nu(vars,mgcamb,modg,model); // kstar and mathcal E for reaction
+  printf("%e %e \n", bigE, kstar);
 }
 
 

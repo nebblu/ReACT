@@ -60,7 +60,7 @@ static double Pzeta(double x, void * p)
 // derivatives are taken with respect to t (or ln[a])
 static int f_modscol(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
-    realtype y1, y2, ET, ET0, yenv, Fvir, hubble2, dhlnaoh, prefac, prefac2, term1, term2, term4, IC, Rth, OM, OCB, T1, maxt;
+    realtype y1, y2, ET, ET0, yenv, Fvir, hubble2, dhlnaoh, prefac, term1, term2, term4, IC, Rth, OM, OCB, T1, maxt;
     UserData data;
 
     data    = (UserData) user_data;
@@ -89,21 +89,11 @@ static int f_modscol(realtype t, N_Vector y, N_Vector ydot, void *user_data)
     double myh = (y1 + ET)/ET;
     double myenv = (yenv + ET)/ET;
 
-    if(!(data->mymg)){
-      // LCDM (unmodified)
-      Fvir=0;
-      hubble2 = pow2(HA(ET*ET0,OM));
-      dhlnaoh = HA1(ET*ET0,OM)/hubble2;
-    }
-    else{
-    // modified (MG or DE ... or both)
-    // these should be edited consistently in SpecialFunctions.cpp
-    Fvir = mymgF(ET*ET0, myh, myenv, Rth, OM, (data->par1),(data->par2),(data->par3), IC);
+    Fvir = mymgF(ET*ET0, myh, myenv, Rth, OM, (data->par1),(data->par2),(data->par3), IC, (data->mymodel));
     // (H/H0)^2
-    hubble2 = pow2(HAg(ET*ET0, OM, (data->par1), (data->par2), (data->par3)));
+    hubble2 = pow2(HAg(ET*ET0, OM, (data->par1), (data->par2), (data->par3),(data->mymodel)));
     // d H/ d ln[a] /H
-    dhlnaoh = HA1g(ET*ET0,OM, (data->par1), (data->par2), (data->par3))/hubble2;
-     }
+    dhlnaoh = HA1g(ET*ET0,OM, (data->par1), (data->par2), (data->par3),(data->mymodel))/hubble2;
 
     prefac  =  SUNRexp(-THREE*t)*OCB; // a^3 Omega_cb
 
@@ -472,11 +462,12 @@ int SCOL::SphericalCollapse(double *dC, arrays_T3 xxyyzz, UserData data_vec, dou
       data->par1    = (*data_vec).par1;
       data->par2    = (*data_vec).par2;
       data->par3    = (*data_vec).par3;
-      data->mymg    = (*data_vec).mymg;
       data->maxt    = (*data_vec).maxt;
+      data->mymodel = (*data_vec).mymodel;
       data->OM      = (*data_vec).OM;
       data->OCB     = (*data_vec).OCB;
       T1            = (*data_vec).T1;
+
 
       Ith(y,1)      = Y1;
       Ith(y,2)      = -data->IC/THREE; /* this is the initial condition for y' */
@@ -580,9 +571,9 @@ int SCOL::SphericalCollapse(double *dC, arrays_T3 xxyyzz, UserData data_vec, dou
 /* Solver for a_vir (eq A6 of 1812.05594), delta_avir and delta_acollapse */
 //myscolparams[] is storage for the above quantities (0: delta_collapse, 1: a_virial, 2: delta_virial)
 
-// needs omega0, initial top-hat radius , initial density of enviornment, modification parameters and selection of theory, mymg:
-// mymg = 1 gives GR collapse, 2 gives modified collapse
-double SCOL::myscol(double myscolparams[], double acol, double omegacb, double omeganu, double Rthp, double sig1, double sig2, double pars[], bool mymg)
+// needs omega0, initial top-hat radius , initial density of enviornment, modification parameters and selection of theory
+// model = 1 gives GR collapse, 2+ gives modified collapse - see SpecialFunctions.cpp
+double SCOL::myscol(double myscolparams[], double acol, double omegacb, double omeganu, double Rthp, double sig1, double sig2, double pars[], int model)
 {
 
         double omega0 = omegacb + omeganu;
@@ -603,7 +594,7 @@ double SCOL::myscol(double myscolparams[], double acol, double omegacb, double o
        double m = maxP_zeta (sig1, sig2, omegacb, myz);
        // linear growth divided by initial scale factor for total matter poisson (pseudo) or cb poisson (real)
        double d;
-       if (!mymg) {
+       if (model==1) {
          d = Delta_Lambda (omega0, myz);
        }
         else{
@@ -630,14 +621,14 @@ double SCOL::myscol(double myscolparams[], double acol, double omegacb, double o
 
          double mydelta;
 
-         if (mymg) {
-           // If modified gravity is active, set initial condition for SC to 10% higher than y_{env,initial} if we need to use y_env in spherical collapse as in f(R)
-           // This guess allows us to solve for extreme cases (e.g. fr0=10^{-4}, m_nu>0.3eV). 
-           mydelta = m/d*1.1/acol;
+         if (model == 1) {
+           //  take standard guess if GR collapse
+           mydelta = DELTA1/acol;
          }
          else{
-           // otherwise take standard guess
-           mydelta = DELTA1/acol;
+           // If modified gravity is active, set initial condition for SC to 10% higher than y_{env,initial} if we need to use y_env in spherical collapse as in f(R)
+           // This guess allows us to solve for extreme cases (e.g. fr0=10^{-4}, m_nu>0.3eV).
+           mydelta = m/d*1.1/acol;
          }
 
          UserData data;
@@ -652,7 +643,7 @@ double SCOL::myscol(double myscolparams[], double acol, double omegacb, double o
          data->par2    = p2;
          data->par3    = p3;
          data->Rth     = Rthp;
-         data->mymg    = mymg;
+         data->mymodel = model;
 	       data->maxt    = maximumt;
 
           // initialse the delta_i (solver spherical collapse differential equation)
@@ -684,23 +675,22 @@ double SCOL::myscol(double myscolparams[], double acol, double omegacb, double o
 
        // energy contributions
 
-      // 1. Potential energy (always the same):
+      // potential energy (always the same):
        double prefac = -omegacb*pow2(myy/ainit)/ai;
 
-       // 2. newtonian contribution
+       // newtonian contribution
        double wn =  prefac*(1.+mydelt);
-        // 3 and 4 and 5.  modified gravity, dark energy  and Kinetic energy contributions
-        // edit WEFF and mymgF in SpecialFunctions.cpp for different gravity/evolutions - default is LCDM
+        // modified gravity, dark energy  and Kinetic energy contributions
        double wphi, weff, ke;
-       if(!mymg){
+       if(model==1){
          wphi = 0.;
          weff = 2.*(1.-omega0)*pow2(myy/arat);
          ke =  pow2(HA(ai, omega0)*(myy + myp)/arat);
        }
        else{
-         wphi = prefac * mymgF(ai, myy, myyenv, Rthp, omegacb, p1, p2, p3, myscolparams[0])*mydelt;
-         weff = WEFF(ai,omegacb,p1,p2,p3)*pow2(myy/arat);
-         ke =  pow2(HAg(ai, omega0,p1,p2,p3)*(myy + myp)/arat); // might need to change to cb TO CHECK
+         wphi = prefac * mymgF(ai, myy, myyenv, Rthp, omegacb, p1, p2, p3, myscolparams[0],model)*mydelt;
+         weff = WEFF(ai,omegacb,p1,p2,p3,model)*pow2(myy/arat);
+         ke =  pow2(HAg(ai, omega0,p1,p2,p3,model)*(myy + myp)/arat); // might need to change to cb TO CHECK
        }
 
 

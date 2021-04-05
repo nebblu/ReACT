@@ -34,6 +34,10 @@ vector<vector<double> > mypk;
 /* Example code to output the reaction and halo spectra for mg + neutrinos */
 int main(int argc, char* argv[]) {
 
+// Which gravity or dark energy model?
+// 1: GR  2: f(R) 3: DGP 4: quintessence 5: CPL
+int mymodel = 2;
+
 
 // target redshift
 double myz = 1.;
@@ -45,6 +49,7 @@ bool modg = true;
 
 // Is the transfer being fed to ReACT of the target cosmology? If false, the transfer should be LCDM at z=0.
 bool mgcamb = true;
+
 
 // Load transfer function at z from MGCAMB with all species at some redshift
 ifstream fin("transfers/f5_nu015_transfer_1.dat");
@@ -151,7 +156,7 @@ SPT spt(Cm, P_cb, epsrel);
 
 
 //initialise spherical collapse quantities and reaction quantities
-halo.initialise(vars,mgcamb,modg);
+halo.initialise(vars,mgcamb,modg,mymodel);
 halo.phinit_pseudo(vars,mgcamb);
 
 

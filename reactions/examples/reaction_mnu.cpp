@@ -34,6 +34,9 @@ vector<vector<double> > mypk;
 /* Example code to output the reaction and halo spectra for mg + neutrinos */
 int main(int argc, char* argv[]) {
 
+// Which gravity or dark energy model?
+// 1: GR  2: f(R) 3: DGP 4: quintessence 5: CPL
+int mymodel = 2;
 
 // target redshift
 double myz = 1.;
@@ -47,13 +50,13 @@ bool modg = false;
 // Is the transfer being fed to ReACT of the target cosmology?
 //If false, the transfer should be LCDM at z=0 and ReACT will rescale P_L using internally computed modified growth - see README.
 // If true, the transfer function should be that of the real cosmology (with MG or/and massive neutrinos)
-// Note that ReACT does not calculate growth factors for massive neutrino cosmologies and so the real transfer function should be supplied.  
+// Note that ReACT does not calculate growth factors for massive neutrino cosmologies and so the real transfer function should be supplied.
 bool mgcamb = true;
 
 //output file name
 const char* output = "nu24_wcdm_z1.dat";
 
-// Load transfer function at z from MGCAMB with all species at some redshift
+// Load transfer function at z from MGCAMB with all species at some redshift for target cosmology
 ifstream fin("transfers/baha/baha_wcdm_mnu024_z1.dat");
 
 // Load in the transfer data
@@ -70,7 +73,9 @@ string line;
 
 
 
+// Load transfer function at z from MGCAMB with all species at some redshift for LCDM cosmology
 ifstream finlcdm("transfers/baha/baha_lcdm_z1.dat");
+
 // Load in the transfer data
 string linelcdm;
     while (getline(finlcdm, linelcdm)) {      // for each line
@@ -166,7 +171,8 @@ SPT spt(Cm, P_cb, epsrel);
 
 
 //initialise spherical collapse quantities and reaction quantities
-halo.initialise(vars,mgcamb,modg);
+halo.initialise(vars,mgcamb,modg,mymodel);
+// initialise halofit parameters
 halo.phinit_pseudo(vars,mgcamb);
 
 double p1,p2,p3,p4,p5;

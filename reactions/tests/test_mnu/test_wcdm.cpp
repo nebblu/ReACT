@@ -34,6 +34,8 @@ vector<vector<double> > mypk;
 /* Example code to output the reaction and halo spectra for mg + neutrinos */
 int main(int argc, char* argv[]) {
 
+// 1: GR  2: f(R) 3: DGP 4: quintessence 5: CPL
+int mymodel = 5;
 
 // target redshift
 double myz = 1.;
@@ -155,7 +157,7 @@ SPT spt(Cm, P_cb, epsrel);
 
 
 //initialise spherical collapse quantities and reaction quantities
-halo.initialise(vars,mgcamb,modg);
+halo.initialise(vars,mgcamb,modg,mymodel);
 halo.phinit_pseudo(vars,mgcamb);
 
 

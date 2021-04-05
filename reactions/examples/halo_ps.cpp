@@ -32,6 +32,9 @@ vector<vector<double> > mypk;
 /* Example code to output the halo model powerspectrum for modified gravity */
 
 int main(int argc, char* argv[]) {
+  // Which gravity or dark energy model?
+  // 1: GR  2: f(R) 3: DGP 4: quintessence 5: CPL
+  int mymodel = 2;
 
   // Modified gravity active?
   bool modg = true;
@@ -77,11 +80,11 @@ double vars[7];
 
 
 // initialise wCDM/LCDM lin growth for PS normalisation
-iow.initnorm(vars);
+iow.initnorm(vars,mymodel);
 /// initialise delta_c(M), a_vir(M), delta_avir(M) and v(M)
-halo.scol_init(vars,mgcamb);
-halo.scol_initp(vars,mgcamb);
-halo.react_init(vars,modg);
+halo.scol_init(vars,mgcamb,mymodel);
+halo.scol_initp(vars,mgcamb,mymodel);
+halo.react_init(vars,modg,mymodel);
 
 //#pragma omp parallel for
 int Nk =100;

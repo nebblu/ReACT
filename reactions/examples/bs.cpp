@@ -38,6 +38,10 @@ int main() {
     /* Open output file */
     FILE* fp = fopen(output, "w");
 
+    // Which gravity or dark energy model?
+    // 1 for DGP, 2 for Hu-Sawicki,
+    int mymodel = 2;
+
     // Keep it z=0 to keep Copter's Growth @ 1
     real z = 0;
     // Relative error in magnitude integrations
@@ -63,10 +67,9 @@ int main() {
     vars[0] = 1./(1.+0.541);
     vars[1] = 0.279;
     vars[2] = 1e-5;
-    vars[3] = 2.;
 
 // initialise GR lin growth for PS normalisation
-iow.inite2(vars[0],vars[1],vars[2], 1.,1.);
+iow.inite2(vars[0],vars[1],vars[2], 1.,1.,mymodel);
 spt.remp(fl_spt);
 // initialise fitting function params (n_effective, k_nl, sigma_8)
 bspt.mypspline(vars[0],vars[1],1);
@@ -83,7 +86,7 @@ vars2[3] = 1.;
 
 vars2[4] = vars[0];
 
-vars2[5] = vars[3];
+vars2[5] = (double)mymodel;
 
 vars2[6] = 1e-2;
 vars2[7] = 1e-3;

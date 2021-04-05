@@ -57,6 +57,9 @@ int main(int argc, char* argv[]) {
 
 // output variables
 real p1,p2,p3,p4,p5;
+  // Which gravity or dark energy model?
+  // 1: GR  2: f(R) 3: DGP 4: quintessence 5: CPL
+  int mymodel = 2;
 
   // chosen redshift
     double myz = 0.;
@@ -78,7 +81,7 @@ real p1,p2,p3,p4,p5;
 
 
 // normalise the growth
-iow.inite(vars[0],vars[1],vars[2],vars[3],vars[4]);
+iow.inite(vars[0],vars[1],vars[2],vars[3],vars[4],mymodel);
 spt.remp(fl_spt);
 
 
@@ -98,11 +101,11 @@ for(int i =0; i <Nk;  i ++) {
 
 /* for more observables check out the SPT.h file in the src directory */
 
-  p1 = spt.PLOOPn2(0, vars, k, 1e-3); // linear spectrum
-  p2 = spt.PLOOPn2(1, vars, k, 1e-3); // 1-loop spectrum
-  p3 = spt.PRSD_mg(2,1,bias,vars,sigmav,k,err); // TNS monopole
-  p4 = spt.PRSD_mg(2,2,bias,vars,sigmav,k,err); // TNS quadrupole
-  p5 = spt.PRSD_mg(2,3,bias,vars,sigmav,k,err); // TNS hexdecapole
+  p1 = spt.PLOOPn2(0, vars, mymodel, k, 1e-3); // linear spectrum
+  p2 = spt.PLOOPn2(1, vars, mymodel, k, 1e-3); // 1-loop spectrum
+  p3 = spt.PRSD_mg(2,1,bias,vars, mymodel,sigmav,k,err); // TNS monopole
+  p4 = spt.PRSD_mg(2,2,bias,vars, mymodel,sigmav,k,err); // TNS quadrupole
+  p5 = spt.PRSD_mg(2,3,bias,vars, mymodel,sigmav,k,err); // TNS hexdecapole
 
 
      printf("%e %e %e %e %e %e \n", k, p1,p2,p3,p4,p5); // print to terminal

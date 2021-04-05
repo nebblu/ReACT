@@ -80,78 +80,136 @@ static double omega_var_hyp(double w0, double wa, double a){
 // QUINTESSENCE ---- p1 = w0
 // CPL --- p1 = w_0, p2 = w_a
 // HYP --- p1 only free param
-double HAg(double a, double omega0, double p1, double p2, double p3){
+double HAg(double a, double omega0, double p1, double p2, double p3, int model){
+	double A, omegaf, omegaL;
+	switch(model) {
+		case 1:
 		/* LCDM */
 		 return HA( a, omega0);
 
-	 /* QUINTESSENCE */
-	// double A = -3.*(1.+p1);
-	// double omegaf = pow(a,A);
-	// double omegaL= (1.-omega0)*omegaf;
-	// return  sqrt(omega0/pow(a,3)+omegaL);
+		 case 2:
+ 		/* f(R) */
+ 		 return HA( a, omega0);
 
-	/* CPL */
-	// double A = -3.*(1.+p1+p2);
-	// double omegaf = pow(a,A)*exp(3.*(-1.+a)*p2);
-	// double omegaL= (1.-omega0)*omegaf;
-	// return  sqrt(omega0/pow(a,3)+omegaL);
+		 case 3:
+		 /* DGP */
+			return HA( a, omega0);
 
-	/* HYP */
-	// double A = omega_var_hyp(p1,p2,a);
-	// double omegaf = exp(A);
-	// double omegaL= (1.-omega0)*omegaf;
-	// return  sqrt(omega0/pow(a,3)+omegaL);
+			case 4:
+			/* QUINTESSENCE */
+			A = -3.*(1.+p1);
+			omegaf = pow(a,A);
+			omegaL= (1.-omega0)*omegaf;
+			return  sqrt(omega0/pow(a,3)+omegaL);
+
+			case 5:
+			/* CPL */
+			A = -3.*(1.+p1+p2);
+			omegaf = pow(a,A)*exp(3.*(-1.+a)*p2);
+			omegaL= (1.-omega0)*omegaf;
+			return  sqrt(omega0/pow(a,3)+omegaL);
+
+			case 6:
+			/* HYP */
+			A = omega_var_hyp(p1,p2,a);
+			omegaf = exp(A);
+			omegaL= (1.-omega0)*omegaf;
+			return  sqrt(omega0/pow(a,3)+omegaL);
+
+			default:
+					warning("SpecialFunctions: invalid model choice, model = %d \n", model);
+					return 0;
+}
 }
 
 // aH dH/da / H0^2
-double HA1g(double a, double omega0, double p1, double p2, double p3){
-	  /* LCDM */
-	 	return HA1( a, omega0);
+double HA1g(double a, double omega0, double p1, double p2, double p3, int model){
+	double A, omegaf, omegaL;
+	switch(model) {
+		case 1:
+		/* LCDM */
+		 return HA1( a, omega0);
 
+		 case 2:
+ 		/* f(R) */
+ 		 return HA1( a, omega0);
+
+		 case 3:
+		 /* DGP */
+			return HA1( a, omega0);
+
+			case 4:
 		/*QUINTESSENCE*/
-	// double A = -3.*(1.+p1);
-	// double omegaf = pow(a,A);
-	// double omegaL= (1.-omega0)*omegaf;
-	// return -3*omega0/(2.*pow(a,3)) + A*omegaL/2.;
+		A = -3.*(1.+p1);
+		omegaf = pow(a,A);
+		omegaL= (1.-omega0)*omegaf;
+		return -3*omega0/(2.*pow(a,3)) + A*omegaL/2.;
 
-	/* CPL */
-	// double A = -3.*(1.+p1+p2);
-  // double omegaf = pow(a,A)*exp(3*(-1.+a)*p2);
-	// double omegaL= (1.-omega0)*omegaf;
-  // return -3.*omega0/(2.*pow(a,3)) + (A+3.*a*p2)*omegaL/2.;
+		 case 5:
+	  /* CPL */
+		A = -3.*(1.+p1+p2);
+	  omegaf = pow(a,A)*exp(3*(-1.+a)*p2);
+		omegaL= (1.-omega0)*omegaf;
+	  return -3.*omega0/(2.*pow(a,3)) + (A+3.*a*p2)*omegaL/2.;
 
-	/*HYP*/
-	// double A = omega_var_hyp(p1,p2,a);
-	// double omegaf = exp(A);
-  // double omegaL= (1.-omega0)*omegaf;
-	// return -3.*omega0/(2.*pow(a,3)) + A*a*omegaL/2.;
+		case 6:
+	  /*HYP*/
+		A = omega_var_hyp(p1,p2,a);
+		omegaf = exp(A);
+	  omegaL= (1.-omega0)*omegaf;
+		return -3.*omega0/(2.*pow(a,3)) + A*a*omegaL/2.;
+
+		default:
+				warning("SpecialFunctions: invalid model choice, model = %d \n", model);
+				return 0;
+}
 }
 
 
 //HA2g = -dH/dt/H^2 = -a dH/da / H
-double HA2g(double a, double omega0, double p1, double p2, double p3){
-   	return -HA1g(a,omega0,p1,p2,p3)/pow2(HAg(a,omega0,p1,p2,p3));
+double HA2g(double a, double omega0, double p1, double p2, double p3, int model){
+   	return -HA1g(a,omega0,p1,p2,p3,model)/pow2(HAg(a,omega0,p1,p2,p3,model));
 }
 
 //3/(2H^2) * Omega_m
-double HA2g2(double a, double omega0, double p1, double p2, double p3){
-   	return 3.*omega0/(2.*pow2(HAg(a,omega0,p1,p2,p3))*pow(a,3));
+double HA2g2(double a, double omega0, double p1, double p2, double p3, int model){
+   	return 3.*omega0/(2.*pow2(HAg(a,omega0,p1,p2,p3, model))*pow(a,3));
 }
 
 // Dark energy contribution to spherical collapse
-double  WEFF(double a, double omega0, double p1, double p2, double p3){
+double  WEFF(double a, double omega0, double p1, double p2, double p3, int model){
+	double h2;
+	switch(model) {
+		case 1:
 		/* LCDM */
 		return 2.*(1.-omega0);
 
+		 case 2:
+		/* f(R) */
+		return 2.*(1.-omega0);
+
+		 case 3:
+		 /* DGP */
+		 return 2.*(1.-omega0);
+
+		 case 4:
 		/* QUINTESSENCE*/
-	//	return -(1.-omega0)*(1.+3.*p1);
+		return -(1.-omega0)*(1.+3.*p1);
 
+		case 5:
 		/*CPL*/
-		 // double h2 = pow2(HAg(a,omega0,p1,p2,p3));
-		 // return -(1.+3.*(p1+(1.-a)*p2))*(h2-omega0/pow3(a));
+		 h2 = pow2(HAg(a,omega0,p1,p2,p3,model));
+		 return -(1.+3.*(p1+(1.-a)*p2))*(h2-omega0/pow3(a));
 
+		 case 6:
+		 /* Hyp 5/04/2021: WORK IN PROGRESS - NEED TO DERIVE WEFF FOR HYP MODEL! SET TO LCDM  */
+		 return 2.*(1.-omega0);
+
+		 default:
+				 warning("SpecialFunctions: invalid model choice, model = %d \n", model);
+				 return 0;
 }
-
+}
 
 /*MODIFIED GRAVITY MODEL FUNCTIONS (see 1606.02520) ----- background is always taken as LCDM for these functions */
 
@@ -180,100 +238,157 @@ inline double beta(double a, double omega0, double omegarc){
 // 2) Add in extra parameters to params of funcn1 system of ODEs
 // 3) Add in extra parameters to initn function and in params passed by function to solver (this is right after initial conditions are passed)
 
-double mu(double a, double k0, double omega0, double p1, double p2, double p3 ){
+// model; 1: GR, 2: f(R) Hu Sawicki, n=1  3: DGP normal branch
+
+double mu(double a, double k0, double omega0, double p1, double p2, double p3, int model){
 	double h0 = 1./2997.92458;
-  //	return 1.; // GR
-		double var1 = pow2(k0/a);
-	 return 1. + var1/(3.*(var1+pow3(omega0/pow3(a)-4.*(omega0-1.))/(2.*p1/pow2(h0)*pow2(4.-3.*omega0)))); //f(R) Hu- Sawicki
- //	return 1.+1./(3.*beta(a,omega0,p1)); //nDGP
+	double var1;
+	switch(model) {
+		case 1:
+						return  1. ; // GR
+		case 2:
+						var1 = pow2(k0/a);
+	  				return 1. + var1/(3.*(var1+pow3(omega0/pow3(a)-4.*(omega0-1.))/(2.*p1/pow2(h0)*pow2(4.-3.*omega0)))); //f(R) Hu- Sawicki
+    case 3:
+						return 1.+1./(3.*beta(a,omega0,p1)); //nDGP
+		case 4:
+						return  1. ; // QUINTESSENCE
+		case 5:
+						return  1. ; // CPL
+		case 6:
+						return  1. ; // HYP
+		default:
+				warning("SpecialFunctions: invalid model choice, model = %d \n", model);
+				return 0;
+}
 }
 
-double gamma2(double a, double omega0, double k0, double k1, double k2, double u1, double p1, double p2, double p3 ){
-	double h0 = 1./2997.92458;
- //	 return 0. ; // GR
-double var1 = pow3(a);
-double var2 = pow3(var1);
-double var3 = pow2(h0);
-double var4 = pow2(3.*omega0-4.);
-double var5 = pow3(omega0-4.*var1*(omega0-1.))/(2.*var2*p1/var3*var4);
-double var6 = pow2(k0/a);
-	 return -(9.*var6*pow2(omega0/var1)*pow(omega0-4.*var1*(-1.+omega0),5))/
-			    (48.*pow(var1,5)*pow2(p1/var3)*pow2(HA(a,omega0))*pow2(var4)
-			   *(var6+var5)
-			   *(pow2(k1/a)+var5)
-	 		   *(pow2(k2/a)+var5)); //f(R) Hu- Sawicki
 
-//  	return -1./(HA(a,omega0)*HA(a,omega0)*24.*pow(beta(a,omega0,p1),3)*p1)*pow(omega0/(a*a*a),2)*ker1(u1); //nDGP
+double gamma2(double a, double omega0, double k0, double k1, double k2, double u1, double p1, double p2, double p3, int model){
+	double h0 = 1./2997.92458;
+	double var1,var2,var3,var4,var5,var6;
+	switch(model) {
+		case 1:
+						return  0. ; // GR
+		case 2:
+						var1 = pow3(a);
+						var2 = pow3(var1);
+						var3 = pow2(h0);
+						var4 = pow2(3.*omega0-4.);
+						var5 = pow3(omega0-4.*var1*(omega0-1.))/(2.*var2*p1/var3*var4);
+						var6 = pow2(k0/a);
+							 return -(9.*var6*pow2(omega0/var1)*pow(omega0-4.*var1*(-1.+omega0),5))/
+									    (48.*pow(var1,5)*pow2(p1/var3)*pow2(HA(a,omega0))*pow2(var4)
+									   *(var6+var5)
+									   *(pow2(k1/a)+var5)
+							 		   *(pow2(k2/a)+var5)); //f(R) Hu- Sawicki
+		case 3:
+						return -1./(HA(a,omega0)*HA(a,omega0)*24.*pow(beta(a,omega0,p1),3)*p1)*pow(omega0/(a*a*a),2)*ker1(u1); //nDGP
+		case 4:
+						return  0. ; // QUINTESSENCE
+		case 5:
+						return  0. ; // CPL
+		case 6:
+						return  0. ; // HYP
+		default:
+		warning("SpecialFunctions: invalid model choice, model = %d \n", model);
+				return 0;
+}
 }
 
 // partially symmetric gamma3 (in last 2 arguments) for DGP
-double gamma3(double a, double omega0, double k0, double k1, double k2, double k3, double u1,double u2, double u3, double p1, double p2, double p3){
+double gamma3(double a, double omega0, double k0, double k1, double k2, double k3, double u1,double u2, double u3, double p1, double p2, double p3, int model){
 	double h0 = 1./2997.92458;
-// 	return 0. ; // GR
+	double var1,var2,var3,var4,var5,var6,var7,var8,var9,var10,var11,k23 ;
 
- double var1 = pow3(a);
- double var2 = pow3(var1);
- double var3 = pow2(h0);
- double var4 = pow2(3.*omega0-4.);
- double var5 = pow3(omega0-4.*var1*(omega0-1.))/(2.*var2*p1/var3*var4);
- double var6 = pow(var1,5);
- double var7 = var6*pow2(var1);
- double k23 = sqrt(k2*k2+k3*k3+2.*k2*k3*u1);
- double var8 = pow2(k0/a);
- double var9 = pow2(k23/a);
- double var10 = pow2(p1/var3);
- double var11 = pow2(var4);
+	switch(model) {
+	  case 1:
+						return  0. ; // GR
+	  case 2:
+						var1 = pow3(a);
+						var2 = pow3(var1);
+						var3 = pow2(h0);
+						var4 = pow2(3.*omega0-4.);
+						var5 = pow3(omega0-4.*var1*(omega0-1.))/(2.*var2*p1/var3*var4);
+						var6 = pow(var1,5);
+						var7 = var6*pow2(var1);
+						k23 = sqrt(k2*k2+k3*k3+2.*k2*k3*u1);
+						var8 = pow2(k0/a);
+						var9 = pow2(k23/a);
+						var10 = pow2(p1/var3);
+						var11 = pow2(var4);
 
-	 return 1./3.*(var8*pow2(1./HA(a,omega0))*pow3(omega0/var1)/(36.
-											*(var8+var5)
-											*(pow2(k1/a)+var5)
-											*(pow2(k2/a)+var5)
-											*(pow2(k3/a)+var5)
-					 *(var9+var5))
-			 *(-45./8.*(var9+var5)/(var7*var10*(p1/var3))*pow(omega0-4.*var1*(omega0-1.),7)/var11/var4
-			   +pow2(9./(4.*var6*var10)*pow(omega0-4.*var1*(omega0-1.),5)/var11)));  // Hu-Sawicki
-
-//  return 1./(HA(a,omega0)*HA(a,omega0)*144.*pow(beta(a,omega0,p1),5)*pow(p1,2))*pow(omega0/(a*a*a),3)*ker1(u1)*ker1((k2*u2+k3*u3)/sqrt(k2*k2+2.*k2*k3*u1+k3*k3)); //nDGP
+						  return 1./3.*(var8*pow2(1./HA(a,omega0))*pow3(omega0/var1)/(36.
+						 										*(var8+var5)
+						 										*(pow2(k1/a)+var5)
+						 										*(pow2(k2/a)+var5)
+						 										*(pow2(k3/a)+var5)
+						 				 					  *(var9+var5))
+						 		 								*(-45./8.*(var9+var5)/(var7*var10*(p1/var3))*pow(omega0-4.*var1*(omega0-1.),7)/var11/var4
+						 		   							+pow2(9./(4.*var6*var10)*pow(omega0-4.*var1*(omega0-1.),5)/var11)));  // Hu-Sawicki
+	  case 3:
+							return 1./(HA(a,omega0)*HA(a,omega0)*144.*pow(beta(a,omega0,p1),5)*pow(p1,2))*pow(omega0/(a*a*a),3)*ker1(u1)*ker1((k2*u2+k3*u3)/sqrt(k2*k2+2.*k2*k3*u1+k3*k3)); //nDGP
+		case 4:
+						return  0. ; // QUINTESSENCE
+		case 5:
+						return  0. ; // CPL
+		case 6:
+						return  0. ; // HYP
+		default:
+		warning("SpecialFunctions: invalid model choice, model = %d \n", model);
+				return 0;
 }
-
+}
 
 
 /// Modified gravity function for spherical collapse (see for example A.1 of appendix of 1812.05594) ////
 
-double mymgF(double a, double yh, double yenv, double Rth, double omega0, double p1, double p2, double p3,  double delta_initial){
-	/* GR */
-	//	return 0.;
+double mymgF(double a, double yh, double yenv, double Rth, double omega0, double p1, double p2, double p3,  double delta_initial, int model){
+	double h0 = 1./2997.92;
+	double dod, dod2, dRRth, fr0, var1, term1, term2;
+	double betadgp,xm3,xterm,delta;
+	switch(model) {
+	  case 1:
+						return  0. ; // GR
+	  case 2:
+		/* f(R)  - Hu-Sawicki model, n =1 */
+						fr0 = p1/h0/h0;
+						var1 = pow2(3.*omega0 -4.);
 
-/* f(R)  - Hu-Sawicki model, n =1 */
-		double h0 = 1./2997.92;
-    double dod, dod2, dRRth, fr0, var1, term1, term2;
-    fr0 = p1/h0/h0;
-    var1 = pow2(3.*omega0 -4.);
+						term1 = 1./pow2(omega0/pow3(yenv * a) + 4. - 4.*omega0);
+						term2 = 1./pow2(omega0/pow3(yh * a) + 4. - 4.*omega0);
 
-    term1 = 1./pow2(omega0/pow3(yenv * a) + 4. - 4.*omega0);
-    term2 = 1./pow2(omega0/pow3(yh * a) + 4. - 4.*omega0);
+						dod = fr0 * yh * a *var1 * (term1 - term2) / Rth/ Rth / omega0 ;
+						dod2 = pow2(dod);
 
-    dod = fr0 * yh * a *var1 * (term1 - term2) / Rth/ Rth / omega0 ;
-    dod2 = pow2(dod);
+						dRRth = dod - dod2 + dod2*dod/3.;
 
-    dRRth = dod - dod2 + dod2*dod/3.;
+						return gsl_min(dRRth,1./3.);
 
-    return gsl_min(dRRth,1./3.);
+	 case 3:
+	 				/*DGP normal branch*/
+		      betadgp = beta(a,omega0,p1);
 
+		      delta = (1.+delta_initial)/pow3(yh) - 1.;
 
-/*DGP normal branch*/
-		//       double betadgp,xm3,xterm,delta;
-		//       betadgp = beta(a,omega0,p1);
-		//
-		//       delta = (1.+delta_initial)/pow3(yh) - 1.;
-		//
-		//       xterm = 9.*pow2(betadgp)*p1/(2.*omega0/pow3(a)*delta);
-		//
-		//       xm3 = 1./xterm;
-		//
-		//       return 2./(3.*betadgp)*(sqrt(1.+ xm3)-1.)/xm3;
+		      xterm = 9.*pow2(betadgp)*p1/(2.*omega0/pow3(a)*delta);
 
+		      xm3 = 1./xterm;
+
+		      return 2./(3.*betadgp)*(sqrt(1.+ xm3)-1.)/xm3;
+
+		case 4:
+						return  0. ; // QUINTESSENCE
+		case 5:
+						return  0. ; // CPL
+		case 6:
+						return  0. ; // HYP
+
+		default:
+					warning("SpecialFunctions: invalid model choice, model = %d \n", model);
+				  return 0;
   }
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -396,6 +511,7 @@ struct param_type3 {
   real arg3;
   real arg4;
 	real omeganu;
+	int model;
 };
 
 
@@ -419,6 +535,8 @@ int funcn1(double a, const double G[], double F[], void *params)
 //  real karg3 = p.arg3;
   real karg4 = p.arg4;
 	double omeganu = p.omeganu;
+	int mod = p.model;
+
 
 	double omegacb = omega0 - omeganu;
 
@@ -426,8 +544,8 @@ int funcn1(double a, const double G[], double F[], void *params)
   double b1,b3,b4,b6,b7;
 	double mu1,mu2,mu3,mu4;
 
-	double hade1 = HA2g(a,omega0,p1,p2,p3);
-	double hade2 = HA2g2(a,omega0,p1,p2,p3);
+	double hade1 = HA2g(a,omega0,p1,p2,p3,mod);
+	double hade2 = HA2g2(a,omega0,p1,p2,p3,mod);
 
   a1 = alpha(k2,karg1,(k1*x2-k2)/karg1);
   a2 = alpha(karg1,k2,(k1*x2-k2)/karg1);
@@ -447,10 +565,10 @@ int funcn1(double a, const double G[], double F[], void *params)
   b6 = beta1(k3,karg4,(k1*x3+k2*x1)/karg4);
   b7 = beta1(k2,karg2,(k3*x1+k1*x2)/karg2);
 
-	mu1 = mu(a,k1,omega0,p1,p2,p3);
-	mu2 = mu(a,k2,omega0,p1,p2,p3);
-	mu3 = mu(a,karg1,omega0,p1,p2,p3);
-	mu4 = mu(a,karg4,omega0,p1,p2,p3);
+	mu1 = mu(a,k1,omega0,p1,p2,p3,mod);
+	mu2 = mu(a,k2,omega0,p1,p2,p3,mod);
+	mu3 = mu(a,karg1,omega0,p1,p2,p3,mod);
+	mu4 = mu(a,karg4,omega0,p1,p2,p3,mod);
 
 	double rescale = omegacb/omega0;
 
@@ -470,15 +588,15 @@ int funcn1(double a, const double G[], double F[], void *params)
 	/* 2nd order */
 	//4. F2/G2(p,k-p) (P22)
 	F[6] =1./a*(-(a1*G[5]*G[2]+a2*G[3]*G[4])/2.-G[7]);
-	F[7] =1./a*(-(2.-hade1)*G[7]-hade2*G[6]*mu1*rescale - gamma2(a, omega0, k1, k2,karg1,(k1*x2-k2)/karg1,p1,p2,p3)*G[4]*G[2] - b1*G[5]*G[3]);
+	F[7] =1./a*(-(2.-hade1)*G[7]-hade2*G[6]*mu1*rescale - gamma2(a, omega0, k1, k2,karg1,(k1*x2-k2)/karg1,p1,p2,p3,mod)*G[4]*G[2] - b1*G[5]*G[3]);
 
 	//5. F2/G2(p,k)
 	F[8] =1./a*(-(a5*G[5]*G[0]+a6*G[1]*G[4])/2.-G[9]) ;
-	F[9] =1./a*(-(2.-hade1)*G[9]-hade2*G[8]*mu4*rescale - gamma2(a, omega0, karg4, k2,k1,x2,p1,p2,p3)*G[4]*G[0]-b3*G[5]*G[1]);
+	F[9] =1./a*(-(2.-hade1)*G[9]-hade2*G[8]*mu4*rescale - gamma2(a, omega0, karg4, k2,k1,x2,p1,p2,p3,mod)*G[4]*G[0]-b3*G[5]*G[1]);
 
 	//6. F2/G2(-p,k)=F2/G2(p,-k)
 	F[10] =1./a*(-(a7*G[5]*G[0]+a8*G[1]*G[4])/2.-G[11]) ;
-	F[11] =1./a*(-(2.-hade1)*G[11]-hade2*G[10]*mu3*rescale -gamma2(a, omega0, karg1, k3,k1,x3,p1,p2,p3)*G[4]*G[0]-b4*G[5]*G[1]);
+	F[11] =1./a*(-(2.-hade1)*G[11]-hade2*G[10]*mu3*rescale -gamma2(a, omega0, karg1, k3,k1,x3,p1,p2,p3,mod)*G[4]*G[0]-b4*G[5]*G[1]);
 
 	//7. 3rd order  ~ F3/G3(k,p,-p)
 	F[12] = - 1./(3.*a)*(a10*G[8]*G[5]
@@ -496,12 +614,12 @@ int funcn1(double a, const double G[], double F[], void *params)
 
 					 -2.*b7*G[5]*G[11]
 
-					 -2.*gamma2(a, omega0, k1, k3,karg4,(k1*x3+k2*x1)/karg4,p1,p2,p3)*G[4]*G[8]
-					 -2.*gamma2(a, omega0, k1, k2,karg2,(k3*x1+k1*x2)/karg2,p1,p2,p3)*G[4]*G[10]
+					 -2.*gamma2(a, omega0, k1, k3,karg4,(k1*x3+k2*x1)/karg4,p1,p2,p3,mod)*G[4]*G[8]
+					 -2.*gamma2(a, omega0, k1, k2,karg2,(k3*x1+k1*x2)/karg2,p1,p2,p3,mod)*G[4]*G[10]
 
-					   -(gamma3(a, omega0, k1, k1,k2,k3,x1,x2,x3,p1,p2,p3)
-					   + gamma3(a, omega0, k1, k3,k1,k2,x2,x3,x1,p1,p2,p3)
-					   + gamma3(a, omega0, k1, k2,k3,k1,x3,x1,x2,p1,p2,p3))*G[4]*G[4]*G[0]);
+					   -(gamma3(a, omega0, k1, k1,k2,k3,x1,x2,x3,p1,p2,p3,mod)
+					   + gamma3(a, omega0, k1, k3,k1,k2,x2,x3,x1,p1,p2,p3,mod)
+					   + gamma3(a, omega0, k1, k2,k3,k1,x3,x1,x2,p1,p2,p3,mod))*G[4]*G[4]*G[0]);
 
 
 	return GSL_SUCCESS;
@@ -528,6 +646,7 @@ int funcn1_pseudo(double a, const double G[], double F[], void *params)
 //  real karg3 = p.arg3;
   real karg4 = p.arg4;
 	double omeganu = p.omeganu;
+	int mod = p.model;
 
 	double omegacb = omega0 - omeganu;
 
@@ -535,8 +654,8 @@ int funcn1_pseudo(double a, const double G[], double F[], void *params)
   double a1,a2,a5,a6,a7,a8,a10,a11,a13,a14;
   double b1,b3,b4,b6,b7;
 	double mu1,mu2,mu3,mu4;
-	double hade1 = HA2g(a,omega0,p1,p2,p3);
-	double hade2 = HA2g2(a,omega0,p1,p2,p3);
+	double hade1 = HA2g(a,omega0,p1,p2,p3,mod);
+	double hade2 = HA2g2(a,omega0,p1,p2,p3,mod);
 
   a1 = alpha(k2,karg1,(k1*x2-k2)/karg1);
   a2 = alpha(karg1,k2,(k1*x2-k2)/karg1);
@@ -558,16 +677,16 @@ int funcn1_pseudo(double a, const double G[], double F[], void *params)
 
 
 // Full pseudo
-	mu1 = 1;//mu(a,k1,omega0,p1,p2,p3);
-	mu2 = 1;//mu(a,k2,omega0,p1,p2,p3);
-	mu3 = 1;//mu(a,karg1,omega0,p1,p2,p3);
-	mu4 = 1;//mu(a,karg4,omega0,p1,p2,p3);
+	mu1 = 1;
+	mu2 = 1;
+	mu3 = 1;
+	mu4 = 1;
 
 // unscreened approximation
-	// mu1 = mu(a,k1,omega0,p1,p2,p3);
-	// mu2 = mu(a,k2,omega0,p1,p2,p3);
-	// mu3 = mu(a,karg1,omega0,p1,p2,p3);
-	// mu4 = mu(a,karg4,omega0,p1,p2,p3);
+	// mu1 = mu(a,k1,omega0,p1,p2,p3,mod);
+	// mu2 = mu(a,k2,omega0,p1,p2,p3,mod);
+	// mu3 = mu(a,karg1,omega0,p1,p2,p3,mod);
+	// mu4 = mu(a,karg4,omega0,p1,p2,p3,mod);
 
 
 	double rescale = omegacb/omega0;
@@ -623,7 +742,7 @@ int funcn1_pseudo(double a, const double G[], double F[], void *params)
 
 
 /// the new solver for numerical equations - optimised and solved in SPT.cpp's ploopn2 functions
-void IOW::initn2(double A, double k[], double x[], double kargs[], double omega0, double par1, double par2, double par3, double omeganu)
+void IOW::initn2(double A, double k[], double x[], double kargs[], double omega0, double par1, double par2, double par3, double omeganu, int model)
 {
 
 			// Initial scale factor for solving system of equations
@@ -634,7 +753,7 @@ void IOW::initn2(double A, double k[], double x[], double kargs[], double omega0
 
 			/*Parameters passed to system of equations */
       // EDIT : If more than one gravity parameter is used, add them after p1
-				struct param_type3 my_params1 = {k[0],x[0],k[1],x[1],k[2],x[2],omega0, par1, par2, par3,kargs[0],kargs[1],kargs[2],kargs[3],omeganu};
+				struct param_type3 my_params1 = {k[0],x[0],k[1],x[1],k[2],x[2],omega0, par1, par2, par3,kargs[0],kargs[1],kargs[2],kargs[3],omeganu, model};
 
 				gsl_odeiv2_system sys = {funcn1, jac, 14, &my_params1};
 
@@ -686,7 +805,7 @@ void IOW::initn2(double A, double k[], double x[], double kargs[], double omega0
 
 /// Solver for pseudo power spectrum (set of equations omit screening functions gamma_2 and gamma_3 - see funcn1_pseudo)
 
-void IOW::initn2_pseudo(double A, double k[], double x[], double kargs[], double omega0, double par1, double par2, double par3, double omeganu)
+void IOW::initn2_pseudo(double A, double k[], double x[], double kargs[], double omega0, double par1, double par2, double par3, double omeganu, int model)
 {
 
 			// Initial scale factor for solving system of equations
@@ -697,7 +816,7 @@ void IOW::initn2_pseudo(double A, double k[], double x[], double kargs[], double
 
 			/*Parameters passed to system of equations */
       // EDIT : If more than one gravity parameter is used, add them after p1
-				struct param_type3 my_params1 = {k[0],x[0],k[1],x[1],k[2],x[2],omega0, par1, par2, par3,kargs[0],kargs[1],kargs[2],kargs[3],omeganu};
+				struct param_type3 my_params1 = {k[0],x[0],k[1],x[1],k[2],x[2],omega0, par1, par2, par3,kargs[0],kargs[1],kargs[2],kargs[3],omeganu, model};
 
 				gsl_odeiv2_system sys = {funcn1_pseudo, jac, 14, &my_params1};
 
@@ -748,7 +867,7 @@ void IOW::initn2_pseudo(double A, double k[], double x[], double kargs[], double
 
 // Used to store kernel values for various redshifts for lensing computation (see HALO.cpp and SPT.cpp - react_init and PLOOPn2 functions respectively)
 // BILL MOD
-void IOW::initn3(double redshifts[], int noz, double k[], double x[], double kargs[], double omega0, double par1, double par2, double par3,double mykernelarray[][20]){
+void IOW::initn3(double redshifts[], int noz, double k[], double x[], double kargs[], double omega0, double par1, double par2, double par3,double mykernelarray[][20], int model){
 				if(redshifts[0]>2.5){
 					warning("SpecialFunctions: highest z unstable, should be 2.5 or less: z max = %e \n", redshifts[0]);
 				}
@@ -764,7 +883,7 @@ void IOW::initn3(double redshifts[], int noz, double k[], double x[], double kar
 
 			/*Parameters passed to system of equations */
       // EDIT : If more than one gravity parameter is used, add them after p1
-				struct param_type3 my_params1 = {k[0],x[0],k[1],x[1],k[2],x[2],omega0, par1, par2, par3,kargs[0],kargs[1],kargs[2],kargs[3],0.};
+				struct param_type3 my_params1 = {k[0],x[0],k[1],x[1],k[2],x[2],omega0, par1, par2, par3,kargs[0],kargs[1],kargs[2],kargs[3],0., model};
 
 				gsl_odeiv2_system sys = {funcn1, jac, 14, &my_params1};
 				gsl_odeiv2_system sysp = {funcn1_pseudo, jac, 14, &my_params1};
@@ -867,30 +986,26 @@ int funcn_lin(double a, const double G[], double F[], void *params)
 {
   param_type3 p = *(param_type3 *)(params);
 	real k1 = p.kk1;
-//	real x1= p.xx1;
-//	real k2 = p.kk2;
-//	real x2= p.xx2;
-//	real k3 = p.kk3;
-//	real x3= p.xx3;
 	real omega0 = p.omega00;
 	real p1 = p.par1;
 	real p2 = p.par2;
   real p3 = p.par3;
+	int mod = p.model;
 
-	double hade1 = HA2g(a,omega0,p1,p2,p3);
-	double hade2 = HA2g2(a,omega0,p1,p2,p3);
+	double hade1 = HA2g(a,omega0,p1,p2,p3,mod);
+	double hade2 = HA2g2(a,omega0,p1,p2,p3,mod);
 
 	/* 1st order */
 	//1. F1/G1(k)
 	F[0] = -G[1]/a;
-	F[1] =1./a*(-(2.-hade1)*G[1]-hade2*G[0]*mu(a,k1,omega0,p1,p2,p3));
+	F[1] =1./a*(-(2.-hade1)*G[1]-hade2*G[0]*mu(a,k1,omega0,p1,p2,p3,mod));
 
 	return GSL_SUCCESS;
 }
 
 
 // Include MG extension
-void IOW::initn_lin(double A, double k, double omega0, double par1, double par2, double par3)
+void IOW::initn_lin(double A, double k, double omega0, double par1, double par2, double par3, int model)
 {
 				double a = 3e-5;
 
@@ -898,7 +1013,7 @@ void IOW::initn_lin(double A, double k, double omega0, double par1, double par2,
 			  double G[2] = { a,-a};
 
 			/*Parameters passed to system of equations */
-      struct param_type3 my_params1 = {k,1.,1.,1.,1.,1.,omega0, par1, par2, par3,1,1.,1.,1.};
+      struct param_type3 my_params1 = {k,1.,1.,1.,1.,1.,omega0, par1, par2, par3,1,1.,1.,1., 0., model};
 
 			gsl_odeiv2_system sys = {funcn_lin, jac, 2, &my_params1};
 
@@ -940,13 +1055,14 @@ int funcn_rsd(double a, const double G[], double F[], void *params)
   real karg2 = p.arg2;
 //  real karg3 = p.arg3;
   real karg4 = p.arg4;
+	int mod = p.model;
 
   double a1,a2,a3,a4,a5,a6,a7,a8,a10,a11,a13,a14;
   double b1,b2,b3,b4,b6,b7;
 	double mu1,mu2,mu3;
 
-	double hade1 = HA2g(a,omega0,p1,p2,p3);
-	double hade2 = HA2g2(a,omega0,p1,p2,p3);
+	double hade1 = HA2g(a,omega0,p1,p2,p3,mod);
+	double hade2 = HA2g2(a,omega0,p1,p2,p3,mod);
 
   a1 = alpha(k2,karg1,(k1*x2-k2)/karg1);
   a2 = alpha(karg1,k2,(k1*x2-k2)/karg1);
@@ -969,9 +1085,9 @@ int funcn_rsd(double a, const double G[], double F[], void *params)
   b6 = beta1(k3,karg4,(k1*x3+k2*x1)/karg4);
   b7 = beta1(k2,karg2,(k3*x1+k1*x2)/karg2);
 
-	mu1 = mu(a,k1,omega0,p1,p2,p3);
-	mu2 = mu(a,k2,omega0,p1,p2,p3);
-	mu3 = mu(a,karg1,omega0,p1,p2,p3);
+	mu1 = mu(a,k1,omega0,p1,p2,p3,mod);
+	mu2 = mu(a,k2,omega0,p1,p2,p3,mod);
+	mu3 = mu(a,karg1,omega0,p1,p2,p3,mod);
 
 	/* 1st order */
 
@@ -991,16 +1107,16 @@ int funcn_rsd(double a, const double G[], double F[], void *params)
 
 	//4. F2/G2(p,k-p) (P22)
 	F[6] =1./a*(-(a1*G[5]*G[2]+a2*G[3]*G[4])/2.-G[7]);
-	F[7] =1./a*(-(2.-hade1)*G[7]-hade2*G[6]*mu1 - gamma2(a, omega0, k1, k2,karg1,(k1*x2-k2)/karg1,p1,p2,p3)*G[4]*G[2] - b1*G[5]*G[3]);
+	F[7] =1./a*(-(2.-hade1)*G[7]-hade2*G[6]*mu1 - gamma2(a, omega0, k1, k2,karg1,(k1*x2-k2)/karg1,p1,p2,p3,mod)*G[4]*G[2] - b1*G[5]*G[3]);
 
 
 	//5. F2/G2(p,k)
 	F[8] =1./a*(-(a5*G[5]*G[0]+a6*G[1]*G[4])/2.-G[9]) ;
-	F[9] =1./a*(-(2.-hade1)*G[9]-hade2*G[8]*mu(a,karg4,omega0,p1,p2,p3) - gamma2(a, omega0, karg4, k2,k1,x2,p1,p2,p3)*G[4]*G[0]-b3*G[5]*G[1]);
+	F[9] =1./a*(-(2.-hade1)*G[9]-hade2*G[8]*mu(a,karg4,omega0,p1,p2,p3,mod) - gamma2(a, omega0, karg4, k2,k1,x2,p1,p2,p3,mod)*G[4]*G[0]-b3*G[5]*G[1]);
 
 	//6. F2/G2(-p,k)=F2/G2(p,-k)
 	F[10] =1./a*(-(a7*G[5]*G[0]+a8*G[1]*G[4])/2.-G[11]) ;
-	F[11] =1./a*(-(2.-hade1)*G[11]-hade2*G[10]*mu3 -gamma2(a, omega0, karg1, k3,k1,x3,p1,p2,p3)*G[4]*G[0]-b4*G[5]*G[1]);
+	F[11] =1./a*(-(2.-hade1)*G[11]-hade2*G[10]*mu3 -gamma2(a, omega0, karg1, k3,k1,x3,p1,p2,p3,mod)*G[4]*G[0]-b4*G[5]*G[1]);
 
 	//7. 3rd order  ~ F3/G3(k,p,-p)
 	F[12] = - 1./(3.*a)*(a10*G[8]*G[5]
@@ -1018,24 +1134,24 @@ int funcn_rsd(double a, const double G[], double F[], void *params)
 
 					 -2.*b7*G[5]*G[11]
 
-					 -2.*gamma2(a, omega0, k1, k3,karg4,(k1*x3+k2*x1)/karg4,p1,p2,p3)*G[4]*G[8]
-					 -2.*gamma2(a, omega0, k1, k2,karg2,(k3*x1+k1*x2)/karg2,p1,p2,p3)*G[4]*G[10]
+					 -2.*gamma2(a, omega0, k1, k3,karg4,(k1*x3+k2*x1)/karg4,p1,p2,p3,mod)*G[4]*G[8]
+					 -2.*gamma2(a, omega0, k1, k2,karg2,(k3*x1+k1*x2)/karg2,p1,p2,p3,mod)*G[4]*G[10]
 
-					   -(gamma3(a, omega0, k1, k1,k2,k3,x1,x2,x3,p1,p2,p3)
-					   + gamma3(a, omega0, k1, k3,k1,k2,x2,x3,x1,p1,p2,p3)
-					   + gamma3(a, omega0, k1, k2,k3,k1,x3,x1,x2,p1,p2,p3))*G[4]*G[4]*G[0]);
+					   -(gamma3(a, omega0, k1, k1,k2,k3,x1,x2,x3,p1,p2,p3,mod)
+					   + gamma3(a, omega0, k1, k3,k1,k2,x2,x3,x1,p1,p2,p3,mod)
+					   + gamma3(a, omega0, k1, k2,k3,k1,x3,x1,x2,p1,p2,p3,mod))*G[4]*G[4]*G[0]);
 
 
  	//8. F2/G2(-k,k-p)
  	F[14] =1./a*(-(a3*G[1]*G[2]+a4*G[3]*G[0])/2.-G[15]);
- 	F[15] =1./a*(-(2.-hade1)*G[15]-hade2*G[14]*mu2 - gamma2(a, omega0, k2, k1, karg1,(k2*x2-k1)/karg1,p1,p2,p3)*G[2]*G[0] - b2*G[3]*G[1]);
+ 	F[15] =1./a*(-(2.-hade1)*G[15]-hade2*G[14]*mu2 - gamma2(a, omega0, k2, k1, karg1,(k2*x2-k1)/karg1,p1,p2,p3,mod)*G[2]*G[0] - b2*G[3]*G[1]);
 
 	return GSL_SUCCESS;
 }
 
 
 /// the new solver for numerical equations - optimised and solved in SPT.cpp's ploopn2 functions
-void IOW::initn_rsd(double A, double k[], double x[], double kargs[], double omega0, double par1, double par2, double par3)
+void IOW::initn_rsd(double A, double k[], double x[], double kargs[], double omega0, double par1, double par2, double par3, int model)
 {
 
 			// Initial scale factor for solving system of equations
@@ -1046,7 +1162,7 @@ void IOW::initn_rsd(double A, double k[], double x[], double kargs[], double ome
 
 			/*Parameters passed to system of equations */
       // EDIT : If more than one gravity parameter is used, add them after p1
-				struct param_type3 my_params1 = {k[0],x[0],k[1],x[1],k[2],x[2],omega0, par1, par2, par3,kargs[0],kargs[1],kargs[2],kargs[3],0.};
+				struct param_type3 my_params1 = {k[0],x[0],k[1],x[1],k[2],x[2],omega0, par1, par2, par3,kargs[0],kargs[1],kargs[2],kargs[3],0.,model};
 
 				gsl_odeiv2_system sys = {funcn_rsd, jac, 16, &my_params1};
 
@@ -1108,11 +1224,11 @@ struct param_type2 {
 	real par3;
   int par4;
 	real par5;
+	int model;
 };
 
 
 /* System of equations for wCDM/CPL normalization*/
-
 
 int funcn2(double a, const double G[], double F[], void *params)
 {
@@ -1122,11 +1238,12 @@ int funcn2(double a, const double G[], double F[], void *params)
   real p2 = p.par2;
 	real p3 = p.par3;
 	real omeganu = p.par5;
+	int mod = p.model;
 
 	double omegacb = omega0-omeganu;
 
-	double hub1 = pow2(HAg(a,omega0,p1,p2,p3));
-	double hub2 = HA1g(a,omega0,p1,p2,p3);
+	double hub1 = pow2(HAg(a,omega0,p1,p2,p3,mod));
+	double hub2 = HA1g(a,omega0,p1,p2,p3,mod);
 	double ap5 = pow(a,5);
 
 	F[0] = G[1];
@@ -1145,7 +1262,7 @@ double g_de;
 // vars[3] = wa (not used for modified gravity as Hubble function should be set to GR value - see funcn2)
 // vars[4] unused so far
 // vars[6] = omega_nu
-void IOW::initnorm(double vars[]) //double A, double omega0, double par1, double par2, double par3, int par4)
+void IOW::initnorm(double vars[], int model) //double A, double omega0, double par1, double par2, double par3, int par4)
 {
 			double a = 3e-5;
 	  	double G1[2] = {a,1.}; // initial conditions
@@ -1157,7 +1274,7 @@ void IOW::initnorm(double vars[]) //double A, double omega0, double par1, double
 			int status1,status2,status3;
 
 			//  Solution for wCDM linear growth @ a=1  for our normalisation of the linear power spectrum
-					myparams = {vars[1],vars[2],vars[3],vars[4],1,vars[6]};
+					myparams = {vars[1],vars[2],vars[3],vars[4],1,vars[6],model};
 
 			  // Solutions of evolution factors @ a=A
 			  	sys1 = {funcn2, jac, 2, &myparams};
@@ -1178,7 +1295,7 @@ void IOW::initnorm(double vars[]) //double A, double omega0, double par1, double
 					double mya = vars[0];
 
 			// LCDM growth @ a=A for Omega_cb
-					myparams2 = {vars[1],-1.,0.,0.,1, vars[6]};
+					myparams2 = {vars[1],-1.,0.,0.,1, vars[6],1};
 			  // Solutions of evolution factors @ a=A
 			  	sys2 = {funcn2, jac, 2, &myparams2};
 			  	d2 = gsl_odeiv2_driver_alloc_y_new (&sys2, gsl_odeiv2_step_rk8pd,
@@ -1252,34 +1369,35 @@ int func(double a, const double G[], double F[], void *params){
 	real p1 = p.par1;
 	real p2 = p.par2;
 	real p3 = p.par3;
+	int mod = p.model;
 
   double hub1 = pow2(HA(a,omega0));
   double ap5 = pow(a,5);
 
 	// D
 	F[0] = G[1];
-	F[1] = -1./a*(3.+HA1(a,omega0)/(hub1))*G[1]+3./2.*omega0/(hub1*ap5)*mu(a,1.,omega0,p1,p2,p3)*G[0];
+	F[1] = -1./a*(3.+HA1(a,omega0)/(hub1))*G[1]+3./2.*omega0/(hub1*ap5)*mu(a,1.,omega0,p1,p2,p3,mod)*G[0];
 
 	//E
 	F[2] = G[3];
-	F[3] = -1./a*(3.+HA1(a,omega0)/(hub1))*G[3]+3./2.*omega0/(hub1*ap5)*mu(a,1.,omega0,p1,p2,p3)*G[2]+G[1]*G[1]+3./2.*omega0/(hub1*ap5)*mu(a,1.,omega0,p1,p2,p3)*G[0]*G[0];
+	F[3] = -1./a*(3.+HA1(a,omega0)/(hub1))*G[3]+3./2.*omega0/(hub1*ap5)*mu(a,1.,omega0,p1,p2,p3,mod)*G[2]+G[1]*G[1]+3./2.*omega0/(hub1*ap5)*mu(a,1.,omega0,p1,p2,p3,mod)*G[0]*G[0];
 
 	//F
 	F[4] = G[5];
-	F[5] = -1./a*(3.+HA1(a,omega0)/(hub1))*G[5]+3./2.*omega0/(hub1*ap5)*mu(a,1.,omega0,p1,p2,p3)*G[4]-1./(a*a*hub1*24.*pow(beta(a,omega0,p1),3)*p1) *pow(omega0/(a*a*a),2)*G[0]*G[0];
+	F[5] = -1./a*(3.+HA1(a,omega0)/(hub1))*G[5]+3./2.*omega0/(hub1*ap5)*mu(a,1.,omega0,p1,p2,p3,mod)*G[4]-1./(a*a*hub1*24.*pow(beta(a,omega0,p1),3)*p1) *pow(omega0/(a*a*a),2)*G[0]*G[0];
 
 	//C
 	F[6] =G[7];
-	F[7] = -1./a*(3.+HA1(a,omega0)/(hub1))*G[7]+3./2.*omega0/(hub1*ap5)*mu(a,1.,omega0,p1,p2,p3)*G[6]+G[1]*(G[5]-G[1]);
+	F[7] = -1./a*(3.+HA1(a,omega0)/(hub1))*G[7]+3./2.*omega0/(hub1*ap5)*mu(a,1.,omega0,p1,p2,p3,mod)*G[6]+G[1]*(G[5]-G[1]);
 
 	//I
 	F[8] = G[9] ;
-	F[9] = -1./a*(3.+HA1(a,omega0)/(hub1))*G[9]+3./2.*omega0/(hub1*ap5)*mu(a,1.,omega0,p1,p2,p3)*G[8]+3./2.*omega0/(hub1*ap5)*mu(a,1.,omega0,p1,p2,p3)*(G[4]-G[0])*G[0]-1./(a*a*hub1*24.*pow(beta(a,omega0,p1),3)*p1)*pow(omega0/(a*a*a),2)*G[0]*G[0]*G[0]+G[1]*(G[5]-G[1]);
+	F[9] = -1./a*(3.+HA1(a,omega0)/(hub1))*G[9]+3./2.*omega0/(hub1*ap5)*mu(a,1.,omega0,p1,p2,p3,mod)*G[8]+3./2.*omega0/(hub1*ap5)*mu(a,1.,omega0,p1,p2,p3,mod)*(G[4]-G[0])*G[0]-1./(a*a*hub1*24.*pow(beta(a,omega0,p1),3)*p1)*pow(omega0/(a*a*a),2)*G[0]*G[0]*G[0]+G[1]*(G[5]-G[1]);
 
 
 	//KL
 	F[10] = G[11] ;
-	F[11] = -1./a*(3.+HA1(a,omega0)/(hub1))*G[11]+3./2.*omega0/(hub1*ap5)*mu(a,1.,omega0,p1,p2,p3)*G[10]
+	F[11] = -1./a*(3.+HA1(a,omega0)/(hub1))*G[11]+3./2.*omega0/(hub1*ap5)*mu(a,1.,omega0,p1,p2,p3,mod)*G[10]
 	-1./(a*a*hub1*12.*pow(beta(a,omega0,p1),3)*p1)*pow(omega0/(a*a*a),2)*G[0]*(G[2]+G[4]-2*G[0])
 	+1./(a*a*hub1*144.*pow(beta(a,omega0,p1),5)*pow(p1,2))*pow(omega0/(a*a*a),3)*G[0]*G[0]*G[0];
 
@@ -1293,15 +1411,15 @@ int func(double a, const double G[], double F[], void *params){
 
  //J
  F[14] = G[15];
- F[15] = -1./a*(3.+HA1(a,omega0)/(hub1))*G[15]+3./2.*omega0/(hub1*ap5)*mu(a,1.,omega0,p1,p2,p3)*G[14]-1./(a*a*hub1*24.*pow(beta(a,omega0,p1),3)*p1) *pow(omega0/(a*a*a),2)*G[0]*G[0]*G[0]/7.;
+ F[15] = -1./a*(3.+HA1(a,omega0)/(hub1))*G[15]+3./2.*omega0/(hub1*ap5)*mu(a,1.,omega0,p1,p2,p3,mod)*G[14]-1./(a*a*hub1*24.*pow(beta(a,omega0,p1),3)*p1) *pow(omega0/(a*a*a),2)*G[0]*G[0]*G[0]/7.;
 
  //K
  F[16] = G[17];
- F[17] = -1./a*(3.+HA1(a,omega0)/(hub1))*G[17]+3./2.*omega0/(hub1*ap5)*mu(a,1.,omega0,p1,p2,p3)*G[16]-1./(a*a*hub1*24.*pow(beta(a,omega0,p1),3)*p1) *pow(omega0/(a*a*a),2)*G[0]*G[0]*G[0]*5./7.;
+ F[17] = -1./a*(3.+HA1(a,omega0)/(hub1))*G[17]+3./2.*omega0/(hub1*ap5)*mu(a,1.,omega0,p1,p2,p3,mod)*G[16]-1./(a*a*hub1*24.*pow(beta(a,omega0,p1),3)*p1) *pow(omega0/(a*a*a),2)*G[0]*G[0]*G[0]*5./7.;
 
  //F3
  F[18] = G[19] ;
- F[19] = -1./a*(3.+HA1(a,omega0)/(hub1))*G[19]+3./2.*omega0/(hub1*ap5)*mu(a,1.,omega0,p1,p2,p3)*G[18]+3./2.*omega0/(hub1*ap5)*mu(a,1.,omega0,p1,p2,p3)*(G[4]-G[0])*G[0]+G[1]*(G[5]-G[1]);
+ F[19] = -1./a*(3.+HA1(a,omega0)/(hub1))*G[19]+3./2.*omega0/(hub1*ap5)*mu(a,1.,omega0,p1,p2,p3,mod)*G[18]+3./2.*omega0/(hub1*ap5)*mu(a,1.,omega0,p1,p2,p3,mod)*(G[4]-G[0])*G[0]+G[1]*(G[5]-G[1]);
 
 
 	return GSL_SUCCESS;
@@ -1309,12 +1427,12 @@ int func(double a, const double G[], double F[], void *params){
 
 
 //Solve the system of equations for evolution factors ---- A is the scale factor, omega0 the matter density param, and par123 are modified gravity additional params
-void IOW::inite(double A, double omega0, double par1, double par2, double par3)
+void IOW::inite(double A, double omega0, double par1, double par2, double par3, int model)
 {
 
 	double a = 0.00001;
 	double G[20] = {a,1., a, 1., a,  1., a, 1.,  a, 1., a, 1., a, 1., a, 1., a, 1.,a,1.}; // initial conditions
-	struct param_type2 params = {omega0,par1,par2,par3,1,1.};
+	struct param_type2 params = {omega0,par1,par2,par3,1,1.,model};
 
 // Solutions of evolution factors @ a=A
 	gsl_odeiv2_system sys = {func, jac, 20, &params};
@@ -2558,11 +2676,12 @@ int funce2(double a, const double G[], double F[], void *params){
 	real p1 = p.par1;
 	real p2 = p.par2;
 	real p3 = p.par3;
+	int mod = p.model;
 
   double hub1 = pow2(HA(a,omega0));
   double hub2 = HA1(a,omega0)/hub1;
   double ap5 = pow(a,5);
-  double mua = mu(a,1.,omega0,p1,p2,p3);
+  double mua = mu(a,1.,omega0,p1,p2,p3,mod);
   double betacub = pow(beta(a,omega0,p1),3);
   double omsqr = pow(omega0/(a*a*a),2);
 
@@ -2804,7 +2923,7 @@ return GSL_SUCCESS;
 
 //loops for evol factors, A is the scale factor
 //Normalized to D[a] = a at early times and a = 1 today.
-void IOW::inite2(double A, double omega0, double par1, double par2, double par3)
+void IOW::inite2(double A, double omega0, double par1, double par2, double par3, int model)
 {
 
 	double a = 0.00001;
@@ -2813,7 +2932,7 @@ void IOW::inite2(double A, double omega0, double par1, double par2, double par3)
                   a,1., a, 1., a,  1., a, 1.,  a, 1., a, 1., a, 1., a, 1., a, 1.,a,1.,
                   a,1., a, 1., a,  1., a, 1.,  a, 1., a, 1., a, 1., a, 1., a, 1.,a,1.,a, 1., a, 1., a, 1.,a,1.}; // initial conditions
 
-  struct param_type2 params = {omega0,par1,par2,par3,1,1.};
+  struct param_type2 params = {omega0,par1,par2,par3,1,1.,model};
 
 // Solutions of evolution factors @ a=A
 	gsl_odeiv2_system sys = {funce2, jac, 88, &params};

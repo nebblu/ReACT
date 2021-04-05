@@ -31,7 +31,7 @@ extern "C" {
         #pragma omp critical
         {
             snprintf(error_message, truncate, "Reaction error: %s", msg);
-            printf("%s\n", error_message);
+            fprintf(stderr, "%s\n", error_message);
         }
     }
 
@@ -54,11 +54,13 @@ extern "C" {
                          int* N_z, double* zvals,
                          bool* is_transfer,
                          double* h, double* n_s, double* Omega_m, double* Omega_b, double* sigma_8,
-                         double* mg1, int* mass_loop,
+                         double* mg1, int* mass_loop, int* model,
                          int* N_k_react, int* N_z_react, double* output_react,
                          int* N_k_pl, int* N_z_pl, double* output_pl,
+                         double* modsig8,
                          int* verbose)
     {
+        int status = 0;
         if(*N_k != *N_k_pk || *N_k != *N_k_react || *N_k != *N_k_pl){
             react_error("Inconsistency in k array sizes");
             return 1;
@@ -92,6 +94,8 @@ extern "C" {
             std::cout<<"sigma_8: " << *sigma_8 << "\n";
             std::cout<<"mg1: " << *mg1 << "\n";
             std::cout<<"mass loop: " << *mass_loop << "\n";
+            std::cout<<"model: "  << *model << " (1:GR, 2:f(R), 3:DGP)\n";
+
         }
 
 
@@ -126,7 +130,7 @@ extern "C" {
 
         Cosmology C(*h, *n_s, *Omega_m, *Omega_b, *sigma_8, ki, Ti);
         LinearPS P_l(C, 0.0);
-        HALO halo(C, P_l, P_l, P_l, P_l, epsrel);
+        HALO halo(C, P_l, epsrel);
         SPT spt(C, P_l, epsrel);
         IOW iow;
 
@@ -136,13 +140,15 @@ extern "C" {
         /* declare splines */
         Spline mysr,mysp,myreact;
         /*declare variable array*/
-        double vars[6];
+        double vars[7];
         vars[0] = 1.;
         vars[1] = *Omega_m;
-        vars[2] = *mg1;//pow(10.0,*mg1); // edit this for new mg param
+        vars[2] = *mg1;
         vars[3] = 1.;
         vars[4] = 1.;
         vars[5] = *mass_loop;
+
+        int mod = *model;
         // initialise power spectrum normalisation before running 1-loop computations
         iow.initnorm(vars);
 
@@ -154,7 +160,7 @@ extern "C" {
         }
 
         // 1-loop computations at all redshifts @ k0
-        spt.ploop_init(ploopr,ploopp, zvals , *N_z, vars, k0);
+        spt.ploop_init(ploopr,ploopp, zvals , *N_z, vars, mod, k0);
 
         double myscalef[*N_z];
         for(int i = 0; i<*N_z ; i++){
@@ -173,10 +179,20 @@ extern "C" {
             iow.initnorm(vars);
             // Spherical collapse stuff
             /// initialise delta_c(M), a_vir(M), delta_avir(M) and v(M)
-            halo.scol_init(vars);
-            halo.scol_initp(vars);
+            status = halo.scol_init(vars,mod);
+            status |= halo.scol_initp(vars,mod);
 
-              // initialise k_star and mathcal{E}
+            // store modified sigma 8 at z=0
+            if(j == *N_z-1) {
+                modsig8[0] = vars[6];
+            }
+
+            if(status != 0) {
+                react_error("Failed to compute spherical collapse.");
+                return 1;
+            }
+
+            // initialise k_star and mathcal{E}
             halo.react_init2(vars,mysr,mysp);
 
             // reaction
@@ -196,7 +212,7 @@ extern "C" {
 
             for(int i =0; i < *N_k;  i ++) {
                 output_react[i*(*N_z)+j] =  myreact(kvals[i]);
-                output_pl[i*(*N_z)+j] = halo.plinear_cosmosis(kvals[i]);
+                output_pl[i*(*N_z)+j] = pow2(halo.Lin_Grow(kvals[i]))*powerspectrum[i];
                 if(*verbose > 1) {
                     printf(" %e %e %e \n",zvals[j], kvals[i],halo.plinear_cosmosis(kvals[i]));
                 }

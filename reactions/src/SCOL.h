@@ -71,12 +71,15 @@ typedef struct usdat {
   double par1;
   double par2;
   double par3;
-  bool mymg;
   double maxt;
+  int mymodel;
   gsl_spline *spline;
   gsl_interp_accel *acc;
 } *UserData;
 
+typedef struct scol_error{
+  int errorno = 0;
+} scol_error_T;
 
 extern int check_flagscol(void *flagvalue, const char *funcname, int opt); //
 
@@ -92,7 +95,7 @@ public:
    // solves for y_halo
    int SphericalCollapse(double *dC, arrays_T3 xxyyzz, UserData data_vec, double TMULT_REAL, double delta_g); // spherical collapse solver
    // solves for a_virial
-   double myscol(double myscolparams[], double acol, double omegacb, double omeganu, double Rthp, double sig1, double sig2, double pars[], bool mymg = true); // solves for virial quantities and stores them in array myscolparams
+   double myscol(double myscolparams[], double acol, double omegacb, double omeganu, double Rthp, double sig1, double sig2, double pars[], int model); // solves for virial quantities and stores them in array myscolparams
 
 
    void PrintOutput(realtype t, realtype y1, realtype y2);
@@ -100,6 +103,7 @@ public:
 
    double funcscol(double xi, void *user_data); //
 
+   scol_error_T error;
 };
 
 #endif

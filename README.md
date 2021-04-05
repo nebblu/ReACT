@@ -109,9 +109,9 @@ These flags are evident in the new example file reactions/examples/reactions_mnu
 
 Note that the MGCAMB produced transfer should include columns for total matter (col 7), cdm + baryons (col 8) and massive neutrinos (col6). It does not need to be normalised to 1. at small k. There should be no header line in the transfer function file so this may need to be removed manually ( a segmentation fault will be thrown if it is not removed). 
 
-If these flags are not specified, ReACT will assume a LCDM, z=0 transfer is being fed  (mgcamb=false)  modified gravity active (modg = true) as in original version of the code which is compatible with pyreact and the cosmoSIS module.  
+If these flags are not specified, ReACT will assume a LCDM, z=0 transfer is being fed  (mgcamb=false) with modified gravity active (modg = true), as in original version of the code, which is compatible with pyreact and the cosmoSIS module.  
 
-Note that Pyreact and the cosmoSIS module have not yet been extended to include massive neutrinos. 
+**Note** that Pyreact and the cosmoSIS module have not yet been extended to include massive neutrinos. 
 
 ## Citation
 

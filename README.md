@@ -99,7 +99,7 @@ Then just run
 
 We have made extensions to the ReACT framework to include the effects of massive neutrinos, combining [1909.02561](https://arxiv.org/abs/1909.02561) and [1812.05594](https://arxiv.org/abs/1812.05594).  To accommodate massive neutrino effects, ReACT now has the option to take the 'real' cosmology's transfer function at the target redshift as produced by MGCAMB (as opposed to the LCDM transfer at z=0). The 1-loop perturbation theory part of the reaction is then approximated by neglecting beyond linear order massive neutrino effects as described in [1902.10692](https://arxiv.org/abs/1902.10692) . 
 
-We have introduced two new flags when computing the reaction. These are then fed to a global initialiser '$initialise$' that calculates linear growth rates, performs modified and unmodified spherical collapse, as well as calculation of $k_\star$ and $$\mathcal{E}$$.   
+We have introduced two new flags when computing the reaction. These are then fed to a global initialiser '$initialise$' that calculates linear growth rates, performs modified and unmodified spherical collapse, as well as calculation of $k_\star$ and $\mathcal{E}$.   
 
 These flags are evident in the new example file reactions/examples/reactions_mnu.cpp which computes the wCDM + massive neutrino reaction and halofit pseudo spectrum for a target cosmology and transfer function. Specifically, the flags perform the following roles
 

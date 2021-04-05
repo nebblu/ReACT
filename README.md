@@ -58,9 +58,15 @@ or
 $ pip install -e .
 ```
 
-## Choosing a model of gravity or dark energy
+## Models of gravity and dark energy
 
-To choose a model of gravity or dark energy within the framework described in `arXiv:1606.02520` for example, open 
+*Update (5/04/2021)* The parameter 'model' selects the model of gravity or dark energy to be assumed. This is passed to the 'initialise' function in the case of halo model reaction calculations (or to any other relevant function). The value of this parameter dictates which model: 
+
+1: GR | 2: Hu-Sawicki f(R) | 3: nDGP | 4: Quintessence | 5: CPL | 
+
+Note that 1,2,3 all assume a LCDM background expansion. 
+
+*Deprecated (5/04/2021)* :To choose a model of gravity or dark energy within the framework described in `arXiv:1606.02520` for example, open 
 the `SpecialFunction.cpp` file in the `reactions/src` directory. Towards the top of the file you will 
 find the background Hubble and mu, gamma2, gamma3 functions as well as the modified spherical collapse function `F`.
 As examples, the Hu Sawicki, nDGP and GR versions of these functions have been included. wCDM background Hubble rates have also been included as presets. Simply edit in your version of these functions and edit-out the unwanted ones. Then just re-install the package as described above. Note that you may need to run `make clean` in the pyreact or reactions directory before reinstalling. 

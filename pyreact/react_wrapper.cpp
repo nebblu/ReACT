@@ -130,7 +130,7 @@ extern "C" {
 
         Cosmology C(*h, *n_s, *Omega_m, *Omega_b, *sigma_8, ki, Ti);
         LinearPS P_l(C, 0.0);
-        HALO halo(C, P_l, epsrel);
+        HALO halo(C, P_l, P_l, P_l, P_l, epsrel);
         SPT spt(C, P_l, epsrel);
         IOW iow;
 
@@ -176,7 +176,7 @@ extern "C" {
             vars[0] = 1./(1.+zvals[j]);
 
             // initialise wCDM/LCDM lin growth for PS normalisation
-            iow.initnorm(vars);
+            iow.initnorm(vars,mod);
             // Spherical collapse stuff
             /// initialise delta_c(M), a_vir(M), delta_avir(M) and v(M)
             status = halo.scol_init(vars,mod);

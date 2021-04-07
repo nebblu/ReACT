@@ -118,7 +118,7 @@ static real sigma8d_integrand_mgcamb(const PowerSpectrum& P, real R, real k) {
 }
 
 
-void HALO::scol_init(double vars[], bool mgcamb, int model) const{
+int HALO::scol_init(double vars[], bool mgcamb, int model) const{
   SCOL scol;
   IOW iow;
   // number of points in mass loop (default is 30)
@@ -221,6 +221,8 @@ for(int i = 0; i< loop_N; i++){
 // delta_virial
   delta_avir = CubicSpline(loop_N,lgmass,scolar2);
 
+  return status;
+
 }
 
 
@@ -253,7 +255,7 @@ static real sigma8d_integrandp_mgcamb(const PowerSpectrum& P, real R, real k) {
 }
 
 
-void HALO::scol_initp(double vars[], bool mgcamb) const{
+int HALO::scol_initp(double vars[], bool mgcamb) const{
   SCOL scol;
 
   int loop_N = 30;
@@ -318,6 +320,9 @@ for(int i = 0; i< loop_N; i++){
     a_virp = CubicSpline(loop_N,lgmass,scolar1);
   // delta_virial
     delta_avirp = CubicSpline(loop_N,lgmass,scolar2);
+
+    return status;
+
 }
 
 

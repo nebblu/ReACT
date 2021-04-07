@@ -150,7 +150,7 @@ extern "C" {
 
         int mod = *model;
         // initialise power spectrum normalisation before running 1-loop computations
-        iow.initnorm(vars);
+        iow.initnorm(vars,mod);
 
         // initialise splines over redshift for real and pseudo 1-loop spectra @ k0 = 0.06h/Mpc
         double k0 = 0.06;

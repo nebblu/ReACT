@@ -18,8 +18,8 @@ public:
   HALO(const Cosmology& C, const PowerSpectrum& P_l, const PowerSpectrum& P_cb,const PowerSpectrum& P_nu,const PowerSpectrum& P_cbl, real epsrel = 1e-4);
 
 // initialise spherical collapse quantities
-      void scol_init(double vars[], bool mgcamb = false , int model = 1) const;
-      void scol_initp(double vars[], bool mgcamb = false) const;
+      int scol_init(double vars[], bool mgcamb = false , int model = 1) const;
+      int scol_initp(double vars[], bool mgcamb = false) const;
 
 // halo model components
       double rvirial(double Mvir, double vars[]) const;

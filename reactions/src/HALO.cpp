@@ -790,6 +790,7 @@ double HALO::Lin_Grow(double k) const{
 // 0 = acol, 1= omega0, 2 = mg param
 void HALO::react_init_nu(double vars[], bool mgcamb, bool modg, int model) const{
   SPT spt(C, P_cb, epsrel);
+  SPT spt2(C, P_l, epsrel);
 
 // adding in because of issues of mathcal{E} not going to 1 for some particular transfers without MG
   if (!modg) {
@@ -840,12 +841,15 @@ else{
 
 // Real PT spectrum
   pspt = spt.PLOOPn2_nu(1, vars, model, k0, 1e-3) + p1h ;
-// GR-1-loop spectrum with linear growth replaced by modified gravity growth (unscreened)
-  psptpnosc = spt.PLOOPn2_nu(2, vars, model, k0, 1e-3);
 
-  psptpcbv = sqrt(psptpnosc*plnu);
-  // pseudo SPT term
-  psptp = (fvt2 * psptpnosc + 2.*fv*fvt*psptpcbv + fv2*plnu);
+  // Unscreened approx
+  // psptpnosc = spt.PLOOPn2_nu(2, vars, model, k0, 1e-3);
+  //
+  // psptpcbv = sqrt(psptpnosc*plnu);
+  // // pseudo SPT term
+  // psptp = (fvt2 * psptpnosc + 2.*fv*fvt*psptpcbv + fv2*plnu);
+
+  psptp = spt2.PLOOPn2_nu(2, vars, model, k0, 1e-3);
 
   }
 
@@ -977,6 +981,7 @@ else{
 
 double HALO::reaction_spt(double k0, double vars[], bool mgcamb, int model) const{
   SPT spt(C, P_cb, epsrel);
+  SPT spt2(C, P_l, epsrel);
 
   double pspt, psptp, psptpnosc, p1h, p1hp, plm, plcb, plnu, psptcbv, psptpcbv;
 
@@ -1000,7 +1005,7 @@ if(!mgcamb){
 
 // Real PT spectrum
   pspt = spt.PLOOPn2(1, vars, model, k0, 1e-3) + p1h ;
-// GR-1-loop spectrum with linear growth replaced by modified gravity growth (unscreened)
+// GR-1-loop spectrum with linear growth replaced by modified gravity growth
   psptp = spt.PLOOPn2(4, vars, model, k0, 1e-3);
 }
 else{
@@ -1010,12 +1015,17 @@ else{
 
 // Real PT spectrum
   pspt = spt.PLOOPn2_nu(1, vars, model, k0, 1e-3) + p1h ;
-// GR-1-loop spectrum with linear growth replaced by modified gravity growth (unscreened)
-  psptpnosc = spt.PLOOPn2_nu(2, vars, model, k0, 1e-3);
 
-  psptpcbv = sqrt(psptpnosc*plnu);
-  // pseudo SPT term
-  psptp = (fvt2 * psptpnosc + 2.*fv*fvt*psptpcbv + fv2*plnu);
+  // Unscreened approx
+  // psptpnosc = spt.PLOOPn2_nu(2, vars, model, k0, 1e-3);
+  //
+  // psptpcbv = sqrt(psptpnosc*plnu);
+  // // pseudo SPT term
+  // psptp = (fvt2 * psptpnosc + 2.*fv*fvt*psptpcbv + fv2*plnu);
+
+  // Pseudo
+   psptp = spt2.PLOOPn2_nu(2, vars, model, k0, 1e-3);
+
   }
 
 // cbv terms

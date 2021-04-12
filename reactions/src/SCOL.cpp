@@ -594,7 +594,7 @@ double SCOL::myscol(double myscolparams[], double acol, double omegacb, double o
        double m = maxP_zeta (sig1, sig2, omegacb, myz);
        // linear growth divided by initial scale factor for total matter poisson (pseudo) or cb poisson (real)
        double d;
-       if (model==1) {
+       if (model==1 && omega0 == omegacb) {
          d = Delta_Lambda (omega0, myz);
        }
         else{

@@ -754,6 +754,7 @@ switch (a) {
     return loop+tree;
   case 4:
     loop = prefac*Integrate<2>(bind(ploopn2_mgdd_pseudo,cref(P_L),vars,model,k,std::placeholders::_1,std::placeholders::_2), c, d, err);
+    iow.initn_lin(vars[0], k, vars[1],vars[2], vars[3],vars[4],model);
     tree = pow2(F1_nk/dnorm_spt)*P_L(k);
     return loop+tree;
     default:

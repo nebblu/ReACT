@@ -810,7 +810,9 @@ static double ploopn2_mgdd_pseudo_nu( const PowerSpectrum& P_L, double vars[], i
         iow.initn2_pseudo(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],vars[6],model);
         p22 = pow2(F2_nk);
         p13 = F3_nk;
-
+	// ensure linear growth is modified gravity enabled (whether full pseudo or unscreened activated in initn2_pseudo) 
+	iow.initn2(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],vars[6],model);
+	
     return pow2(r)*2.*(P_L(k*r)/pow2(F1p_nk))*( (P_L(kargs[0])/pow2(F1kmp_nk))*p22 + 3.*(P_L(k)/F1_nk)*p13 );
 }
 

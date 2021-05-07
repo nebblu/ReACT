@@ -807,11 +807,12 @@ static double ploopn2_mgdd_pseudo_nu( const PowerSpectrum& P_L, double vars[], i
         kargs[2] = sqrt(kv[1]*kv[1]+2.*kv[1]*kv[2]*xv[0]+kv[2]*kv[2]);
         kargs[1] = sqrt(kv[2]*kv[2]+2.*kv[2]*kv[0]*xv[2]+kv[0]*kv[0]);
         kargs[3] = sqrt(kv[0]*kv[0]+2.*kv[0]*kv[1]*xv[1]+kv[1]*kv[1]);
+	// can replace this initialisation to the F2 and F3 EdS kernels for quicker run (only in full pseudo computation, not in unscreened approx)
         iow.initn2_pseudo(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],vars[6],model);
         p22 = pow2(F2_nk);
         p13 = F3_nk;
 	// ensure linear growth is modified gravity enabled (whether full pseudo or unscreened activated in initn2_pseudo) 
-	iow.initn2(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],vars[6],model);
+	//iow.initn2(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],vars[6],model);
 	
     return pow2(r)*2.*(P_L(k*r)/pow2(F1p_nk))*( (P_L(kargs[0])/pow2(F1kmp_nk))*p22 + 3.*(P_L(k)/F1_nk)*p13 );
 }

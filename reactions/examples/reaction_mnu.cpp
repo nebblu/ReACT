@@ -187,12 +187,12 @@ double kmax = 100.;
 
       real k = kmin* exp(i*log(kmax/kmin)/(Nk-1));
 
-      p1 = P_l(k);
-      p2 = halo.reaction_nu(k,vars);
-      p3 = halo.PHALO_pseudo(k,mgcamb);
+      p1 = P_l(k); // Linear spectrum 
+      p2 = halo.reaction_nu(k,vars); // halo model reaction 
+      p3 = halo.PHALO_pseudo(k,mgcamb); // halofit pseudo spectrum
 
-      printf("%e %e %e %e %e  \n", k, p1,p2, p3,p3*p2);
-      fprintf(fp,"%e %e %e %e %e \n", k, p1,p2,p3,p3*p2);
+      printf("%e %e %e %e %e  \n", k, p1,p2, p3,p3*p2); // output to terminal
+      fprintf(fp,"%e %e %e %e %e \n", k, p1,p2,p3,p3*p2); // output to file : k , P_linear, R, P_pseudo, P_nl = RxP_pseudo
 
 }
 

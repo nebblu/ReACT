@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
 
 // Which gravity or dark energy model?
 // 1: GR  2: f(R) 3: DGP 4: quintessence 5: CPL
-int mymodel = 2;
+int mymodel = 5;
 
 // target redshift
 double myz = 1.;

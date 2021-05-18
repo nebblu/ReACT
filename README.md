@@ -121,6 +121,8 @@ If these flags are not specified, ReACT will assume a LCDM, z=0 transfer is bein
 
 **Note** that Pyreact and the cosmoSIS module have not yet been extended to include massive neutrinos. 
 
+**Note** Pyreact currently only accepts a single additional input parameter (e.g. fR0 in Hu-Sawicki f(R) gravity) and so CPL is not functional through Pyreact yet. If you wish to upgrade to more input parameters, you will need to edit pyreact/react_wrapper.cpp and pyreact/react.py. Note that to keep the react cosmosis module functional, you will also need to make the relevant adjustments in the cosmosis folder. 
+
 ## Citation
 
 When using ReACT in a publication, please acknowledge the code by citing the following papers:

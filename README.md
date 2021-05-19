@@ -2,8 +2,6 @@
 # ReACT with massive neutrinos
 ## This branch is a first implementation of massive neutrinos (1909.02561) into the basic ReACT code. 
 
-## Installation goes the same way as master. Pyreact shouldn't break - to be tested. Run tests_mnu in the react/tests folder to check output. 
-
 ## Introduction
 
 ReACT is an extension of the software package Copter (0905.0479) and MG-Copter (1606.02520) which allows for the calculation of redshift and real space large scale structure observables for a wide class of gravity and dark energy models. 
@@ -61,6 +59,14 @@ $ pip install -e .
 ## Models of gravity and dark energy
 
 *Update (5/04/2021)* The parameter 'model' selects the model of gravity or dark energy to be assumed. This is passed to the 'initialise' function in the case of halo model reaction calculations (or to any other relevant function). The value of this parameter dictates which model: 
+
+In Pyreact we specify the model as
+
+gr : general relativity | f(r) : Hu-Sawicki f(R) | dgp : normal branch of DGP gravity | quintessence : Quintessence | cpl : CPL evolving dark energy
+
+Model parameters are none, fR0, Omega_rc, w , {w,wa} respectively. 
+
+In C++ code this is specified as an integer: 
 
 1: GR | 2: Hu-Sawicki f(R) | 3: nDGP | 4: Quintessence | 5: CPL | 
 
@@ -121,7 +127,7 @@ If these flags are not specified, ReACT will assume a LCDM, z=0 transfer is bein
 
 **Note** that Pyreact and the cosmoSIS module have not yet been extended to include massive neutrinos. 
 
-**Note** Pyreact currently only accepts a single additional input parameter (e.g. fR0 in Hu-Sawicki f(R) gravity) and so CPL is not functional through Pyreact yet. If you wish to upgrade to more input parameters, you will need to edit pyreact/react_wrapper.cpp and pyreact/react.py. Note that to keep the react cosmosis module functional, you will also need to make the relevant adjustments in the cosmosis folder. 
+**Note** Pyreact currently only accepts two model parameters. If you wish to upgrade to more input parameters, you will need to edit pyreact/react_wrapper.cpp and pyreact/react.py. Note that to keep the react cosmosis module functional, you will also need to make the relevant adjustments in the cosmosis folder. 
 
 ## Citation
 

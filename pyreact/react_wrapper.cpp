@@ -54,7 +54,7 @@ extern "C" {
                          int* N_z, double* zvals,
                          bool* is_transfer,
                          double* h, double* n_s, double* Omega_m, double* Omega_b, double* sigma_8,
-                         double* mg1, int* mass_loop, int* model,
+                         double* mg1, double* mg2, int* mass_loop, int* model,
                          int* N_k_react, int* N_z_react, double* output_react,
                          int* N_k_pl, int* N_z_pl, double* output_pl,
                          double* modsig8,
@@ -93,8 +93,9 @@ extern "C" {
             std::cout<<"Omega_b: " << *Omega_b << "\n";
             std::cout<<"sigma_8: " << *sigma_8 << "\n";
             std::cout<<"mg1: " << *mg1 << "\n";
+            std::cout<<"mg2: " << *mg2 << "\n";
             std::cout<<"mass loop: " << *mass_loop << "\n";
-            std::cout<<"model: "  << *model << " (1:GR, 2:f(R), 3:DGP)\n";
+            std::cout<<"model: "  << *model << " (1:GR, 2:f(R), 3:DGP, 4:quintessence, 5: CPL)\n";
 
         }
 
@@ -144,9 +145,10 @@ extern "C" {
         vars[0] = 1.;
         vars[1] = *Omega_m;
         vars[2] = *mg1;
-        vars[3] = 1.;
+        vars[3] = *mg2;
         vars[4] = 1.;
         vars[5] = *mass_loop;
+        vars[6] = 0.0; // massive neutrino mass sum, not implemented in pyreact yet!
 
         int mod = *model;
         // initialise power spectrum normalisation before running 1-loop computations
@@ -179,7 +181,7 @@ extern "C" {
             iow.initnorm(vars,mod);
             // Spherical collapse stuff
             /// initialise delta_c(M), a_vir(M), delta_avir(M) and v(M)
-            status = halo.scol_init(vars,mod);
+            status = halo.scol_init(vars,false,mod);
             status |= halo.scol_initp(vars,mod);
 
             // store modified sigma 8 at z=0

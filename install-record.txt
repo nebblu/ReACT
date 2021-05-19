@@ -1,0 +1,10 @@
+/anaconda3/lib/python3.7/site-packages/pyreact/react.py
+/anaconda3/lib/python3.7/site-packages/pyreact/__init__.py
+/anaconda3/lib/python3.7/site-packages/pyreact/libreact_wrapper.so
+/anaconda3/lib/python3.7/site-packages/pyreact/__pycache__/react.cpython-37.pyc
+/anaconda3/lib/python3.7/site-packages/pyreact/__pycache__/__init__.cpython-37.pyc
+/anaconda3/lib/python3.7/site-packages/pyreact-0.0.0-py3.7.egg-info/PKG-INFO
+/anaconda3/lib/python3.7/site-packages/pyreact-0.0.0-py3.7.egg-info/SOURCES.txt
+/anaconda3/lib/python3.7/site-packages/pyreact-0.0.0-py3.7.egg-info/requires.txt
+/anaconda3/lib/python3.7/site-packages/pyreact-0.0.0-py3.7.egg-info/top_level.txt
+/anaconda3/lib/python3.7/site-packages/pyreact-0.0.0-py3.7.egg-info/dependency_links.txt

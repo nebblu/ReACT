@@ -11,7 +11,7 @@ def setup(options):
 
     config["module"] = pyreact.ReACT()
     config["mode"] = options.get_string(option_section, "mode", "f(R)").lower()
-    if not config["mode"] in ("f(r)", "dgp", "gr"):
+    if not config["mode"] in ("f(r)", "dgp", "gr","quintessence","cpl"):
         raise ValueError(f"ReACT mode {config['mode']} not supported.")
 
     config["log10_fR0"] = options.get_bool(option_section, "log10_fR0", True)
@@ -40,6 +40,12 @@ def execute(block, config):
             fR0 = block[names.cosmological_parameters, "fR0"]
     elif config["mode"] == "dgp":
         Omega_rc = block[names.cosmological_parameters, "Omega_rc"]
+    elif config["mode"] == "quintessence":
+        w = block[names.cosmological_parameters, "w"]
+    elif config["mode"] == "cpl":
+        w = block[names.cosmological_parameters, "w"]
+        wa = block[names.cosmological_parameters, "wa"]
+
 
     Pk = block[names.matter_power_lin, "p_k"]
     k_h = block[names.matter_power_lin, "k_h"]
@@ -49,9 +55,9 @@ def execute(block, config):
 
     try:
         reaction, pofk_lin, sigma_8_MG = config["module"].compute_reaction(
-                                h, n_s, omega_m, omega_b, sigma_8, 
-                                z_react, k_h, Pk[0], 
-                                model=config["mode"], fR0=fR0, Omega_rc=Omega_rc, 
+                                h, n_s, omega_m, omega_b, sigma_8,
+                                z_react, k_h, Pk[0],
+                                model=config["mode"], fR0=fR0, Omega_rc=Omega_rc, w=w, wa=wa,
                                 is_transfer=False, mass_loop=config["massloop"],
                                 verbose=config["verbose"])
     except:
@@ -67,7 +73,7 @@ def execute(block, config):
 
     # Replace sigma8 with MG sigma8
     S8_LCDM = block[names.cosmological_parameters, "S_8"]
-    
+
     block[names.cosmological_parameters, "sigma_8"] = sigma_8_MG
     block[names.cosmological_parameters, "S_8"] = sigma_8_MG*np.sqrt(omega_m/0.3)
 

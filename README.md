@@ -167,6 +167,19 @@ Respective bibtex entries:
 }
 ```
 
+```
+@article{Bose:2021mkz,
+    author = "Bose, Benjamin and Wright, Bill S. and Cataneo, Matteo and Pourtsidou, Alkistis and Giocoli, Carlo and Lombriser, Lucas and McCarthy, Ian G. and Baldi, Marco and Pfeifer, Simon and Xia, Qianli",
+    title = "{On the road to percent accuracy V: the non-linear power spectrum beyond $\Lambda$CDM with massive neutrinos and baryonic feedback}",
+    eprint = "2105.12114",
+    archivePrefix = "arXiv",
+    primaryClass = "astro-ph.CO",
+    month = "5",
+    year = "2021"
+}
+```
+
+
 ## Notes on parameter ranges (Updated: 22/03/21)
 * To optimise root finding within the spherical collapse portion of the code, the maximum redshift that one can solve the reaction for currently is z=2.5. 
 * There are some current issues in the wCDM part of the code. Namely for very particular values of w0 and wa in the CPL evolving dark energy case, the spherical collapse library cannot solve the virial theorem. We advise sticking to the ranges 

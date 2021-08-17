@@ -881,6 +881,18 @@ else{
   else{
   kstar = (-k0/log(argument));
   }
+    
+ // Make sure the root is actually a root
+  double prefac = ((1.-bigE)*exp(-k0/kstar) + bigE);
+  double ph = prefac*plcb + p1h; // real
+  double php = plm + p1hp; // pseudo
+  double hmrk0 = (fvt2*ph +  2.*fv*fvt*sqrt(ph*plnu) + fv2*plnu)/php;
+
+  double dif = fabs(hmrk0 - rsptk0);
+  if (dif>1e-4) {
+    kstar = 1.;
+    bigE = 1.;
+        }
 
 }
 

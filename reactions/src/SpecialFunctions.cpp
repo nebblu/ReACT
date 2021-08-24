@@ -1240,14 +1240,14 @@ int funcn2(double a, const double G[], double F[], void *params)
 	real omeganu = p.par5;
 	int mod = p.model;
 
-	//double omegacb = omega0-omeganu;
+	double omegacb = omega0-omeganu;
 
 	double hub1 = pow2(HAg(a,omega0,p1,p2,p3,mod));
 	double hub2 = HA1g(a,omega0,p1,p2,p3,mod);
 	double ap5 = pow(a,5);
 
 	F[0] = G[1];
-	F[1] = -1./a*(3.+hub2/hub1)*G[1] + 3./2.*omega0/(hub1*ap5)*G[0];
+	F[1] = -1./a*(3.+hub2/hub1)*G[1] + 3./2.*omegacb/(hub1*ap5)*G[0];
 
 	return GSL_SUCCESS;
 }

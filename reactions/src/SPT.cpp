@@ -720,8 +720,18 @@ static double ploopn2_mgdd_pseudo( const PowerSpectrum& P_L, double vars[], int 
         iow.initn2_pseudo(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],vars[6],model);
         p22 = pow2(F2_nk);
         p13 = F1_nk*F3_nk;
+	
+	// for full pseudo we need to multiply by the modified growth / LCDM growth
+        double normalisation = pow4(F1_nk);
 
-    return pow2(r)*2.*P_L(k*r)*(P_L(kargs[0])*p22 + 3.*P_L(k)*p13);
+        iow.initn_lin(vars[0], k*r, vars[1],vars[2], vars[3],vars[4],model);
+        double pnorm = pow2(F1_nk);
+        iow.initn_lin(vars[0], k, vars[1],vars[2], vars[3],vars[4],model);
+        double knorm = pow2(F1_nk);
+        iow.initn_lin(vars[0], kargs[0], vars[1],vars[2], vars[3],vars[4],model);
+        double kmpnorm = pow2(F1_nk);
+
+    return pow2(r)*2.*P_L(k*r)*pnorm*(P_L(kargs[0])*p22*kmpnorm + 3.*P_L(k)*p13*knorm) / normalisation;
 }
 
 
@@ -811,8 +821,6 @@ static double ploopn2_mgdd_pseudo_nu( const PowerSpectrum& P_L, double vars[], i
         iow.initn2_pseudo(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],vars[6],model);
         p22 = pow2(F2_nk);
         p13 = F3_nk;
-	// ensure linear growth is modified gravity enabled (whether full pseudo or unscreened activated in initn2_pseudo) 
-	//iow.initn2(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],vars[6],model);
 	
     return pow2(r)*2.*(P_L(k*r)/pow2(F1p_nk))*( (P_L(kargs[0])/pow2(F1kmp_nk))*p22 + 3.*(P_L(k)/F1_nk)*p13 );
 }

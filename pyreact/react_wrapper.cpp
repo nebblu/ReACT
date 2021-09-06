@@ -182,7 +182,7 @@ extern "C" {
             // Spherical collapse stuff
             /// initialise delta_c(M), a_vir(M), delta_avir(M) and v(M)
             status = halo.scol_init(vars,false,mod);
-            status |= halo.scol_initp(vars,mod);
+            status |= halo.scol_initp(vars,false);
 
             // store modified sigma 8 at z=0
             if(j == *N_z-1) {

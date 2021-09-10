@@ -65,13 +65,15 @@ int main() {
     vars[2] = 1e-5;
     vars[3] = 2.;
 
+    // model; 1: GR, 2: f(R) Hu Sawicki, n=1  3: DGP normal branch
+    int model = 1;
 // initialise GR lin growth for PS normalisation
-iow.inite2(vars[0],vars[1],vars[2], 1.,1.);
+iow.inite2(vars[0],vars[1],vars[2], 1.,1.,model);
 spt.remp(fl_spt);
 // initialise fitting function params (n_effective, k_nl, sigma_8)
 bspt.mypspline(vars[0],vars[1],1);
 double vars2[9];
-	
+
 // redefine inputs (should fix this!)
 // 0 = omega0, 1 = mg1, 2=mg2, 3=mg3, 4=a, 5= 1 for DGP, 2 for Hu-Sawicki,
 // 6 = integration accuracy, 7,8 = ODE solver absolute and relative accuracy
@@ -99,7 +101,7 @@ vars2[8] = 1e-3;
  double mu = -0.5; // cosine of angle between k and k1
  double k1 = k;
 
- b1 = bspt.Btreen(vars2,k,k1,mu); // numerically computed tree level 
+ b1 = bspt.Btreen(vars2,k,k1,mu); // numerically computed tree level
  b2 = bspt.Bloopn(vars2,k,k1,mu); //numerically computed
  b3 = bspt.Bloop(1,k,k1,mu); //EdS approximated GR spectrum
  b4 = bspt.Bfit(k,k1,mu); // Gil-Marin/Namikawa et al fitting formula (GR and DGP only)

@@ -35,11 +35,11 @@ public:
   // values of a :
   // 1: P_dd, 2: P_dt , 3: P_tt for mg,
   // 4: P_dd, 5: P_dt , 6: P_tt for interacting DE of
-  // vars: 0:scale factor , 1: omega_0, 2: mg1, 3 : mg2 , 4 : mg3 
-  real PLOOPn2(int a, double vars[], double k, double err) const;
+  // vars: 0:scale factor , 1: omega_0, 2: mg1, 3 : mg2 , 4 : mg3
+  real PLOOPn2(int a, double vars[], int model, double k, double err) const;
 
   // initialise p_loop values over redshifts[] at k=k0 for k_star in reaction code (HALO.cpp)
-  void ploop_init(double ploopr[], double ploopp[], double redshifts[], int noz, double vars[], double k0);
+  void ploop_init(double ploopr[], double ploopp[], double redshifts[], int noz, double vars[], int model, double k0);
 
   // halo fit coefficient initialisation
   void phinit(double scalef, double omega0) const;
@@ -103,7 +103,7 @@ public:
 
 
   // modified gravity TNS and Kaiser model - numerically calculated
-  double PRSD_mg(int a, int b, double bias[], double vars[], double sigma_v, double k, double err) const;
+  double PRSD_mg(int a, int b, double bias[], double vars[], int model, double sigma_v, double k, double err) const;
 
 /// lagrangian bias terms
   real Lag_bias(int a, real k, real bias[]) const;

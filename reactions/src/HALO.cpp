@@ -91,7 +91,7 @@ static real sigma_integrand(const PowerSpectrum& P, real R, real k) {
 }
 
 
-// d(sigma_8^2)/dR 
+// d(sigma_8^2)/dR
 static real sigma8d_integrand(const PowerSpectrum& P, real R, real k) {
     return k*k/(2.*M_PI*M_PI) * P(k) * pow2(Dl_spt/dnorm_spt) * 2.*W(k*R)*Wd(k,R) ;
 }
@@ -104,8 +104,11 @@ Spline a_vir;
 Spline delta_avir;
 Spline mysig;
 Spline mysigp;
-void HALO::scol_init(double vars[]) const{
+// model; 1: GR, 2: f(R) Hu Sawicki, n=1  3: DGP normal branch
+int HALO::scol_init(double vars[], int model ) const{
   SCOL scol;
+
+  int status = 0;
   // number of points in mass loop (default is 30)
   int loop_N = (int)vars[5];
 
@@ -146,7 +149,10 @@ for(int i = 0; i< loop_N; i++){
    double Rth = 0.1*pow((Gnewton*pow(10, lgmass[i]))/(5.*vars[1]),ONE/THREE);
 
 // initialise delta_c, a_vir, delta_vir
-   scol.myscol(myscolparams, vars[0], vars[1], Rth, sig1, sig2, pars, 2, yenvf);
+   scol.myscol(myscolparams, vars[0], vars[1], Rth, sig1, sig2, pars, model, yenvf);
+   if(scol.error.errorno != 0) {
+    status = scol.error.errorno;
+   }
 
 // calculate sigma^2
    sigar[i] = sqrt(Integrate<ExpSub>(bind(sigma_integrand, cref(P_l), Rth, std::placeholders::_1), 1e-4, 50., 1e-5, 1e-5));
@@ -168,6 +174,8 @@ for(int i = 0; i< loop_N; i++){
   a_vir = CubicSpline(loop_N,lgmass,scolar1);
 // delta_virial
   delta_avir = CubicSpline(loop_N,lgmass,scolar2);
+
+  return status;
 
 }
 
@@ -191,12 +199,14 @@ static real sigma8d_integrandp(const PowerSpectrum& P, real R, real k) {
 }
 
 
-void HALO::scol_initp(double vars[]) const{
+// model; 1: GR, 2: f(R) Hu Sawicki, n=1  3: DGP normal branch
+int HALO::scol_initp(double vars[],int model) const{
   SCOL scol;
   IOW iow;
 
+  int status = 0;
   int loop_N = 30;
-  int loop_Nk = 300;
+  int loop_Nk = 600;
 
     // arrays to store values
   double myscolparams[3],lgmass[loop_N],sigar[loop_N],scolar0[loop_N],scolar1[loop_N],scolar2[loop_N];
@@ -204,12 +214,12 @@ void HALO::scol_initp(double vars[]) const{
 
   // initialise linear growth spline for the theory of gravity/dark energy. See specialfunctions.cpp mu,gamma2,gamma3 functions
   double kmin = 1e-5;
-  double kmax = 100.;
+  double kmax = 120.;
 
   for(int i = 0; i< loop_Nk; i++){
     kval_tab[i] =  kmin * exp(i*log(kmax/kmin)/(loop_Nk-1.));
     // numerical initialisation of linear growth in general theory of gravity/dark energy - see SpecialFunctions.cpp
-    iow.initn_lin(vars[0], kval_tab[i], vars[1],vars[2], vars[3], vars[4]);
+    iow.initn_lin(vars[0], kval_tab[i], vars[1],vars[2], vars[3], vars[4],model);
     ling_tab[i] = F1_nk/dnorm_spt;
       }
 
@@ -221,7 +231,9 @@ void HALO::scol_initp(double vars[]) const{
 double sig1 = Integrate<ExpSub>(bind(sigma_integrandp, cref(P_l), 8., std::placeholders::_1), 1e-4, 50., 1e-3);
 double sig2 = Integrate<ExpSub>(bind(sigma8d_integrandp, cref(P_l), 8., std::placeholders::_1), 1e-4, 50., 1e-3);
 
-    
+// feed back modified sigma8
+    vars[6] = sqrt(sig1);
+
    // theory params
    double pars[4];
    pars[0] = 1e-15;
@@ -232,6 +244,9 @@ double sig2 = Integrate<ExpSub>(bind(sigma8d_integrandp, cref(P_l), 8., std::pla
 
 // initialise spherical collapse quantities in GR (independent of R (or M))
   scol.myscol(myscolparams, vars[0], vars[1], 1., sig1, sig2, pars, 1, 0);
+  if(scol.error.errorno != 0) {
+    status = scol.error.errorno;
+  }
 
 //#pragma omp parallel for
 for(int i = 0; i< loop_N; i++){
@@ -257,6 +272,8 @@ for(int i = 0; i< loop_N; i++){
     a_virp = CubicSpline(loop_N,lgmass,scolar1);
   // delta_virial
     delta_avirp = CubicSpline(loop_N,lgmass,scolar2);
+
+    return status;
 }
 
 
@@ -344,8 +361,15 @@ double HALO::cvirial(double lgmass, double acol) const {
       while ( delta_col(lgmass)/mysig(pos_pt)-1.  < 0.){
           pos_pt = dis(gen);}
 
-      while ( delta_col(lgmass)/mysig(neg_pt)-1. > 0.){
-          neg_pt = dis(gen);}
+        int mycount = 1;
+        while ( delta_col(lgmass)/mysig(neg_pt)-1. > 0.){
+        neg_pt = dis(gen);
+        mycount += 1;
+         if (mycount>100) {
+           fprintf(stderr, "Failed to converge in cvirial.\n");
+           return g_de*myc0*pow(10.,-alpha*(lgmass-Mmin))*acol;
+                         }
+                      }
 
        const double about_zero_mag = 1e-3;
       for (;;)
@@ -391,8 +415,15 @@ double HALO::cvirial(double lgmass, double acol) const {
         while ( delta_colp(lgmass)/mysigp(pos_pt)-1.  < 0.){
             pos_pt = dis(gen);}
 
-        while ( delta_colp(lgmass)/mysigp(neg_pt)-1. > 0.){
-            neg_pt = dis(gen);}
+          int mycount = 1;
+          while ( delta_colp(lgmass)/mysigp(neg_pt)-1. > 0.){
+          neg_pt = dis(gen);
+          mycount += 1;
+          if (mycount > 100 ) {
+            fprintf(stderr, "Failed to converge in cvirialp.\n");
+            return myc0*pow(10.,-alpha*(lgmass-Mmin))*acol;
+                          }
+                        }
 
          const double about_zero_mag = 1e-3;
         for (;;)
@@ -576,7 +607,7 @@ double kstar, bigE;
 
 // vars:
 // 0 = acol, 1= omega0, 2 = mg param
-void HALO::react_init(double vars[]) const{
+void HALO::react_init(double vars[], int model) const{
   SPT spt(C, P_l, epsrel);
 
   double pspt, psptp, p1h, p1hp, plreal,argument;
@@ -594,10 +625,10 @@ void HALO::react_init(double vars[]) const{
 
 // spt terms
 // Real PT spectrum
-  pspt = spt.PLOOPn2(1, vars, 0.06, 1e-3);
+  pspt = spt.PLOOPn2(1, vars, model, 0.06, 1e-3);
 
   // GR-1-loop spectrum with linear growth replaced by modified gravity growth (unscreened)
-  psptp = spt.PLOOPn2(8, vars, 0.06, 1e-3);
+  psptp = spt.PLOOPn2(8, vars, model, 0.06, 1e-3);
 
   // real linear spectrum
   plreal = pow2(linear_growth(0.06))*P_l(0.06);
@@ -668,6 +699,10 @@ double HALO::reaction(double k, double vars[]) const {
 double HALO::plinear_cosmosis(double k) const {
   // real linear spectrum
   return pow2(linear_growth(k))*P_l(k);
+}
+
+double HALO::Lin_Grow(double k) const{
+    return linear_growth(k);
 }
 
 

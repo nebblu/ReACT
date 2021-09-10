@@ -80,9 +80,9 @@ int main() {
 
      int initit = compute_reaction(&Nk, transfer, &Nk, kvals, &Nz, zvals, &is_tranfer,
                           &cosmology[0], &cosmology[1], &cosmology[2], &cosmology[3], &cosmology[4],
-                          &fR0, &mass_loop,
+                          &fR0, &mass_loop, &model,
                           &Nk, &Nz, myoutput_react,
-                          &Nk,  &Nz,  myoutput_pl);
+                          &Nk,  &Nz,  myoutput_pl, 1.);
 
     // output
     //output file name

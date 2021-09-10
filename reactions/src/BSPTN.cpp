@@ -185,7 +185,7 @@ int funcb1dgp(double a, const double G[], double F[], void *params)
       double acub = pow3(a);
       // DGP
 
-      double betadgp = 1./(3.*(mu(a,1.,omega0,p1,p2,p3)-1.));
+      double betadgp = 1./(3.*(mu(a,1.,omega0,p1,p2,p3,3)-1.));
       double betadgpcub = pow3(betadgp);
       double mua = 1.+1./(3.*betadgp);
       double gam2= -1./(hubsqr*24.*betadgpcub*p1)*pow2(omega0/acub);

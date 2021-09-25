@@ -141,7 +141,7 @@ extern "C" {
         /* declare splines */
         Spline mysr,mysp,myreact;
         /*declare variable array*/
-        double vars[7];
+        double vars[8];
         vars[0] = 1.;
         vars[1] = *Omega_m;
         vars[2] = *mg1;
@@ -150,6 +150,7 @@ extern "C" {
         vars[5] = *mass_loop;
         vars[6] = 0.0; // massive neutrino mass sum, not implemented in pyreact yet!
 
+        bool mgcamb = false;
         int mod = *model;
         // initialise power spectrum normalisation before running 1-loop computations
         iow.initnorm(vars,mod);
@@ -161,8 +162,16 @@ extern "C" {
             ploopp[i] = 0.;
         }
 
-        // 1-loop computations at all redshifts @ k0
-        spt.ploop_init(ploopr,ploopp, zvals , *N_z, vars, mod, k0);
+        // Switch on 1-loop modified gravity correction if DGP or f(R)
+        bool modg;
+        if (mod == 2 || mod == 3) {
+          // 1-loop computations at all redshifts @ k0
+          spt.ploop_init(ploopr,ploopp, zvals , *N_z, vars, mod, k0);
+          modg = true;
+        }
+        else{
+          modg = false;
+        }
 
         double myscalef[*N_z];
         for(int i = 0; i<*N_z ; i++){
@@ -181,8 +190,8 @@ extern "C" {
             iow.initnorm(vars,mod);
             // Spherical collapse stuff
             /// initialise delta_c(M), a_vir(M), delta_avir(M) and v(M)
-            status = halo.scol_init(vars,false,mod);
-            status |= halo.scol_initp(vars,false);
+            status = halo.scol_init(vars,mgcamb,mod);
+            status |= halo.scol_initp(vars,mgcamb);
 
             // store modified sigma 8 at z=0
             if(j == *N_z-1) {
@@ -195,7 +204,7 @@ extern "C" {
             }
 
             // initialise k_star and mathcal{E}
-            halo.react_init2(vars,mysr,mysp);
+            halo.react_init2(vars,mysr,mysp,modg);
 
             // reaction
             //#pragma omp parallel for
@@ -206,7 +215,7 @@ extern "C" {
                     react_tab[i] = 1.;
                 }
                 else {
-                    react_tab[i] = halo.reaction(k2val[i], vars);
+                    react_tab[i] = halo.reaction_nu(k2val[i], vars, mgcamb);
                 }
             }
 

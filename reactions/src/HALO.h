@@ -41,11 +41,11 @@ public:
 // reactions
       void react_init(double vars[], bool modg = true, int model = 1) const;
       void react_init2(double vars[],Spline ploopr, Spline ploopp, bool modg = true) const;
-      double reaction(double k, double vars[]) const;
+      double reaction(double k, double vars[], bool mgcamb = false) const;
 
 // reactions with massive neutrinos
       void react_init_nu(double vars[], bool mgcamb = false, bool modg = true, int model = 1) const;
-      double reaction_nu(double k, double vars[]) const;
+      double reaction_nu(double k, double vars[], bool mgcamb = true) const;
 
 // Multiple redshift intialisation for cosmosis - work in progress
 //  void react_init_nu2(double vars[], Spline ploopr, Spline ploopp, bool mgcamb = false, bool modg = true) const;

@@ -276,6 +276,8 @@ double sig1,sig2;
      sig2 = Integrate<ExpSub>(bind(sigma8d_integrandp_mgcamb, cref(P_l), 8., std::placeholders::_1), 1e-4, 50., 1e-5,1e-5);
   }
 
+// feed back modified sigma8
+    vars[7] = sqrt(sig1);
 
    // theory params
    double pars[4];
@@ -761,13 +763,21 @@ void HALO::react_init2(double vars[], Spline ploopr, Spline ploopp, bool modg) c
 // Compute the reaction (Eq.53 of 1812.05594 )
 
 // vars is 0: scale factor, 1: omega_matter today , 2: modified gravity param
-double HALO::reaction(double k, double vars[]) const {
+double HALO::reaction(double k, double vars[], bool mgcamb) const {
   // Set to 1 for very large scales
   if (k<1e-3) {
     return 1.;
   }
+
   // real linear spectrum
- double plreal = pow2(linear_growth(k))*P_l(k);
+  double plreal;
+  if(!mgcamb){
+      plreal = pow2(linear_growth(k))*P_l(k);
+      }
+  else{
+      plreal = P_l(k);
+      }
+
  return (((1.-bigE)*exp(-k/kstar) + bigE)*plreal+  one_halo(k,vars))/(plreal+ one_halop(k,vars));
 }
 
@@ -881,7 +891,7 @@ else{
   else{
   kstar = (-k0/log(argument));
   }
-    
+
  // Make sure the root is actually a root
   double prefac = ((1.-bigE)*exp(-k0/kstar) + bigE);
   double ph = prefac*plcb + p1h; // real
@@ -1049,7 +1059,7 @@ else{
 }
 
 // Calculate the reaction with massive neutrinos
-double HALO::reaction_nu(double k, double vars[]) const {
+double HALO::reaction_nu(double k, double vars[], bool mgcamb) const {
   if (k<1e-3) {
     return 1.;
   }
@@ -1059,10 +1069,21 @@ double HALO::reaction_nu(double k, double vars[]) const {
   double fvt = 1.-fv;
   double fvt2  = pow(fvt,2);
 
-// linear terms
-  double plm = P_l(k);
-  double plcb = P_cb(k);
-  double plnu = P_nu(k);
+  // linear terms
+    double plm;
+    double plcb;
+    double plnu;
+  if(!mgcamb){
+    // linear terms
+      plm = pow2(linear_growth(k))*P_l(k);
+      plcb = plm;
+      plnu = 0.;
+      }
+  else{
+    plm = P_l(k);
+    plcb = P_cb(k);
+    plnu = P_nu(k);
+      }
 
 // HM terms
 // prefac for 1hr

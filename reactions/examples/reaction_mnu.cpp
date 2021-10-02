@@ -125,7 +125,7 @@ double wa = 0.1;
 double massb = 50.;
 
 // store params for passing into React functions
-double vars[7];
+double vars[8];
     vars[0] = 1./(myz+1.); //  scale factor
     vars[1] = Omega_m;
     vars[2] = w0; //  modified gravity param or w0 (see SpecialFunctions.cpp)

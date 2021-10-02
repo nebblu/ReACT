@@ -27,7 +27,6 @@ using std::ifstream;
 using std::string;
 using std::istringstream;
 
-vector<vector<double> > mypk;
 
 /* Example code to output the halo model powerspectrum for modified gravity */
 
@@ -45,7 +44,7 @@ int main(int argc, char* argv[]) {
     const char* output = "ps_f5_z0.dat";
     const char* cstr = "transfers/Matteo_fr";
 // 0: scale factor, 1: omega_total, 2-4: mg param (1e-10 ~ GR for default mg functions ), 5: number of points in halo-mass loop in scol_init , 30 works well.
-double vars[7];
+double vars[8];
 
   // chosen redshift
     double myz = 0.;
@@ -93,7 +92,7 @@ double kmax = 10.;
 
  for(int i =0; i < Nk;  i ++) {
 
-  real k =  mypk[i][0];//kmin * exp(i*log(kmax/kmin)/(Nk-1));
+  real k = kmin * exp(i*log(kmax/kmin)/(Nk-1));
 
       p1 =  halo.one_halo(k, vars);
       p2 =  halo.one_halop(k, vars);

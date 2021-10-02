@@ -110,7 +110,7 @@ double As = 2.199e-9; // initial amplitude of fluctuations
 double massb = 50.; // number of mass bins between 5<Log10[M]<18
 
 // store params for passing into React functions
-double vars[7];
+double vars[8];
     vars[0] = 1./(myz+1.); //  scale factor
     vars[1] = Omega_m;
     vars[2] = mg; //  modified gravity param

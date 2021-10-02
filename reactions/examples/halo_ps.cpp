@@ -84,7 +84,7 @@ iow.initnorm(vars,mymodel);
 /// initialise delta_c(M), a_vir(M), delta_avir(M) and v(M)
 halo.scol_init(vars,mgcamb,mymodel);
 halo.scol_initp(vars,mgcamb,mymodel);
-halo.react_init(vars,modg,mymodel);
+halo.react_init_nu(vars,mgcamb,modg,mymodel);
 
 //#pragma omp parallel for
 int Nk =100;
@@ -97,7 +97,7 @@ double kmax = 10.;
 
       p1 =  halo.one_halo(k, vars);
       p2 =  halo.one_halop(k, vars);
-      p3 =  halo.reaction(k, vars);
+      p3 =  halo.reaction_nu(k, vars, mgcamb);
 
      printf("%d %e %e %e %e \n", i, k, p1,p2,p3); // print to terminal
      fprintf(fp,"%e %e %e %e \n", k, p1,p2, p3); // print to file

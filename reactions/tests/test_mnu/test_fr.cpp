@@ -183,7 +183,7 @@ double p1,p2,p3;
       real k = mypk[i][0];
 
       p1 = P_l(k)/mypk[i][1];
-      p2 = halo.reaction_nu(k,vars)/mypk[i][3]; ;
+      p2 = halo.reaction_nu(k,vars,mgcamb)/mypk[i][3]; ;
       p3 = halo.PHALO_pseudo(k,mgcamb)/mypk[i][4];
 
       if(fabs(p1-1.)>0.01 || fabs(p2-1.)>0.01 || fabs(p3-1.)>0.01){

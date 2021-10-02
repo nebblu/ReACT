@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 from distutils.command.install import install as _install
 from distutils.command.clean import clean as _clean
-from setuptools.command.build_py import build_py as _build_py    
+from setuptools.command.build_py import build_py as _build_py
 from setuptools.command.develop import develop as _develop
 
 import subprocess
@@ -15,11 +15,9 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 
 def compile_library(env):
     subprocess.check_call(["make"], env=env, cwd="pyreact")
-    # shutil.copy(os.path.join(here, "cl_to_xi/libwigner.so"), os.path.join(here, "tpst/libwigner.so"))
 
 def clean_library(env={}):
     subprocess.check_call(["make", "clean"], env=env, cwd="pyreact")
-    # os.remove(os.path.join(here, "tpst/libwigner.so"))
 
 class build(_build_py):
     def run(self):
@@ -53,6 +51,7 @@ setup(name = "pyreact",
       author            = "Tilman Troester",
       author_email      = "tilmantroester@gmail.com",
       packages = ["pyreact"],
+      version='1.0.0',
       package_data = {"" : LIBS,},
       install_requires = ['numpy'],
       cmdclass={"install"   : install,
@@ -60,4 +59,3 @@ setup(name = "pyreact",
                 "build_py"  : build,
                 "clean"     : clean},
         )
-

@@ -720,7 +720,7 @@ static double ploopn2_mgdd_pseudo( const PowerSpectrum& P_L, double vars[], int 
         iow.initn2_pseudo(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],vars[6],model);
         p22 = pow2(F2_nk);
         p13 = F1_nk*F3_nk;
-	
+
 	// for full pseudo we need to multiply by the modified growth / LCDM growth
         double normalisation = pow4(F1_nk);
 
@@ -821,7 +821,7 @@ static double ploopn2_mgdd_pseudo_nu( const PowerSpectrum& P_L, double vars[], i
         iow.initn2_pseudo(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],vars[6],model);
         p22 = pow2(F2_nk);
         p13 = F3_nk;
-	
+
     return pow2(r)*2.*(P_L(k*r)/pow2(F1p_nk))*( (P_L(kargs[0])/pow2(F1kmp_nk))*p22 + 3.*(P_L(k)/F1_nk)*p13 );
 }
 
@@ -951,14 +951,22 @@ for(int zi = 0; zi<noz; zi++){
 
 
 
-//16/03/2021:  Work in progress - needs to be updated to be used in cosmosis
-// BILL MOD
-// In its current form this function is broken as it requires P_L(k, z) at
-// multiple redshifts as input instead of only P_L(k,0) and this currently
-// can't be done.
+// P_loop(k0,z) array initialisation for real and pseudo spectra used in reactions including massive neutrinos: 2105.12114
+// pkz0 is the P_{L,cb}(k,z) at 'redshifts' and for all integrated k0
+// pkz1 is the P_{L,cb} at 'redshifts' and for all integrated k1
+// pkz2 is the P_{L,cb} at 'redshifts' and for all integrated k2
+// pkz0p is the P_{L,m}(k,z) at 'redshifts' and for all integrated k0
+// pkz1p is the P_{L,m} at 'redshifts' and for all integrated k1
+// pkz2p is the P_{L,m} at 'redshifts' and for all integrated k2
+// ploopr - real spectrum array to be filled by ploop_init_nu
+// ploopp - pseudo spectrum array to be filled by ploop_init_nu
+// redshifts - list of redshifts to compute spectra at
+// noz - number of redshifts
+// vars:  1 = omega0,  2 = mg param
+// k0 - scale at which to compute Spectra
 
-/*
-void SPT::ploop_init_nu(double ploopr[], double ploopp[], double redshifts[], int noz, double vars[], double k0){
+
+void SPT::ploop_init_nu(double pkz0[], double pkz1[][50], double pkz2[][50*32], double pkz0p[], double pkz1p[][50], double pkz2p[][50*32], double ploopr[], double ploopp[], double redshifts[], int noz, double vars[], int model, double k0){
   IOW iow;
 
   double res[noz],resp[noz]; // stores loop integral results for real and pseudo spectra
@@ -1002,7 +1010,9 @@ void SPT::ploop_init_nu(double ploopr[], double ploopp[], double redshifts[], in
           kargs[1] = sqrt(kv[2]*kv[2]+2.*kv[2]*kv[0]*xv[2]+kv[0]*kv[0]);
           kargs[3] = sqrt(kv[0]*kv[0]+2.*kv[0]*kv[1]*xv[1]+kv[1]*kv[1]);
           // solve differential equations numerically
-          iow.initn3(redshifts, noz, kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],mykernelarray);
+          iow.initn3(redshifts, noz, kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],mykernelarray, vars[6], model);
+
+        //  printf("%d \n", i);
 
  	  double p22[noz],p13[noz], p22p[noz],p13p[noz];
           // assign all redshifts
@@ -1011,11 +1021,12 @@ void SPT::ploop_init_nu(double ploopr[], double ploopp[], double redshifts[], in
             p13[zi] = mykernelarray[zi][0]*mykernelarray[zi][4]; // mykernelarray[zi][0] is F1, mykernelarray[zi][4] is F3
             p22p[zi] = pow2(mykernelarray[zi][8]); // mykernelarray[zi][8] is F2_noscr
             p13p[zi] = mykernelarray[zi][6]*mykernelarray[zi][10]; // mykernelarray[zi][6] is F1_noscr, mykernelarray[zi][10] is F3_noscr
-	   if(kargs[0]<1e-4){
-		kargs[0] =1e-4;
+
+    if(kargs[0]<1e-4){
+		    kargs[0] =1e-4;
 	    }
-	       temp_ps[zi][i] = pow2(k2val[k2i])*2.*(P_L(kv[1])/pow2(mykernelarray[zi][14]))*((P_L(kargs[0])/pow2(mykernelarray[zi][12]))*p22[zi] + 3.*(P_L(k0)/pow2(mykernelarray[zi][0]))*p13[zi]);
-          temp_psp[zi][i] = pow2(k2val[k2i])*2.*(P_L(kv[1])/pow2(mykernelarray[zi][18]))*((P_L(kargs[0])/pow2(mykernelarray[zi][16]))*p22p[zi] + 3.*(P_L(k0)/pow2(mykernelarray[zi][6]))*p13p[zi]);
+	      temp_ps[zi][i] = pow2(k2val[k2i])*2.*(pkz1[zi][k2i]/pow2(mykernelarray[zi][14]))*((pkz2[zi][i*loop_N+k2i]/pow2(mykernelarray[zi][12]))*p22[zi] + 3.*(pkz0[zi]/pow2(mykernelarray[zi][0]))*p13[zi]);
+        temp_psp[zi][i] = pow2(k2val[k2i])*2.*(pkz1p[zi][k2i]/pow2(mykernelarray[zi][18]))*((pkz2p[zi][i*loop_N+k2i]/pow2(mykernelarray[zi][16]))*p22p[zi] + 3.*(pkz0p[zi]/pow2(mykernelarray[zi][6]))*p13p[zi]);
 	 }
 
   // save angular integral per redshift
@@ -1034,17 +1045,17 @@ for(int zi = 0; zi<noz; zi++){
 	 }
       }
 
-// assign values of 1-loop spectra to arrays
-  for(int zi=0; zi<noz; zi++){
-    double tree = P_L(k0);
-    double loop = pow3(k0)/(4*M_PI*M_PI) * res[zi];
-    double loopp = pow3(k0)/(4*M_PI*M_PI) * resp[zi];
-    ploopr[zi] = tree + loop;
-    ploopp[zi] = tree + loopp;
-}
-}
+  // assign values of 1-loop spectra to arrays
+    for(int zi=0; zi<noz; zi++){
+      double tree = pkz0[zi];
+      double treep = pkz0p[zi];
+      double loop = pow3(k0)/(4*M_PI*M_PI) * res[zi];
+      double loopp = pow3(k0)/(4*M_PI*M_PI) * resp[zi];
+      ploopr[zi] = tree + loop;
+      ploopp[zi] = treep + loopp;
+  }
+  }
 
-*/
 
 ////////////////////////////////////////////////
 ///////HALO-FIT FOR NON-SCALE DEP MODELS : takashi et al 2012 fits  1208.2701///////////

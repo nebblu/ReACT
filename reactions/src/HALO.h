@@ -18,8 +18,8 @@ public:
   HALO(const Cosmology& C, const PowerSpectrum& P_l, const PowerSpectrum& P_cb,const PowerSpectrum& P_nu,const PowerSpectrum& P_cbl, real epsrel = 1e-4);
 
 // initialise spherical collapse quantities
-      int scol_init(double vars[], bool mgcamb = false , int model = 1) const;
-      int scol_initp(double vars[], bool mgcamb = false) const;
+      int scol_init(double vars[], bool modcamb = false , int model = 1) const;
+      int scol_initp(double vars[], bool modcamb = false) const;
 
 // halo model components
       double rvirial(double Mvir, double vars[]) const;
@@ -38,24 +38,23 @@ public:
       double one_halo(double k, double vars[]) const;
       double one_halop(double k, double vars[]) const;
 
-// reactions
-      void react_init(double vars[], bool modg = true, int model = 1) const;
-      void react_init2(double vars[],Spline ploopr, Spline ploopp, bool modg = true) const;
-      double reaction(double k, double vars[], bool mgcamb = false) const;
 
 // reactions with massive neutrinos
-      void react_init_nu(double vars[], bool mgcamb = false, bool modg = true, int model = 1) const;
-      double reaction_nu(double k, double vars[], bool mgcamb = true) const;
+      void react_init_nu(double vars[], bool modcamb = false, bool modg = true, int model = 1) const;
+// for multiple redshifts - P_1-loop(k0,z) is initialised as a spline beforehand - see SPT.h : ploop_init or ploop_init_nu
+      void react_init_nu_multiz(double vars[], Spline ploopr, Spline ploopp, bool modcamb=false , bool modg = true) const;
 
-// Multiple redshift intialisation for cosmosis - work in progress
-//  void react_init_nu2(double vars[], Spline ploopr, Spline ploopp, bool mgcamb = false, bool modg = true) const;
-
-
+// reaction function
+      double reaction_nu(double k, double vars[], bool modcamb = true) const;
 // 1-loop SPT reaction
-      double reaction_spt(double k0, double vars[], bool mgcamb = false, int model = 1) const;
+      double reaction_spt(double k0, double vars[], bool modcamb = false, int model = 1) const;
+
 
 // Initialise everything for single redshift
-      void initialise(double vars[], bool  mgcamb = false, bool modg = true, int model = 1) const;
+      void initialise(double vars[], bool  modcamb = false, bool modg = true, int model = 1) const;
+
+// Optimised initialisation for multiple redshifts - requires that 1-loop spectra P_{real}(k0,z) & P_{pseudo}(k0,z) as a function of z is initialised
+      void initialise_multiz(double vars[], Spline ploopr, Spline ploopp, bool  modcamb = false, bool modg = true, int model = 1) const;
 
 // Linear spectrum for CosmoSIS
       double plinear_cosmosis(double k) const;
@@ -64,9 +63,9 @@ public:
       double Lin_Grow(double k) const;
 
 // halofit pseudo spectrum
-      double PHALO_pseudo(double k, bool mgcamb = false) const;
+      double PHALO_pseudo(double k, bool modcamb = false) const;
       // initialiser for halofit quantities - vars is as in all other functions, only call once for all k but at fixed scale factor(a = vars[0])
-      void phinit_pseudo(double vars[], bool mgcamb = false)const;
+      void phinit_pseudo(double vars[], bool modcamb = false)const;
 
 // extras
       // density profile in real and fourier space (see expression in .cpp to edit to desired profile )

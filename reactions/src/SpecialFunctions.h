@@ -134,7 +134,7 @@ public:
     void initnorm(double vars[], int model = 1); // wCDM and LCDM power spectrum normalisation  - roughly the same as above function but with no MG and with dark energy. It solves at a=1 to normalise general spectrum as well solves with LCDM at given a
     void initn2(double A, double k[], double x[], double kargs[], double omega0, double par1, double par2, double par3, double omeganu, int model = 1 ); // 1-loop kernel solver
     void initn2_pseudo(double A, double k[], double x[], double kargs[], double omega0, double par1, double par2, double par3, double omeganu, int model = 1 ); // 1-loop pseudo spectrum kernel solver
-    void initn3(double redshifts[], int noz, double k[], double x[], double kargs[], double omega0, double par1, double par2, double par3, double mykernelarray[][20], int model = 1 ); // 1-loop kernel (real and pseudo) solver for array of redshifts -- used in reaction for lensing
+    void initn3(double redshifts[], int noz, double k[], double x[], double kargs[], double omega0, double par1, double par2, double par3, double mykernelarray[][20], double omeganu = 0. , int model = 1 ); // 1-loop kernel (real and pseudo) solver for array of redshifts -- used in reaction for lensing
     void initn_rsd(double A, double k[], double x[], double kargs[], double omega0, double par1, double par2, double par3, int model = 1 ); // 1-loop TNS solver (also solves for ABC correction term kernels)
 
 };

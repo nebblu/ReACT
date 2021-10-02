@@ -867,7 +867,7 @@ void IOW::initn2_pseudo(double A, double k[], double x[], double kargs[], double
 
 // Used to store kernel values for various redshifts for lensing computation (see HALO.cpp and SPT.cpp - react_init and PLOOPn2 functions respectively)
 // BILL MOD
-void IOW::initn3(double redshifts[], int noz, double k[], double x[], double kargs[], double omega0, double par1, double par2, double par3,double mykernelarray[][20], int model){
+void IOW::initn3(double redshifts[], int noz, double k[], double x[], double kargs[], double omega0, double par1, double par2, double par3,double mykernelarray[][20], double omeganu, int model){
 				if(redshifts[0]>2.5){
 					warning("SpecialFunctions: highest z unstable, should be 2.5 or less: z max = %e \n", redshifts[0]);
 				}
@@ -883,7 +883,7 @@ void IOW::initn3(double redshifts[], int noz, double k[], double x[], double kar
 
 			/*Parameters passed to system of equations */
       // EDIT : If more than one gravity parameter is used, add them after p1
-				struct param_type3 my_params1 = {k[0],x[0],k[1],x[1],k[2],x[2],omega0, par1, par2, par3,kargs[0],kargs[1],kargs[2],kargs[3],0., model};
+				struct param_type3 my_params1 = {k[0],x[0],k[1],x[1],k[2],x[2],omega0, par1, par2, par3,kargs[0],kargs[1],kargs[2],kargs[3],omeganu, model};
 
 				gsl_odeiv2_system sys = {funcn1, jac, 14, &my_params1};
 				gsl_odeiv2_system sysp = {funcn1_pseudo, jac, 14, &my_params1};

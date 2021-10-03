@@ -542,9 +542,9 @@ extern "C" {
         /* PART 4: Store results to output arrays */
             for(int i =0; i < *N_k;  i ++) {
                 output_react[i*(*N_z)+j] =  myreact(kvals[i]);
-                output_pl[i*(*N_z)+j] = mylps[j](kvals[i]);
+                output_pl[i*(*N_z)+j] = mylps[4*j](kvals[i]);
                 if(*verbose > 1) {
-                    printf(" %e %e %e \n",zvals[j], kvals[i], mylps[j](kvals[i]));
+                    printf(" %e %e %e \n",zvals[j], kvals[i], mylps[4*j](kvals[i]));
                 }
             }
         }

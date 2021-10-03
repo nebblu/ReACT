@@ -119,15 +119,15 @@ These flags are evident in the new example file reactions/examples/reactions_mnu
 
 **modg**: Tells ReACT to manually set $k_\star$ and $\mathcal{E}$ to LCDM values (1e-6 and 1. resp.). This is needed because of sensitivity of $\mathcal{E}$ to the ratio of 1-halo terms which may not be exactly equal at large scales for different cosmologies even when modified gravity isn't present. 
 
-**mgcamb**:  Tells ReACT whether or not to treat the input transfer function file as the full real transfer function at the target redshift (as produced by MGCAMB) - true value - or as a z=0, LCDM transfer (two columns k[h/Mpc] and T(k) normalised to 1. at small k) - false value. 
+**modcamb**:  Tells ReACT whether or not to treat the input transfer function file as the full real transfer function at the target redshift (as produced by MGCAMB for example) - true value - or as a z=0, LCDM transfer (two columns k[h/Mpc] and T(k) normalised to 1 at small k) - false value. 
 
 Note that the MGCAMB produced transfer should include columns for total matter (col 7), cdm + baryons (col 8) and massive neutrinos (col6). It does not need to be normalised to 1. at small k. There should be no header line in the transfer function file so this may need to be removed manually ( a segmentation fault will be thrown if it is not removed). 
 
 If these flags are not specified, ReACT will assume a LCDM, z=0 transfer is being fed  (mgcamb=false) with modified gravity active (modg = true), as in original version of the code, which is compatible with pyreact and the cosmoSIS module.  
 
-**Note** that Pyreact and the cosmoSIS module have not yet been extended to include massive neutrinos. 
+**Note** the cosmoSIS module has not yet been extended to include massive neutrinos. 
 
-**Note** Pyreact currently only accepts two model parameters. If you wish to upgrade to more input parameters, you will need to edit pyreact/react_wrapper.cpp and pyreact/react.py. Note that to keep the react cosmosis module functional, you will also need to make the relevant adjustments in the cosmosis folder. 
+**Note** Pyreact currently only accepts three model parameters. If you wish to upgrade to more input parameters, you will need to edit pyreact/react_wrapper.cpp and pyreact/react.py. Note that to keep the react cosmosis module functional, you will also need to make the relevant adjustments in the cosmosis folder. 
 
 ## Citation
 

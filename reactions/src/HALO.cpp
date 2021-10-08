@@ -911,7 +911,7 @@ double HALO::reaction_nu(double k, double vars[], bool modcamb) const {
   else{
     plm = P_l(k);
     plcb = P_cb(k);
-    plnu = P_nu(k);
+    plnu = fabs(P_nu(k)); // take absolute value to avoid negative values in spline when P_nu is very small.
       }
 
 // HM terms
@@ -1000,7 +1000,7 @@ if(!modcamb){
 else{
   plm = P_l(k0);
   plcb = P_cb(k0);
-  plnu = P_nu(k0);
+  plnu = fabs(P_nu(k0));
 
 // Real PT spectrum
   pspt = spt.PLOOPn2_nu(1, vars, model, k0, 1e-3) + p1h ;

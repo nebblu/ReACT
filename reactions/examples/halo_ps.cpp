@@ -82,7 +82,7 @@ double vars[8];
 iow.initnorm(vars,mymodel);
 /// initialise delta_c(M), a_vir(M), delta_avir(M) and v(M)
 halo.scol_init(vars,mgcamb,mymodel);
-halo.scol_initp(vars,mgcamb,mymodel);
+halo.scol_initp(vars,mgcamb);
 halo.react_init_nu(vars,mgcamb,modg,mymodel);
 
 //#pragma omp parallel for

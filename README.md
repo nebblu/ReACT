@@ -248,7 +248,9 @@ sundials-4.1.0
 
 2) Clone react_with_neutrinos branch:
 
-git clone -b react_with_neutrinos git@github.com:nebblu/ReACT.git
+```
+$ git clone -b react_with_neutrinos git@github.com:nebblu/ReACT.git
+```
 
 3) Add in sundials directory to pyreact/Makefile :
 
@@ -279,6 +281,8 @@ $ python3 setup.py develop --user
 
 ```
 $ g++ -I/home/bose/react_tutorial/ReACT/reactions/include -L/home/bose/react_tutorial/ReACT/reactions/lib -lcopter -lgsl -lstdc++ halo_ps.cpp -o test
+```
+
 ```
 $ ./test
 ```

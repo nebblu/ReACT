@@ -30,13 +30,16 @@ The ReACT extension makes use of a number of [gsl](http://www.gnu.org/software/g
 
 ### SUNDIALS
 
-For Spherical Collapse module (`reactions/src/SCOL.cpp`) you will also need the [SUNDIALS](https://computing.llnl.gov/projects/sundials) package version 4.0.
+For Spherical Collapse module (`reactions/src/SCOL.cpp`) you will also need the [SUNDIALS](https://computing.llnl.gov/projects/sundials) package version 4.0. **Note** that later versions of sundials may produce errors as they update their functions so please work with version 4. 
 
 Get these packages using your package manager of choice (e.g., `homebrew` on mac OS).
 
 One should also make sure that sundials is on your library path, for example 
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/bose/sundials/install_dir/lib64:${LD_LIBRARY_PATH} 
+
+### Python
+A recent version of python should be installed. I have worked with Python 3.6.8 without issue. 
 
 ## Installation
 The Python interface can then be installed with
@@ -55,6 +58,8 @@ or
 ```
 $ pip install -e .
 ```
+
+**See end of README for a linux specific installation guide** 
 
 ## Models of gravity and dark energy
 
@@ -226,4 +231,57 @@ PMG_Interpolation.cpp
 
 Note that the SpecialFunctions.cpp and SPT.cpp libraries in the extra_libraries folder
 contain some additional functions which are necessary for some of these extra libraries. Please contact benjamin.bose@unige.ch if you are interested in implementing these and encounter trouble in doing so. 
+
+
+
+## Linux specific instructions 
+
+**In all the following change the paths accordingly**
+
+1) Make sure the following are installed: python, sundials, g++, gsl. The versions I've tested with are:
+
+Python 3.6.8
+g++ (GCC) 8.5.0
+sundials-4.1.0
+
+2) Clone react_with_neutrinos branch:
+
+git clone -b react_with_neutrinos git@github.com:nebblu/ReACT.git
+
+3) Add in sundials directory to pyreact/Makefile :
+
+**Example:** 
+
+...
+
+$ LDFLAGS += -lgsl -lgslcblas -lsundials_cvode -lsundials_nvecserial -L/home/bose/sundials/instdir/lib64
+
+$ CPPFLAGS += -I/home/bose/sundials/instdir/include
+
+...
+
+$ cd $(COPTER_DIR) && CXXFLAGS="$(CXXFLAGS)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" CPPFLAGS="$(CPPFLAGS)" ./build_copter.sh
+
+
+4) Export sundials library to LD_LIBRARY_PATH:
+
+> export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/bose/sundials/instdir/lib64:${LD_LIBRARY_PATH}
+
+5) install react
+
+> python3 setup.py develop --user
+
+6) Check that everything is working. Go to the reactions/examples/ directory and try to run one of the example files. For example:
+
+> g++ -I/home/bose/react_tutorial/ReACT/reactions/include -L/home/bose/react_tutorial/ReACT/reactions/lib -lcopter -lgsl -lstdc++ halo_ps.cpp -o test
+
+> ./test
+
+Example output:
+
+$ 0 1.000000e-03 4.039658e+02 4.213977e+02 9.959108e-01 ...
+
+**Note** you may also need to export the copter library path to run the example files: 
+
+> export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/bose/react_tutorial/ReACT/reactions/lib:${LD_LIBRARY_PATH}
 

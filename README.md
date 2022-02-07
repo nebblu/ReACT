@@ -260,7 +260,9 @@ $ git clone -b react_with_neutrinos git@github.com:nebblu/ReACT.git
 ```
 LDFLAGS += -lgsl -lgslcblas -lsundials_cvode -lsundials_nvecserial -L/home/bose/sundials/instdir/lib64
 ```
+```
 CPPFLAGS += -I/home/bose/sundials/instdir/include
+```
 ```
 cd $(COPTER_DIR) && CXXFLAGS="$(CXXFLAGS)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" CPPFLAGS="$(CPPFLAGS)" ./build_copter.sh
 ```

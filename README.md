@@ -241,7 +241,9 @@ contain some additional functions which are necessary for some of these extra li
 1) Make sure the following are installed: python, sundials, g++, gsl. The versions I've tested with are:
 
 Python 3.6.8
+
 g++ (GCC) 8.5.0
+
 sundials-4.1.0
 
 2) Clone react_with_neutrinos branch:
@@ -252,36 +254,43 @@ git clone -b react_with_neutrinos git@github.com:nebblu/ReACT.git
 
 **Example:** 
 
-...
 
-$ LDFLAGS += -lgsl -lgslcblas -lsundials_cvode -lsundials_nvecserial -L/home/bose/sundials/instdir/lib64
-
-$ CPPFLAGS += -I/home/bose/sundials/instdir/include
-
-...
-
-$ cd $(COPTER_DIR) && CXXFLAGS="$(CXXFLAGS)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" CPPFLAGS="$(CPPFLAGS)" ./build_copter.sh
-
+```
+LDFLAGS += -lgsl -lgslcblas -lsundials_cvode -lsundials_nvecserial -L/home/bose/sundials/instdir/lib64
+```
+CPPFLAGS += -I/home/bose/sundials/instdir/include
+```
+cd $(COPTER_DIR) && CXXFLAGS="$(CXXFLAGS)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" CPPFLAGS="$(CPPFLAGS)" ./build_copter.sh
+```
 
 4) Export sundials library to LD_LIBRARY_PATH:
 
-> export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/bose/sundials/instdir/lib64:${LD_LIBRARY_PATH}
+```
+$ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/bose/sundials/instdir/lib64:${LD_LIBRARY_PATH}
+```
 
 5) install react
 
-> python3 setup.py develop --user
+```
+$ python3 setup.py develop --user
+```
 
 6) Check that everything is working. Go to the reactions/examples/ directory and try to run one of the example files. For example:
 
-> g++ -I/home/bose/react_tutorial/ReACT/reactions/include -L/home/bose/react_tutorial/ReACT/reactions/lib -lcopter -lgsl -lstdc++ halo_ps.cpp -o test
-
-> ./test
+```
+$ g++ -I/home/bose/react_tutorial/ReACT/reactions/include -L/home/bose/react_tutorial/ReACT/reactions/lib -lcopter -lgsl -lstdc++ halo_ps.cpp -o test
+```
+$ ./test
+```
 
 Example output:
 
+```
 $ 0 1.000000e-03 4.039658e+02 4.213977e+02 9.959108e-01 ...
+```
 
 **Note** you may also need to export the copter library path to run the example files: 
 
-> export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/bose/react_tutorial/ReACT/reactions/lib:${LD_LIBRARY_PATH}
-
+```
+$ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/bose/react_tutorial/ReACT/reactions/lib:${LD_LIBRARY_PATH}
+```

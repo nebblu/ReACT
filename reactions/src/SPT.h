@@ -112,8 +112,8 @@ public:
     real PTNSMnDGPq(real k, double barr[], real sigma_v, int a) const;
 
 
-  // modified gravity TNS and Kaiser model - numerically calculated
-  double PRSD_mg(int a, int b, double bias[], double vars[], int model, double sigma_v, double k, double err) const;
+    // modified gravity 1-loop, TNS and Kaiser model - numerically calculated
+    double PRSD_mg(int a, int b, double bias[], double vars[], int model, double pars[], double k, double err) const;
 
 /// lagrangian bias terms
   real Lag_bias(int a, real k, real bias[]) const;

@@ -1788,18 +1788,163 @@ static double ptns_lagb( const PowerSpectrum& P_L, double u0[], double vars[], i
   }
 
 
+  //// Integrands for numerical RSD SPT 1-loop spectrum //////
+  static double pspt( const PowerSpectrum& P_L, double u0[], double vars[], int model, double bk, double k, double r, double x){
+    double kargs[4],kv[3],xv[3], abct, pdd, pdd22, pdd13, pdt, pdt22, pdt13, ptt, ptt22, ptt13, prefac, plk, plkmp, plkr;
+    double d,d2,r2,r3,x2,x3,x4,r4,x6,x5;
+    prefac = k*k*k/(4*M_PI*M_PI)/pow4(dnorm_spt);
+    d = 1.+ r*r - 2.*r*x;
+    // tolerance for ode solver (see SpecialFunctions.cpp, initn2). This encounters a singularity if k'.-k' = -1 exactly.
+    double tol = 1e-8;
+
+    if(d < 1e-5){
+        return 0;
+      }
+
+      // The integrated |k'| is parametrised as k*r
+    IOW iow;
+          kv[0] = k;
+          kv[1] = k*r;
+          kv[2] = kv[1];
+          xv[0] = -1. + tol ;
+          xv[1] = x;
+          xv[2] = -x;
+          kargs[0] = sqrt(kv[1]*kv[1]+kv[0]*kv[0]-2.*kv[1]*kv[0]*xv[1]);
+          kargs[2] = sqrt(kv[1]*kv[1]+2.*kv[1]*kv[2]*xv[0]+kv[2]*kv[2]);
+          kargs[1] = sqrt(kv[2]*kv[2]+2.*kv[2]*kv[0]*xv[2]+kv[0]*kv[0]);
+          kargs[3] = sqrt(kv[0]*kv[0]+2.*kv[0]*kv[1]*xv[1]+kv[1]*kv[1]);
+          iow.initn_rsd(vars[0],kv,xv,kargs,vars[1],vars[2],vars[3],vars[4],model);
+
+          pdd22 = pow2(F2_nk);
+          pdd13 = F1_nk*F3_nk;
+          pdt22 = G2_nk*F2_nk;
+          pdt13 = 0.5*(G1_nk*F3_nk + F1_nk*G3_nk);
+          ptt22 = pow2(G2_nk);
+          ptt13 = G1_nk * G3_nk;
+
+          plk = P_L(k);
+          plkmp = P_L(kargs[0]);
+          plkr = P_L(k*r);
+
+          d2 = pow2(d);
+          r2 = pow2(r);
+          r3 = r2*r;
+          r4 = r2*r2;
+          x2 = pow2(x);
+          x3 = x2*x;
+          x4 = x3*x;
+          x5 = x4*x;
+          x6 = x5*x;
+
+  // 1-loop spectra
+           pdd = bk*bk*u0[4]*(prefac*r2*2.*plkr*(plkmp*pdd22+ 3.*plk*pdd13));
+           pdt = bk*u0[0]*(prefac*r2*2.*plkr*(plkmp*pdt22 + 3.*plk*pdt13));
+           ptt = u0[1]*(prefac*r2*2.*plkr*(plkmp*ptt22 + 3.*plk*ptt13));
+
+
+  // ab terms
+          double abc[10];
+          // 1st order kernels F1/G1(k-p)
+          abc[0] = F1kmp_nk;
+          abc[1] = G1kmp_nk/bk;
+          // 1st order kernels F1/G1(p)
+          abc[2] = F1p_nk;
+          abc[3] = G1p_nk/bk;
+          //symmetrized 2nd order kernels for ps F2/G2(p,k-p)
+          abc[4] = F2_nk;
+          abc[5] = G2_nk/bk;
+          //symmetrized 2nd order kernels F2/G2(-p,k)
+          abc[6] = F2B_nk;
+          abc[7] = G2B_nk/bk;
+          //symmetrized 2nd order kernels F2/G2(-k,k-p)
+          abc[8] = F2C_nk;
+          abc[9] = G2C_nk/bk;
+
+
+          // A terms
+          //u^2
+          abct = pow3(bk)/d*(
+                    -u0[0]*(F1_nk*r*(-2.*abc[8]*abc[1]*r*(r*x-1.)+abc[9]*(2.*abc[0]*x*d+abc[1]*r*(1.-x2)))*plk*plkmp // 10% discrep with analytic
+                    + abc[4]*r*(-2.*abc[2]*abc[1]*r*(-1.+r*x)+abc[3]*(2.*abc[0]*x*d+abc[1]*r*(1.-x2)))*plkr*plkmp // < 4%
+                    + F1_nk*r*(-2.*abc[7]*abc[2]*r*(r*x-1.)+abc[3]*(2.*abc[6]*x*d+abc[7]*r*(1.-x2)))*plk*plkr) // < 3%
+
+          //u^4
+          - u0[1]*(r*(2.*abc[8]*G1_nk/bk*abc[1]*r*(r*x-1.)+abc[9]*(G1_nk/bk*(-2.*abc[0]*x*d+abc[1]*r*(x2-1.))+F1_nk*abc[1]*(-2.*x+r*(-1.+3*x2))))*plk*plkmp // < 10% discrep with analytic up to k=0.5
+                  +r*(abc[4]*abc[1]*abc[3]*(-2.*x+r*(-1.+3.*x2))+abc[5]*(2.*abc[2]*abc[1]*r*(r*x-1.)+abc[3]*(-2.*abc[0]*x*d+abc[1]*r*(x2-1.))))*plkr*plkmp  // < 4% discrep up to k=0.5
+                  +r*(abc[3]*abc[7]*F1_nk*(-2.*x-r+3.*x2*r)+2.*abc[2]*G1_nk/bk*abc[7]*r*(r*x-1.)+G1_nk/bk*abc[3]*(-2.*abc[6]*x*d+abc[7]*r*(x2-1.)))*plk*plkr) // < 4 % discrep
+
+          //u^6
+          - u0[2]*(G1_nk/bk*abc[1]*abc[9]*r*(r+2.*x-3.*r*x2)*plk*plkmp
+                    +abc[3]*abc[1]*abc[5]*r*(r+2.*x-3.*r*x2)*plkr*plkmp
+                    +abc[3]*G1_nk/bk*abc[7]*r*(r+2.*x-3.*r*x2)*plkr*plk))
+
+          // B terms
+          + pow4(bk)*plkr*plkmp/(16.*d2)*
+          //u^2
+          (u0[0]*(abc[1]*abc[3]*r2*(x2-1.)*(2.*abc[0]*d*(4.*abc[2]+3.*abc[3]*(x2-1.))
+                     +abc[1]*r2*(x2-1.)*(6.*abc[2]+5.*abc[3]*(x2-1.))))
+          //u^4
+          +u0[1]*(abc[1]*abc[3]*r*(-4.*abc[0]*d*(3.*abc[3]*(x2-1.)*(-2.*x+r*(5.*x2-1.))+abc[2]*(-4*x+r*(-2.+6.*x2)))
+                         -3.*abc[1]*r*(x2-1.)*(4.*abc[2]*(2.-6.*r*x+r*r*(-1.+5.*x2))
+                         +abc[3]*(x2-1)*(6.-30.*r*x+5.*r*r*(-1.+7.*x2)))))
+          //u^6
+          +u0[2]*(abc[1]*abc[3]*r*(3.*abc[3]*abc[1]*(x2-1.)*(-8.*x+12.*r*(5.*x2-1.)-20.*r2*x*(7.*x2-3.)+5.*r3*(1.-14.*x2+21.*x4))
+                          +2.*abc[0]*abc[3]*(4.*x*(3.-5.*x2)+r3*(3.-30.*x2+35.*x4)+r*(3.-54.*x2+75.*x4)+r2*(6.*x+40.*x3-70.*x5))
+                          +2.*abc[2]*abc[1]*(-8.*x+12.*r*(3.*x2-1.)+r2*(36.*x-60.*x3)+r3*(3.-30.*x2+35.*x4))))
+          //u^8
+          +u0[3]*(pow2(abc[1]*abc[3])*r*(8.*x*(5.*x2-3.)-6.*r*(3.-30.*x2+35.*x4)
+                        +6.*r2*x*(15.-70.*x2+63.*x4)
+                        +r3*(5.-105.*x2+315.*x4-231.*x6))))
+
+          // C terms
+            + pow4(bk)*plkr*plkmp/(16.*d2)*pow2(abc[3])*
+            // u^2
+            (u0[0]*(8.*pow2(abc[0])*d2*(1.-x2) - 12.*abc[0]*abc[1]*d*(r2-2.*r2*x2+r2*x4)
+                    + pow2(abc[1])*(5.*r4 - 15.*r4*x2 + 15.*r4*x4 - 5.*r4*x6))
+            // u^4
+            +u0[1]*(8.*pow2(abc[0])*d2*(3.*x2-1.) - 4.*abc[0]*abc[1]*d*(4.-6.*r2-24.*r*x-4*x2+36.*r2*x2+24.*r*x3-30.*r2*x4)
+                    + pow2(abc[1])*(36.*r2 - 15.*r4 - 120.*r3*x - 72.*r2*x2 + 135.*r4*x2 +
+                      240.*r3*x3 + 36.*r2*x4 - 225.*r4*x4 - 120.*r3*x5 + 105.*r4*x6))
+            // u^6
+            +u0[2]*(-4.*abc[0]*abc[1]*d*(-4. + 3.*r2 + 24.*r*x + 12.*x2 - 30.*r2*x2 - 40.*r*x3 + 35.*r2*x4)
+                    + pow2(abc[1])*(8. - 72.*r2 + 15*r4 - 96.*r*x + 240.*r3*x - 8.*x2 + 432.*r2*x2 -
+                                      225.*r4*x2 + 96.*r*x3 - 800.*r3*x3 - 360.*r2*x4 + 525.*r4*x4 +
+                                      560.*r3*x5 - 315.*r4*x6))
+            // u^8
+            +u0[3]*pow2(abc[1])*(-8. + 36.*r2 - 5.*r4 + 96.*r*x - 120.*r3*x + 24.*x2 - 360.*r2*x2 +
+                                        105.*r4*x2 - 160.*r*x3 + 560.*r3*x3 + 420.*r2*x4 - 315.*r4*x4 -
+                                        504.*r3*x5 + 231.*r4*x6));
+
+        return  pdd - 2.*pdt + ptt + prefac*abct;
+      }
+
+
+
+// Velocity dispersion integrand
+static real vel_disp_lin(const PowerSpectrum& P_L, double vars[], int model, double q){
+  IOW iow;
+  iow.initn_lin(vars[0], q, vars[1],vars[2], vars[3],vars[4],model);
+  double growth = pow2(G1_nk/dnorm_spt);
+  return  P_L(q)*growth/(6.*pow2(M_PI));
+}
+
+
+// sigma_v^2
+real SPT::sigmav_init(double vars[], int model) const{
+    return Integrate(bind(vel_disp_lin, cref(P_L), vars, model, std::placeholders::_1), QMINp, QMAXp, epsrel);
+  }
+
 /////// REDSHIFT SPACE MODIFIED GRAVITY SPECTRUM ////////
-// a {0,..,3}  : 0=Kaiser, 1 = TNS q-bias, 2 = TNS lag bias (MG)
+// a {0,..,3}  : 0=Kaiser, 1 = TNS q-bias [1507.01592], 2 = TNS lag bias (MG) - incomplete!, 3 = 1-loop SPT (MG) [see Eq.23 of 1006.0699 for example]
 // b {1,2,3} :  1 = monopole, 2 = quadrupole, 3 = hexdecapole
 // bias[] :  0 = linear bias, 1,2 = qbias param or lagrangian bias params (b_2, N)
 // vars: 0 =  scale factor, 1= omega_m(z=0), 2 = mg param , 3 = mg param, 4 = mg param,
-// sigmav -  sigma_v free parameter
+// pars[0] -  sigma_v free parameter for TNS and Kaiser or velocity dispersion
 // err -  absolute error in differential equation solver
 
-
-double SPT::PRSD_mg(int a, int b, double bias[], double vars[], int model, double sigmav, double k, double err) const{
+double SPT::PRSD_mg(int a, int b, double bias[], double vars[], int model, double pars[], double k, double err) const{
 IOW iow;
-double linear, nonlinear, u0x[5], bk, bl, stoch;
+double linear, nonlinear, u0x[8], bk, bl, stoch, kaiser_term, myd2, myf, k2, b2;
 real KMAX = QMAXp/k;
 real KMIN = QMINp/k;
 double c[2] = {KMIN,-0.99999999};
@@ -1808,18 +1953,18 @@ switch (a) {
   case 0:
       bl = bias[0];
       iow.initn_lin(vars[0], k, vars[1],vars[2], vars[3], vars[4],model);
-      linear = pow2(F1_nk*bl/dnorm_spt)*(factL(k, sigmav, 1., 1., 0, b, 7)*P_L(k) - 2.*(G1_nk/F1_nk/bl)*factL(k, sigmav, 1., 1., 1, b, 7)*P_L(k) + pow2(G1_nk/F1_nk/bl)*factL(k, sigmav, 1., 1., 2, b, 7)* P_L(k));
+      linear = pow2(F1_nk*bl/dnorm_spt)*(factL(k, pars[0], 1., 1., 0, b, 7)*P_L(k) - 2.*(G1_nk/F1_nk/bl)*factL(k, pars[0], 1., 1., 1, b, 7)*P_L(k) + pow2(G1_nk/F1_nk/bl)*factL(k, pars[0], 1., 1., 2, b, 7)* P_L(k));
 
     return linear;
 
   case 1:
     bk =  bias[0]*sqrt((1.+bias[1]*pow2(k))/(1.+bias[2]*k));
 // multipole prefactors or powers of mu
-    u0x[0]=factL(k, sigmav, 1., 1., 1, b, 7);
-    u0x[1]=factL(k, sigmav, 1., 1., 2, b, 7);
-    u0x[2]=factL(k, sigmav, 1., 1., 3, b, 7);
-    u0x[3]=factL(k, sigmav, 1., 1., 4, b, 7);
-    u0x[4]=factL(k, sigmav, 1., 1., 0, b, 7);
+    u0x[0]=factL(k, pars[0], 1., 1., 1, b, 7);
+    u0x[1]=factL(k, pars[0], 1., 1., 2, b, 7);
+    u0x[2]=factL(k, pars[0], 1., 1., 3, b, 7);
+    u0x[3]=factL(k, pars[0], 1., 1., 4, b, 7);
+    u0x[4]=factL(k, pars[0], 1., 1., 0, b, 7);
     nonlinear = Integrate<2>(bind(ptns_qb,cref(P_L), u0x, vars, model, bk, k, std::placeholders::_1,std::placeholders::_2), c, d, err);
     linear = pow2(F1_nk*bias[0]/dnorm_spt)*(u0x[4]*P_L(k) - 2.*(G1_nk/F1_nk/bias[0])*u0x[0]*P_L(k) + pow2(G1_nk/F1_nk/bias[0])*u0x[1]*P_L(k));
 
@@ -1827,19 +1972,41 @@ switch (a) {
 
   case 2:
 // multipole prefactors or powers of mu
-    u0x[0]=factL(k, sigmav, 1., 1., 1, b, 7);
-    u0x[1]=factL(k, sigmav, 1., 1., 2, b, 7);
-    u0x[2]=factL(k, sigmav, 1., 1., 3, b, 7);
-    u0x[3]=factL(k, sigmav, 1., 1., 4, b, 7);
-    u0x[4]=factL(k, sigmav, 1., 1., 0, b, 7);
+    u0x[0]=factL(k, pars[0], 1., 1., 1, b, 7);
+    u0x[1]=factL(k, pars[0], 1., 1., 2, b, 7);
+    u0x[2]=factL(k, pars[0], 1., 1., 3, b, 7);
+    u0x[3]=factL(k, pars[0], 1., 1., 4, b, 7);
+    u0x[4]=factL(k, pars[0], 1., 1., 0, b, 7);
     nonlinear = Integrate<2>(bind(ptns_lagb,cref(P_L), u0x, vars, model, bias, k,std::placeholders::_1,std::placeholders::_2), c, d, err);
     linear = pow2(F1_nk*bias[0]/dnorm_spt)*(u0x[4]*P_L(k) - 2.*(G1_nk/F1_nk/bias[0])*u0x[0]*P_L(k) + pow2(G1_nk/F1_nk/bias[0])*u0x[1]*P_L(k));
     stoch =  u0x[4]*bias[2];
 
     return linear + nonlinear + stoch;
 
-    default:
-    warning("SPT: invalid indices, a = %d \n", a);
-        return 0;
+  case 3:
+      k2 = pow2(k);
+      b2 = pow2(bias[0]);
+  // multipole prefactors or powers of mu
+      u0x[0] = factL(k,  0., 1., 1., 1 , b,  1); // u2
+      u0x[1] = factL(k,  0., 1., 1., 2 , b,  1); // u4
+      u0x[2] = factL(k,  0., 1., 1., 3 , b,  1); // u6
+      u0x[3] = factL(k,  0., 1., 1., 4 , b,  1); // u8
+      u0x[4] = factL(k,  0., 1., 1., 0 , b,  1); // u0
+      u0x[5] = factL(k, pars[0]*k2, 1., 1., 0 , b,  8); // u0i : (k sigmav mu)^2  [pars[0] = sigmav]
+      u0x[6] = factL(k, pars[0]*k2, 1., 1., 1 , b,  8); // u2i : (k sigmav mu)^2 u^2
+      u0x[7] = factL(k, pars[0]*k2, 1., 1., 2 , b,  8); // u4i : (k sigmav mu)^2 u^4
+
+      nonlinear = Integrate<2>(bind(pspt,cref(P_L), u0x, vars, model, bias[0], k, std::placeholders::_1,std::placeholders::_2), c, d, err);
+      myd2 = pow2(F1_nk/dnorm_spt);
+      myf = -G1_nk/F1_nk;
+      linear = (u0x[4]*myd2*pow2(bias[0])*P_L(k) + 2.*u0x[0]*myd2*myf*bias[0]*P_L(k) + u0x[1]*myd2*pow2(myf)*b2*P_L(k));
+      kaiser_term = -(u0x[5]*myd2*pow2(bias[0])*P_L(k) + 2.*u0x[6]*myd2*myf*bias[0]*P_L(k) + u0x[7]*myd2*pow2(myf)*b2*P_L(k));
+
+
+      return linear + nonlinear + kaiser_term;
+
+  default:
+  warning("SPT: invalid indices, a = %d \n", a);
+      return 0;
     }
   }

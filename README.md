@@ -30,7 +30,7 @@ The ReACT extension makes use of a number of [gsl](http://www.gnu.org/software/g
 
 ### SUNDIALS
 
-For Spherical Collapse module (`reactions/src/SCOL.cpp`) you will also need the [SUNDIALS](https://computing.llnl.gov/projects/sundials) package version 4.0. **Note** that later versions of sundials may produce errors as they update their functions so please work with version 4. 
+For Spherical Collapse module (`reactions/src/SCOL.cpp`) you will also need the [SUNDIALS](https://computing.llnl.gov/projects/sundials) package version 4.1.0 (also tested to work with version 5.0) **Note** that later versions of sundials may produce errors as they update their functions so please work with version 4.1.0 
 
 Get these packages using your package manager of choice (e.g., `homebrew` on mac OS).
 

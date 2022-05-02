@@ -13,8 +13,8 @@
 * [Citation](https://github.com/nebblu/ReACT#citation)
 * [Notes on parameter ranges](https://github.com/nebblu/ReACT#notes-on-parameter-ranges-updated-220321)
 * [Miscellaneous](https://github.com/nebblu/ReACT#miscellaneous-notes-280520)
-* [Additional Libraries](https://github.com/nebblu/ReACT#additional-libraries)
-* [Linux specific installtion](https://github.com/nebblu/ReACT#linux-specific-instructions)
+* [Additional Libraries](https://github.com/nebblu/ReACT#additional-libraries-from-old-versions-of-mg-copter)
+* [Linux specific installtion](https://github.com/nebblu/ReACT#linux-specific-installation)
 
 ## Introduction
 
@@ -75,7 +75,7 @@ or
 $ pip install -e .
 ```
 
-**See [here](https://github.com/nebblu/ReACT#linux-specific-instructions) for a linux specific installation guide** 
+**See [here](https://github.com/nebblu/ReACT#linux-specific-installation) for a linux specific installation guide** 
 
 ## Models of gravity and dark energy
 

@@ -2,6 +2,20 @@
 # ReACT with massive neutrinos
 ## This branch is a first implementation of massive neutrinos (1909.02561) into the basic ReACT code. 
 
+## Table of contents: 
+
+* [Introduction](https://github.com/nebblu/ReACT#introduction)
+* [Requirements](https://github.com/nebblu/ReACT#requirements)
+* [Installation](https://github.com/nebblu/ReACT#installation)
+* [Models of gravity and dark energy](https://github.com/nebblu/ReACT#models-of-gravity-and-dark-energy)
+* [Running ReACT](https://github.com/nebblu/ReACT#running-react)
+* [Massive neutrinos](https://github.com/nebblu/ReACT#extended-react-massive-neutrinos-with-modified-gravity-andor-evolving-dark-energy)
+* [Citation](https://github.com/nebblu/ReACT#citation)
+* [Notes on parameter ranges](https://github.com/nebblu/ReACT#notes-on-parameter-ranges-updated-220321)
+* [Miscellaneous](https://github.com/nebblu/ReACT#miscellaneous-notes-280520)
+* [Additional Libraries](https://github.com/nebblu/ReACT#additional-libraries)
+* [Linux specific installtion](https://github.com/nebblu/ReACT#linux-specific-instructions)
+
 ## Introduction
 
 ReACT is an extension of the software package Copter (0905.0479) and MG-Copter (1606.02520) which allows for the calculation of redshift and real space large scale structure observables for a wide class of gravity and dark energy models. 
@@ -21,6 +35,7 @@ Additions to original Copter code http://mwhite.berkeley.edu/Copter/:
 * Numerical perturbation theory kernel solver up to 4th order for 1-loop bispectrum (1808.01120): `reactions/src/BSPTN.cpp`
 
 ## Requirements
+
 ### C++ Compiler and automake
 ReACT is written in C++, so you'll need a relatively modern C++ compiler.
 It also uses automake.
@@ -41,6 +56,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/bose/sundials/install_dir/lib64:${
 ### Python
 A recent version of python should be installed. I have worked with Python 3.6.8 without issue. 
 
+
 ## Installation
 The Python interface can then be installed with
 ```
@@ -59,7 +75,7 @@ or
 $ pip install -e .
 ```
 
-**See end of README for a linux specific installation guide** 
+**See [here](https://github.com/nebblu/ReACT#linux-specific-instructions) for a linux specific installation guide** 
 
 ## Models of gravity and dark energy
 
@@ -112,7 +128,7 @@ Then just run
 > ./test 
 
 
-## 22/03/2021: Extended ReACT: massive neutrinos with modified gravity and/or evolving dark energy. 
+## Extended ReACT: massive neutrinos with modified gravity and/or evolving dark energy. 
 
 We have made extensions to the ReACT framework to include the effects of massive neutrinos, combining [1909.02561](https://arxiv.org/abs/1909.02561) and [1812.05594](https://arxiv.org/abs/1812.05594).  To accommodate massive neutrino effects, ReACT now has the option to take the 'real' cosmology's transfer function at the target redshift as produced by MGCAMB (as opposed to the LCDM transfer at z=0). The 1-loop perturbation theory part of the reaction is then approximated by neglecting beyond linear order massive neutrino effects as described in [1902.10692](https://arxiv.org/abs/1902.10692).
 
@@ -203,7 +219,7 @@ Respective bibtex entries:
 * If errors in spherical collapse are experienced for non-f(R) theories, try setting yenvf=0 in the scol_init function in reactions/src/HALO.cpp.
 * Note if using the stand-alone version of ReACT, the reaction may have deviations away from unity of the order of ~0.1-0.3% for k<1e-3. Pyreact automatically sets it to unity at such large scales. 
 
-## Additional Libraries from old versions of MG-Copter 
+## Additional Libraries (from old versions of MG-Copter) 
 
 There are additional libraries which you can (try to!) add in in the reactions/src/extra_libraries folder:
 
@@ -234,7 +250,7 @@ contain some additional functions which are necessary for some of these extra li
 
 
 
-## Linux specific instructions 
+## Linux specific installation 
 
 **In all the following change the paths accordingly**
 

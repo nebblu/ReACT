@@ -91,7 +91,9 @@ bias[0] = 1.; // b1
 bias[1] = 0.; // b2
 bias[2] = 0.; // stochasticity
 
-double sigmav = 5.5; // velocity dispersion
+double pars[3];
+pars[0] = 5.5; // velocity dispersion parameter for TNS
+	
 double err = 1e-2; //  absolute error in differential equation solver for numerical PT kernels
 
 
@@ -103,9 +105,9 @@ for(int i =0; i <Nk;  i ++) {
 
   p1 = spt.PLOOPn2(0, vars, mymodel, k, 1e-3); // linear spectrum
   p2 = spt.PLOOPn2(1, vars, mymodel, k, 1e-3); // 1-loop spectrum
-  p3 = spt.PRSD_mg(2,1,bias,vars, mymodel,sigmav,k,err); // TNS monopole
-  p4 = spt.PRSD_mg(2,2,bias,vars, mymodel,sigmav,k,err); // TNS quadrupole
-  p5 = spt.PRSD_mg(2,3,bias,vars, mymodel,sigmav,k,err); // TNS hexdecapole
+  p3 = spt.PRSD_mg(2,1,bias,vars, mymodel,pars,k,err); // TNS monopole
+  p4 = spt.PRSD_mg(2,2,bias,vars, mymodel,pars,k,err); // TNS quadrupole
+  p5 = spt.PRSD_mg(2,3,bias,vars, mymodel,pars,k,err); // TNS hexdecapole
 
 
      printf("%e %e %e %e %e %e \n", k, p1,p2,p3,p4,p5); // print to terminal

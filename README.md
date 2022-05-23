@@ -51,7 +51,10 @@ Get these packages using your package manager of choice (e.g., `homebrew` on mac
 
 One should also make sure that sundials is on your library path, for example 
 
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/bose/sundials/install_dir/lib64:${LD_LIBRARY_PATH} 
+```
+$ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/bose/sundials/install_dir/lib64:${LD_LIBRARY_PATH} 
+```
+
 
 ### Python
 A recent version of python should be installed. I have worked with Python 3.6.8 without issue. 

@@ -7,6 +7,10 @@ CFLAGS += -fPIC
 CXXFLAGS += -Wall -fPIC -std=c++11
 LDFLAGS += -lgsl -lgslcblas -lsundials_cvode -lsundials_nvecserial
 
+# Insert the paths to sundials lib and include folders
+LDFLAGS +=
+CPPFLAGS +=
+
 # clang uses a different libstdc++ than GCC. Also remove OpenMP when using clang
 ifneq (,$(findstring clang,$(shell '$(CXX)' -v 2>&1)))
 LDFLAGS += -lc++
@@ -22,7 +26,7 @@ $(WRAPPER_LIB): react_wrapper.cpp $(COPTER_LIB)
 
 $(COPTER_LIB):
 	@echo "\nBuilding COPTER\n"
-	cd $(COPTER_DIR) && CXXFLAGS="$(CXXFLAGS)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" ./build_copter.sh
+	cd $(COPTER_DIR) && CXXFLAGS="$(CXXFLAGS)" CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" CPPFLAGS="$(CPPFLAGS)" ./build_copter.sh
 
 # Clean up
 .PHONY: clean

@@ -53,7 +53,6 @@ int main() {
 
     Cosmology C(cstr);
     LinearPS P_l(C, z);
-    HALO halo(C, P_l, P_l, P_l, epsrel);
     BSPT bspt(C, P_l, epsrel);
     SPT spt(C, P_l, epsrel);
 

@@ -249,7 +249,7 @@ Interpolator in modified gravity theory param space:
 PMG_Interpolation.cpp 
 
 Note that the SpecialFunctions.cpp and SPT.cpp libraries in the extra_libraries folder
-contain some additional functions which are necessary for some of these extra libraries. Please contact benjamin.bose@unige.ch if you are interested in implementing these and encounter trouble in doing so. 
+contain some additional functions which are necessary for some of these extra libraries. Please contact ben.bose@ed.ac.uk if you are interested in implementing these and encounter trouble in doing so. 
 
 
 

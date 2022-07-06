@@ -190,24 +190,32 @@ Respective bibtex entries:
 
 ```
 @article{Bose:2020wch,
-    author = "Bose, Benjamin and Cataneo, Matteo and Tröster, Tilman and Xia, Qianli and Heymans, Catherine and Lombriser, Lucas",
-    title = "{On the road to per-cent accuracy IV: ReACT -- computing the non-linear power spectrum beyond $\Lambda$CDM}",
+    author = {Bose, Benjamin and Cataneo, Matteo and Tr\"oster, Tilman and Xia, Qianli and Heymans, Catherine and Lombriser, Lucas},
+    title = "{On the road to per cent accuracy IV: ReACT \textendash{} computing the non-linear power spectrum beyond \ensuremath{\Lambda}CDM}",
     eprint = "2005.12184",
     archivePrefix = "arXiv",
     primaryClass = "astro-ph.CO",
-    month = "5",
+    doi = "10.1093/mnras/staa2696",
+    journal = "Mon. Not. Roy. Astron. Soc.",
+    volume = "498",
+    number = "4",
+    pages = "4650--4662",
     year = "2020"
 }
 ```
 
 ```
 @article{Bose:2021mkz,
-    author = "Bose, Benjamin and Wright, Bill S. and Cataneo, Matteo and Pourtsidou, Alkistis and Giocoli, Carlo and Lombriser, Lucas and McCarthy, Ian G. and Baldi, Marco and Pfeifer, Simon and Xia, Qianli",
-    title = "{On the road to percent accuracy V: the non-linear power spectrum beyond $\Lambda$CDM with massive neutrinos and baryonic feedback}",
+    author = "Bose, Benjamin and Wright, Bill S. and Cataneo, Matteo and Pourtsidou, Alkistis and Giocoli, Carlo and Lombriser, Lucas and McCarthy, Ian G. and Baldi, Marco and Pfeifer, Simon and Xia., Qianli",
+    title = "{On the road to per cent accuracy \textendash{} V. The non-linear power spectrum beyond \ensuremath{\Lambda}CDM with massive neutrinos and baryonic feedback}",
     eprint = "2105.12114",
     archivePrefix = "arXiv",
     primaryClass = "astro-ph.CO",
-    month = "5",
+    doi = "10.1093/mnras/stab2731",
+    journal = "Mon. Not. Roy. Astron. Soc.",
+    volume = "508",
+    number = "2",
+    pages = "2479--2491",
     year = "2021"
 }
 ```

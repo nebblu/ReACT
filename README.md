@@ -104,10 +104,17 @@ As examples, the Hu Sawicki, nDGP and GR versions of these functions have been i
 
 ### Adding in models
 
-One can add in new models. As a default, a maximum of 3 theory parameters have been allowed for. 
-There are instructions within the SpecialFunction.cpp file to include more than 
-3 theory parameters. The entire file is heavily commented so that 
-making any additional edits shouldn't be (too) difficult. Note there may be some issues with dependencies when adding more than 3 theory parameters - this needs to be tested.  
+One can add in new models by creating a new 'case' in the following functions within reactions/src/SpecialFunctions.cpp:
+
+* HAg : the normalised Hubble function : H(a)/H(a=1) = H/H_0
+* HA1g : the normalised time derivative of the Hubble function : dH(t)/dt  / H_0^2 
+* WEFF: the effective dark energy contribution to the virial theorem (see Eq.A9 of 1812.05594) 
+* mu: the linear modification to the Poisson equation  
+* gamma2 : the 2nd order modification to the Poisson equation  
+* gamma3: the 3rd order modification to the Poisson equation  
+* mymgF : the non-linear modification to the Poisson equation 
+
+As a default, a maximum of 3 theory parameters have been allowed for (p1,p2,p3). There are instructions within the SpecialFunction.cpp file to include more than 3 theory parameters. The entire file is heavily commented so that making any additional edits shouldn't be (too) difficult. Note there may be some issues with dependencies when adding more than 3 theory parameters - this needs to be tested.  
 
 
 ## Running ReACT

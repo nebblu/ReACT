@@ -144,11 +144,11 @@ We have made extensions to the ReACT framework to include the effects of massive
 
 **Note on transfer function**: For the example file reactions/examples/reaction_mnu.cpp, the transfer function given to ReACT should have column 6,7,8 correspond to massive neutrinos, total matter and cdm+baryons respectively. This file should be headerless. 
 
-We have introduced two new flags when computing the reaction. These are then fed to a global initialiser '$initialise$' that calculates linear growth rates, performs modified and unmodified spherical collapse, as well as calculation of $k_\star$ and $\mathcal{E}$.   
+We have introduced two new flags when computing the reaction. These are then fed to a global initialiser '$initialise$' that calculates linear growth rates, performs modified and unmodified spherical collapse, as well as calculation of $k_*$ and $E$.   
 
 These flags are evident in the new example file reactions/examples/reactions_mnu.cpp which computes the wCDM + massive neutrino reaction and halofit pseudo spectrum for a target cosmology and transfer function. Specifically, the flags perform the following roles
 
-**modg**: Tells ReACT to manually set $k_\star$ and $\mathcal{E}$ to LCDM values (1e-6 and 1. resp.). This is needed because of sensitivity of $\mathcal{E}$ to the ratio of 1-halo terms which may not be exactly equal at large scales for different cosmologies even when modified gravity isn't present. 
+**modg**: Tells ReACT to manually set $k_*$ and $E$ to LCDM values ($1e-6$ and $1.$ resp.). This is needed because of sensitivity of $E$ to the ratio of 1-halo terms which may not be exactly equal at large scales for different cosmologies even when modified gravity isn't present. 
 
 **modcamb**:  Tells ReACT whether or not to treat the input transfer function file as the full real transfer function at the target redshift (as produced by MGCAMB for example) - true value - or as a z=0, LCDM transfer (two columns k[h/Mpc] and T(k) normalised to 1 at small k) - false value. 
 

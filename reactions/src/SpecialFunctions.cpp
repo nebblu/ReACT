@@ -371,7 +371,7 @@ double mymgF(double a, double yh, double yenv, double Rth, double omega0, double
 
 		      delta = (1.+delta_initial)/pow3(yh) - 1.;
 
-		      xterm = 9.*pow2(betadgp)*p1/(2.*omega0/pow3(a)*delta);
+		      xterm = 9.*pow2(betadgp)*p1/(2.*omega0/pow3(a)*(1.+delta));
 
 		      xm3 = 1./xterm;
 

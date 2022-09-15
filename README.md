@@ -150,7 +150,7 @@ These flags are evident in the new example file reactions/examples/reactions_mnu
 
 **modg**: Tells ReACT to manually set $k_*$ and $E$ to LCDM values ($1e-6$ and $1.$ resp.). This is needed because of sensitivity of $E$ to the ratio of 1-halo terms which may not be exactly equal at large scales for different cosmologies even when modified gravity isn't present. 
 
-**modcamb**:  Tells ReACT whether or not to treat the input transfer function file as the full real transfer function at the target redshift (as produced by MGCAMB for example) - true value - or as a z=0, LCDM transfer (two columns k[h/Mpc] and T(k) normalised to 1 at small k) - false value. 
+**modcamb**:  Tells ReACT whether or not to treat the input transfer function file as the full real transfer function at the target redshift (as produced by MGCAMB for example) - true value - or as a z=0, General Relativity based transfer with the same target background expansion (two columns k[h/Mpc] and T(k) normalised to 1 at small k) - false value - if Hubble functions are kept to LCDM values, then this would just be a LCDM z=0 transfer. For the CPL case for example, this would assume a z=0 CPL transfer function. 
 
 Note that the MGCAMB produced transfer should include columns for total matter (col 7), cdm + baryons (col 8) and massive neutrinos (col6). It does not need to be normalised to 1. at small k. There should be no header line in the transfer function file so this may need to be removed manually ( a segmentation fault will be thrown if it is not removed). 
 
